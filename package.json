@@ -1,0 +1,11 @@
+{
+  "name": "college-football-pyramid",
+  "version": "1.0.0",
+  "description": "College football restructured as a two-tier league with promotion and relegation, plus a simulator",
+  "private": true,
+  "scripts": {
+    "build": "python3 build.py",
+    "test": "node test/smoke.js"
+  },
+  "devDependencies": { "jsdom": "^24.0.0" }
+}

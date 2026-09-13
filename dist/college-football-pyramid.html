@@ -1,0 +1,1727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Pyramid — College Football with Promotion and Relegation</title>
+<style>
+:root{
+  --field:#0c2318; --field2:#11301f; --field3:#17402a;
+  --chalk:#eef4ec; --muted:#87a292; --line:#23543a;
+  --northeast:#b388ff; --southeast:#ff6fa3; --central:#f9c74f; --western:#4cc9f0;
+  --up:#7ee787; --down:#ff7b72;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.022) 0 1px,transparent 1px 64px),
+    var(--field);
+  color:var(--chalk);
+  font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px; line-height:1.45; -webkit-text-size-adjust:100%;
+  font-variant-numeric:tabular-nums;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 14px 72px}
+header{padding:18px 0 10px}
+h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800;letter-spacing:-.035em}
+.titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.infobtn{background:transparent;border:1px solid var(--line);color:var(--muted);
+  border-radius:999px;padding:6px 13px 6px 8px;font:inherit;font-size:12.5px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px}
+.infobtn:hover{color:var(--chalk);border-color:var(--chalk)}
+.infobtn span{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+  border-radius:50%;border:1px solid currentColor;font-size:11px;font-style:italic;font-weight:700}
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(3,12,7,.72);
+  display:flex;align-items:center;justify-content:center;padding:16px}
+.overlay[hidden]{display:none}
+.sheet{background:var(--field2);border:1px solid var(--line);border-radius:14px;
+  max-width:720px;width:100%;max-height:86vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 60px rgba(0,0,0,.55)}
+.sheethead{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--line)}
+.sheethead h2{margin:0;font-size:18px;letter-spacing:-.02em}
+.closebtn{background:transparent;border:0;color:var(--muted);font-size:26px;line-height:1;
+  cursor:pointer;padding:0 4px}
+.closebtn:hover{color:var(--chalk)}
+.sheetbody{overflow-y:auto;padding:4px 18px 20px;-webkit-overflow-scrolling:touch}
+.sheetbody h3{font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--central);
+  margin:20px 0 6px;padding-top:14px;border-top:1px solid rgba(35,84,58,.6)}
+.sheetbody h3:first-child{border-top:0;padding-top:4px;margin-top:12px}
+.sheetbody p{margin:0 0 9px;font-size:13.5px;color:var(--chalk);opacity:.9;line-height:1.5}
+.sheetbody ul,.sheetbody ol{margin:0 0 9px;padding-left:20px;font-size:13.5px;opacity:.9}
+.sheetbody li{margin-bottom:3px}
+.sheetbody b{opacity:1}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:10px 10px 0 0;overflow:hidden}
+.cell{background:var(--field2);padding:9px 10px}
+.cell b{display:block;font-size:19px;font-weight:750;letter-spacing:-.02em}
+.cell span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+#cell-season select{background:transparent;border:0;color:var(--chalk);font-size:17px;
+  font-weight:750;letter-spacing:-.02em;padding:0;width:100%;font-family:inherit}
+#cell-season.archive{background:rgba(249,199,79,.14);box-shadow:inset 3px 0 0 var(--central)}
+#cell-season.archive select{color:var(--central)}
+#cell-season.archive span{color:var(--central)}
+.deck{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--field3);
+  padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.deck .grow{flex:1 1 auto}
+.deck label{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:5px}
+
+nav{display:flex;gap:4px;overflow-x:auto;margin:14px 0 16px;padding-bottom:4px;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--muted);
+  padding:7px 13px;border-radius:999px;font:inherit;font-size:13.5px;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--chalk);color:#0c2318;border-color:var(--chalk);font-weight:650}
+nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:focus-visible{
+  outline:2px solid var(--western);outline-offset:2px}
+.panel{display:none}.panel.on{display:block}
+
+.btn{background:var(--chalk);color:#0c2318;border:0;border-radius:8px;padding:9px 15px;
+  font:inherit;font-weight:650;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--chalk);border:1px solid var(--line)}
+.btn.go{background:var(--up);color:#0c2318}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+select,input[type=search]{background:var(--field2);color:var(--chalk);border:1px solid var(--line);
+  border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px}
+input[type=search]{width:100%;max-width:340px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--field2);color:var(--muted);border-radius:999px;
+  padding:5px 11px;font-size:12.5px;cursor:pointer}
+.chip[data-on="1"]{color:var(--chalk);border-color:currentColor}
+.chip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;
+  background:currentColor;vertical-align:1px}
+
+.mapbox{border:1px solid var(--line);border-radius:12px;background:var(--field2);overflow:hidden}
+svg.map{display:block;width:100%;height:auto;touch-action:pan-y}
+.st{fill:#0f2b1d;stroke:#1d4631;stroke-width:.8}
+.dot{cursor:pointer}
+.dot:hover circle{stroke:var(--chalk);stroke-width:1.6}
+.inset{fill:none;stroke:#1d4631;stroke-width:.8}
+.insetlbl{fill:var(--muted);font-size:10px}
+.tip{position:fixed;pointer-events:none;z-index:50;background:#061309;border:1px solid var(--line);
+  border-radius:8px;padding:7px 10px;font-size:12.5px;max-width:220px;
+  box-shadow:0 6px 22px rgba(0,0,0,.5);opacity:0;transition:opacity .12s}
+.tip b{display:block}.tip small{color:var(--muted)}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:6px 7px;text-align:left;border-bottom:1px solid rgba(35,84,58,.55)}
+th{color:var(--muted);font-weight:500;font-size:11.5px}
+td.n,th.n{text-align:right}
+tr.dw td{background:rgba(126,231,135,.07)}
+tr.atl td{background:rgba(76,201,240,.07)}
+tr.ch td{background:rgba(249,199,79,.14)}
+tr.near td{background:rgba(249,199,79,.05)}
+tr.whyrow td{color:var(--muted);font-size:11.5px;padding:0 7px 7px;border-bottom:1px solid rgba(35,84,58,.55)}
+th.whyhead{display:none}
+h4.movehead{margin:14px 2px 2px;font-size:11.5px;font-weight:600;color:var(--muted);
+  letter-spacing:.05em;text-transform:uppercase}
+h4.movehead:first-child{margin-top:6px}
+tr.rel td{background:rgba(255,123,114,.09)}
+tr.pro td{background:rgba(126,231,135,.11)}
+tr.clickrow{cursor:pointer}
+tr.clickrow:hover td{background:rgba(255,255,255,.045)}
+tr.clickrow.open td{background:rgba(255,255,255,.07)}
+tr.schedrow td{padding:4px 8px 10px;background:rgba(0,0,0,.22)}
+.sched table{font-size:12.5px}
+.sched td{border-bottom:1px solid rgba(35,84,58,.35);padding:3px 6px}
+.sched tr.pshead td{color:var(--muted);font-size:11px;padding-top:9px;border-bottom:1px solid var(--line)}
+.sched tr.ps td{background:rgba(76,201,240,.06)}
+.sched tr.bye td{color:var(--muted);opacity:.55;font-style:italic}
+.stage{font-size:10px;letter-spacing:.03em;border:1px solid var(--line);border-radius:4px;
+  padding:1px 4px;color:var(--western);white-space:nowrap}
+.verdict{font-size:12.5px;margin:4px 2px 8px;padding:7px 9px;border-radius:7px;line-height:1.4}
+.verdict.vdown{background:rgba(255,123,114,.12);border-left:3px solid var(--down)}
+.verdict.vup{background:rgba(126,231,135,.12);border-left:3px solid var(--up)}
+.verdict.vnear{background:rgba(249,199,79,.10);border-left:3px solid var(--central)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;color:var(--muted);font-size:12px;margin:2px 0 10px}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend svg{overflow:visible}
+.rk{color:var(--muted);font-size:11px;margin-right:4px}
+.tag{font-size:10.5px;border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:5px;white-space:nowrap}
+.dwtag{color:var(--up)}.atltag{color:var(--western)}.sdtag{color:var(--muted)}
+.chtag{color:var(--central);font-weight:650}
+.reltag{color:var(--down);font-weight:650}
+.protag{color:var(--up);font-weight:650}
+.neartag{color:var(--central)}
+.divblock{border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden;background:var(--field2)}
+.divhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  padding:10px 12px;border-left:4px solid var(--c)}
+.divhead h3{margin:0;font-size:16px;font-weight:700;letter-spacing:-.015em}
+.divhead span{color:var(--muted);font-size:12px}
+.divbody{padding:0 8px 6px}
+h2.sec{font-size:17px;margin:20px 0 2px;letter-spacing:-.02em}
+
+.bracket{overflow-x:auto;padding:4px 0 10px}
+.brwrap{position:relative}
+.brhead{position:absolute;top:0;font-size:11px;color:var(--muted);letter-spacing:.02em}
+.brinner{position:relative;margin-top:20px}
+.brlines{position:absolute;left:0;top:0;pointer-events:none}
+.brmatch{position:absolute}
+.bowl{font-size:10.5px;color:var(--muted);margin:0 0 3px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.venue{color:var(--line);margin-left:6px}
+.venue::before{content:"· ";color:var(--muted);opacity:.6}
+.mt{border:1px solid var(--line);border-radius:8px;margin-bottom:7px;background:var(--field2);
+  font-size:12.5px;overflow:hidden}
+.mt div{display:flex;justify-content:space-between;gap:8px;padding:5px 8px}
+.mt div+div{border-top:1px solid rgba(35,84,58,.6)}
+.mt .w{font-weight:700}.mt .l{color:var(--muted)}
+.sd{color:var(--muted);font-size:11px;margin-right:5px}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.tdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0}
+.divindex{display:grid;grid-template-columns:repeat(4,1fr);gap:5px 12px;padding:9px 2px 11px;
+  margin-bottom:2px;border-bottom:1px solid var(--line);font-size:12.5px}
+.divindex span{display:flex;align-items:center;gap:6px;min-width:0}
+.divindex i{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.divindex em{font-style:normal;color:var(--muted);font-size:11px;white-space:nowrap}
+@media (max-width:820px){.divindex{grid-template-columns:repeat(2,1fr)}}
+.mt div{padding-left:7px}
+.sosrk{color:var(--muted);font-size:10px;margin-left:3px;vertical-align:2px}
+.rivtag{color:var(--central);font-size:10px;border:1px solid currentColor;border-radius:3px;padding:0 3px;margin-left:5px}
+.champ{border:1px solid var(--up);border-radius:10px;padding:12px;margin:10px 0;background:rgba(126,231,135,.07)}
+.champ b{font-size:20px;display:block;letter-spacing:-.02em}
+.rate{display:grid;grid-template-columns:1fr 120px 44px;gap:8px;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(35,84,58,.4);font-size:13.5px}
+.rate input[type=range]{width:100%;accent-color:var(--western)}
+.rate em{font-style:normal;color:var(--muted);font-size:11.5px}
+.note{color:var(--muted);font-size:12.5px;margin:8px 0}
+.empty{color:var(--muted);border:1px dashed var(--line);border-radius:12px;padding:22px;text-align:center}
+details{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:var(--field2)}
+details.cyc{padding:0;margin:12px 0;border-radius:12px;overflow:hidden}
+details.cyc>summary{cursor:pointer;list-style:none;user-select:none}
+details.cyc>summary::-webkit-details-marker{display:none}
+details.cyc>summary::after{content:"\25be";margin-left:auto;padding-left:10px;color:var(--muted);
+  font-size:13px;transition:transform .15s}
+details.cyc[open]>summary::after{transform:rotate(180deg)}
+details.cyc>summary:hover{background:rgba(255,255,255,.03)}
+details.cyc>summary:focus-visible{outline:2px solid var(--western);outline-offset:-2px}
+summary{cursor:pointer;font-weight:600}
+details p{font-size:13px;color:var(--muted)}
+@media (max-width:560px){
+  .strip{grid-template-columns:repeat(2,1fr)}
+  th,td{padding:5px 4px;font-size:12.5px}
+  .hidesm{display:none}
+  th,td{padding:5px 3px}
+  .sosrk{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="titlerow">
+    <h1>The Pyramid</h1>
+    <button class="infobtn" id="infoBtn" aria-haspopup="dialog">
+      <span aria-hidden="true">i</span> How this works</button>
+  </div>
+  <div class="strip">
+    <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select>
+      <span id="seasonLbl">Viewing</span></div>
+    <div class="cell"><b id="s-d1">—</b><span>Tier I teams</span></div>
+    <div class="cell"><b id="s-d2">—</b><span>Tier II teams</span></div>
+    <div class="cell"><b id="s-cycle">—</b><span>Next reshuffle</span></div>
+  </div>
+  <div class="deck">
+    <button class="btn" id="playBtn">Play season</button>
+    <span class="note" id="deckHint" style="flex:1 1 100%;margin:0"></span>
+    <button class="btn ghost" id="play2Btn">Play through the reshuffle</button>
+    <button class="btn go" id="settleBtn" hidden>Send them up and down</button>
+    <span class="grow"></span>
+  </div>
+</header>
+
+<nav id="tabs" role="tablist"></nav>
+
+<section class="panel on" id="p-league">
+  <div class="row">
+    <select id="lgTier">
+      <option value="d1">Tier I</option>
+      <option value="d2">Tier II</option>
+      <option value="all">Both tiers</option>
+    </select>
+    <select id="lgView">
+      <option value="divisions">By division</option>
+      <option value="list">One list</option>
+    </select>
+    <select id="lgSort">
+      <option value="standings">Order by standing</option>
+      <option value="rating">Order by rating</option>
+      <option value="name">Order by name</option>
+    </select>
+  </div>
+  <p class="note" id="lgNote"></p>
+  <div id="league"></div>
+</section>
+
+<section class="panel" id="p-map">
+  <div class="row">
+    <select id="mapTier">
+      <option value="d1">Tier I only</option>
+      <option value="d2">Tier II only</option>
+      <option value="all">Both tiers</option>
+    </select>
+    <select id="mapGroup">
+      <option value="conf">Filter by conference</option>
+      <option value="div">Filter by division</option>
+    </select>
+    <button class="btn ghost" id="mapReset">Show everything</button>
+  </div>
+  <div class="chips" id="mapChips"></div>
+  <div class="mapbox"><div id="mapHost"></div></div>
+  <p class="note">Filled markers are Tier I, hollow ones Tier II. Tap any marker for the team
+     and its schedule, then switch the map to that team’s season. Each conference has two shades —
+     its A and B halves are strength-balanced, so they interleave right across the footprint.
+     Stars are division winners; the circled star is the national champion.</p>
+  <div id="mapPick"></div>
+</section>
+
+<section class="panel" id="p-playoff">
+  <div class="row"><select id="poTier"><option value="d1">Tier I playoff</option><option value="d2">Tier II playoff</option></select></div>
+  <div id="playoffOut"></div>
+</section>
+
+<section class="panel" id="p-move"><div id="moveOut"></div></section>
+
+<section class="panel" id="p-ratings">
+  <div class="row">
+    <input type="search" id="rateSearch" placeholder="Find a team">
+    <button class="btn ghost" id="rateReset">Reset to preseason</button>
+  </div>
+  <p class="note"><label><input type="checkbox" id="driftBox" checked> Ratings drift each season</label>
+     — programs rise and fall a little every year, pulling gently toward the tier average.</p>
+  <p class="note">Ratings drive every simulated game. A 10-point edge is worth roughly a touchdown.
+     Editing here changes the team from the next season onward.</p>
+  <div id="ratings"></div>
+</section>
+</div>
+<div class="tip" id="tip"></div>
+
+<div class="overlay" id="infoWrap" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="infoTitle" id="infoSheet">
+    <div class="sheethead">
+      <h2 id="infoTitle">How this works</h2>
+      <button class="closebtn" id="infoClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="sheetbody">
+
+      <h3>The idea</h3>
+      <p>Real college football sorts teams by money and history. A program can lose for a decade
+         and keep its seat; a program can win for a decade and never get one. This is the same
+         sport sorted by results instead: two tiers, and every second year the floor of the top
+         tier trades places with the ceiling of the one below.</p>
+      <p>Everything downstream follows from that. If teams are going to move between tiers, the
+         tiers need fixed sizes, the divisions need to be worth winning, and the schedule needs to
+         be fair enough that relegation feels earned rather than drawn.</p>
+
+      <h3>Two tiers</h3>
+      <ul>
+        <li><b>Tier I</b> — the current FBS, 138 teams at the start.</li>
+        <li><b>Tier II</b> — the current FCS, 128 teams at the start.</li>
+      </ul>
+      <p>Tier I settles at 128 after the first cycle, eight divisions of sixteen. Tier II
+         floats above that, since it absorbs whoever comes down.</p>
+
+      <h3>Conferences are geography</h3>
+      <p>Four conferences, drawn by clustering every team's campus on an equal-area projection and
+         forcing the four groups to equal size. No history, no brand, no invitations:
+         <b>Northeast</b>, <b>Southeast</b>, <b>Central</b> and <b>Western</b>.</p>
+      <p>Equal size is the constraint that hurts. The Southeast has about 41 teams in a 35-seat
+         conference, so the overflow pushes west — which is why Iowa and Illinois sit in Central and
+         Minnesota and Nebraska sit in Western. Where geography allowed, rival pairs were kept
+         inside the same conference; 107 of 116 pairs made it.</p>
+      <p>Tier II uses the same four footprints, so a team that changes tier never changes region.</p>
+
+      <h3>Divisions are strength</h3>
+      <p>Each conference splits into an <b>A</b> and a <b>B</b> half, and those halves are built for
+         equal strength rather than equal geography. The split matches average rating and also
+         balances how many top-quartile, middle and bottom teams land on each side, so one division
+         cannot be a graveyard while the other is a gauntlet.</p>
+      <p>At the opening alignment, no conference's halves differ by more than 0.05 rating points.
+         Because the halves drift as teams move between tiers, each reshuffle makes the fewest swaps
+         needed to bring them back within 1.5 points.</p>
+
+      <h3>Twelve games</h3>
+      <ul>
+        <li><b>7 or 8 division games</b>, alternating across the two seasons of a cycle.</li>
+        <li><b>3 crossover games</b> against the other half of the conference, rotating yearly.</li>
+        <li><b>The rest non-conference</b>, matched on rating and nudged to even out schedule strength.</li>
+      </ul>
+      <p>The division slate is a full round robin split in half by circulant offsets: one season takes
+         the low offsets, the next takes the rest. Together they cover every pairing, so
+         <b>every team plays its entire division once per cycle</b>. Everyone in a division plays the
+         same number of division games.</p>
+
+      <h3>Rivalries</h3>
+      <p>One rival per team, claimed by the biggest games first — which is why Michigan–Ohio State
+         and Alabama–Auburn survive while Michigan–Michigan State and Alabama–LSU do not. 232 of 266
+         teams end up with a rival.</p>
+      <p>A rivalry is played three years in four, with the off year staggered per pairing. If the pair
+         already meet on the division slate, that is the game; if not, it is added on top and spends
+         an outside slot. Rivalry games never displace anyone's division allotment.</p>
+
+      <h3>The playoff</h3>
+      <p>Twenty-four teams: eight division winners and sixteen at-large.</p>
+      <ul>
+        <li><b>Round one</b> — the four conference championships and eight at-large play-in games.</li>
+        <li><b>Seeds 1–4</b> go to conference champions, <b>5–8</b> to the teams they beat,
+            <b>9–16</b> to the play-in winners.</li>
+        <li><b>Then a fixed sixteen-team bracket</b>: round of 16, quarterfinals, semifinals, final.</li>
+      </ul>
+      <h3>Bowls</h3>
+      <p>The whole real slate is in play, and none of it is fixed to a round. The six majors —
+         Rose, Sugar, Orange, Cotton, Fiesta and Peach — rotate every year: two host semifinals,
+         four host quarterfinals, and which is which shifts annually. Sixteen of the remaining
+         bowls rotate into the play-in and the round of 16.</p>
+      <p>Whatever is left over is still played. The best teams that missed the field are paired off
+         and sent to the bowls the playoff did not claim, roughly twenty games a year, so a nine-win
+         team that fell short of the twenty-four still has somewhere to go. Those games count for
+         nothing toward promotion.</p>
+      <p>Conference championships move around the membership, one campus a year. The title game
+         rotates through twenty NFL buildings. Tier II runs a parallel slate under its own names.</p>
+
+      <h3>Relegation</h3>
+      <p>The worst combined two-year record in each division goes down. The first cycle is relegation
+         only — ten teams drop so Tier I lands on 128 — and after that it is one down and one up
+         per division.</p>
+      <p>Ties break in this order:</p>
+      <ol>
+        <li>Two-year record</li>
+        <li>Two-year conference record</li>
+        <li>Head to head over the two years</li>
+        <li>Point differential, capped at ±21 a game</li>
+        <li>Strength of schedule</li>
+        <li>Playoff ranking</li>
+        <li>Random draw</li>
+      </ol>
+      <p>The cap on margin is deliberate. Without it, a team fighting the drop could bury weak
+         opponents to buy its way clear; with it, a 45-point win is worth the same as a 21-point one.</p>
+
+      <h3>Promotion</h3>
+      <p>Going up is not simply the best record. Each Tier II team earns a score across the cycle:</p>
+      <ul>
+        <li><b>60%</b> two-year record</li>
+        <li><b>20%</b> playoff run</li>
+        <li><b>10%</b> strength of schedule</li>
+        <li><b>10%</b> ranking</li>
+      </ul>
+      <p>The playoff share is measured against a perfect run — reaching the field and winning out —
+         not against whoever went furthest in that division, so a weak field scores low across the
+         board. A team cannot schedule nobody, go unbeaten and let the record alone carry it up.</p>
+
+      <h3>The simulation</h3>
+      <p>Every team carries a rating roughly reflecting present-day strength. Games are decided by
+         the rating gap plus home field and a healthy dose of noise, so favourites usually win and
+         upsets happen. Ratings drift a little each year and pull gently toward the tier average;
+         you can turn that off, or set any rating by hand, on the Ratings tab.</p>
+      <p>Ratings are a blunt instrument and the results should be read as a shape, not a forecast.</p>
+
+    </div>
+  </div>
+</div>
+<script>
+const DATA = {"d1":[{"id":"d10","name":"Boston College","city":"Chestnut Hill","st":"MA","lat":42.34,"lon":-71.17,"rating":58,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d11","name":"California","city":"Berkeley","st":"CA","lat":37.87,"lon":-122.27,"rating":56,"conf":"Western","div":"Western A","tier":"d1","rival":null,"rivals":[]},{"id":"d12","name":"Clemson","city":"Clemson","st":"SC","lat":34.68,"lon":-82.84,"rating":86,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"South Carolina","rivals":["South Carolina"]},{"id":"d13","name":"Duke","city":"Durham","st":"NC","lat":36.0,"lon":-78.94,"rating":62,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"North Carolina","rivals":["North Carolina"]},{"id":"d14","name":"Florida State","city":"Tallahassee","st":"FL","lat":30.44,"lon":-84.3,"rating":78,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Florida","rivals":["Florida"]},{"id":"d15","name":"Georgia Tech","city":"Atlanta","st":"GA","lat":33.78,"lon":-84.4,"rating":72,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Georgia","rivals":["Georgia"]},{"id":"d16","name":"Louisville","city":"Louisville","st":"KY","lat":38.21,"lon":-85.76,"rating":76,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Kentucky","rivals":["Kentucky"]},{"id":"d17","name":"Miami (FL)","city":"Coral Gables","st":"FL","lat":25.72,"lon":-80.28,"rating":85,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d18","name":"NC State","city":"Raleigh","st":"NC","lat":35.78,"lon":-78.68,"rating":68,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Wake Forest","rivals":["Wake Forest"]},{"id":"d19","name":"North Carolina","city":"Chapel Hill","st":"NC","lat":35.9,"lon":-79.05,"rating":63,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Duke","rivals":["Duke"]},{"id":"d110","name":"Pittsburgh","city":"Pittsburgh","st":"PA","lat":40.44,"lon":-79.96,"rating":67,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"West Virginia","rivals":["West Virginia"]},{"id":"d111","name":"SMU","city":"Dallas","st":"TX","lat":32.84,"lon":-96.78,"rating":74,"conf":"Central","div":"Central A","tier":"d1","rival":"TCU","rivals":["TCU"]},{"id":"d112","name":"Stanford","city":"Stanford","st":"CA","lat":37.43,"lon":-122.17,"rating":52,"conf":"Western","div":"Western B","tier":"d1","rival":null,"rivals":[]},{"id":"d113","name":"Syracuse","city":"Syracuse","st":"NY","lat":43.04,"lon":-76.14,"rating":62,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Buffalo","rivals":["Buffalo"]},{"id":"d114","name":"Virginia","city":"Charlottesville","st":"VA","lat":38.03,"lon":-78.51,"rating":63,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Virginia Tech","rivals":["Virginia Tech"]},{"id":"d115","name":"Virginia Tech","city":"Blacksburg","st":"VA","lat":37.22,"lon":-80.42,"rating":65,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Virginia","rivals":["Virginia"]},{"id":"d116","name":"Wake Forest","city":"Winston-Salem","st":"NC","lat":36.13,"lon":-80.28,"rating":58,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"NC State","rivals":["NC State"]},{"id":"d117","name":"Illinois","city":"Champaign","st":"IL","lat":40.11,"lon":-88.23,"rating":70,"conf":"Central","div":"Central A","tier":"d1","rival":"Northwestern","rivals":["Northwestern"]},{"id":"d118","name":"Indiana","city":"Bloomington","st":"IN","lat":39.17,"lon":-86.52,"rating":82,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Purdue","rivals":["Purdue"]},{"id":"d119","name":"Iowa","city":"Iowa City","st":"IA","lat":41.66,"lon":-91.54,"rating":75,"conf":"Central","div":"Central B","tier":"d1","rival":"Iowa State","rivals":["Iowa State"]},{"id":"d120","name":"Maryland","city":"College Park","st":"MD","lat":38.99,"lon":-76.94,"rating":60,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d121","name":"Michigan","city":"Ann Arbor","st":"MI","lat":42.28,"lon":-83.74,"rating":86,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Ohio State","rivals":["Ohio State"]},{"id":"d122","name":"Michigan State","city":"East Lansing","st":"MI","lat":42.73,"lon":-84.48,"rating":64,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d123","name":"Minnesota","city":"Minneapolis","st":"MN","lat":44.97,"lon":-93.24,"rating":68,"conf":"Western","div":"Western A","tier":"d1","rival":"Wisconsin","rivals":["Wisconsin"]},{"id":"d124","name":"Nebraska","city":"Lincoln","st":"NE","lat":40.82,"lon":-96.7,"rating":68,"conf":"Western","div":"Western B","tier":"d1","rival":null,"rivals":[]},{"id":"d125","name":"Northwestern","city":"Evanston","st":"IL","lat":42.06,"lon":-87.69,"rating":56,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Illinois","rivals":["Illinois"]},{"id":"d126","name":"Ohio State","city":"Columbus","st":"OH","lat":40.0,"lon":-83.02,"rating":97,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Michigan","rivals":["Michigan"]},{"id":"d127","name":"Oregon","city":"Eugene","st":"OR","lat":44.05,"lon":-123.07,"rating":90,"conf":"Western","div":"Western A","tier":"d1","rival":"Oregon State","rivals":["Oregon State"]},{"id":"d128","name":"Penn State","city":"State College","st":"PA","lat":40.8,"lon":-77.86,"rating":82,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d129","name":"Purdue","city":"West Lafayette","st":"IN","lat":40.43,"lon":-86.91,"rating":54,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Indiana","rivals":["Indiana"]},{"id":"d130","name":"Rutgers","city":"Piscataway","st":"NJ","lat":40.52,"lon":-74.46,"rating":58,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Temple","rivals":["Temple"]},{"id":"d131","name":"UCLA","city":"Los Angeles","st":"CA","lat":34.07,"lon":-118.44,"rating":62,"conf":"Western","div":"Western A","tier":"d1","rival":"USC","rivals":["USC"]},{"id":"d132","name":"USC","city":"Los Angeles","st":"CA","lat":34.02,"lon":-118.29,"rating":84,"conf":"Western","div":"Western B","tier":"d1","rival":"UCLA","rivals":["UCLA"]},{"id":"d133","name":"Washington","city":"Seattle","st":"WA","lat":47.65,"lon":-122.3,"rating":79,"conf":"Western","div":"Western A","tier":"d1","rival":"Washington State","rivals":["Washington State"]},{"id":"d134","name":"Wisconsin","city":"Madison","st":"WI","lat":43.07,"lon":-89.41,"rating":66,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Minnesota","rivals":["Minnesota"]},{"id":"d135","name":"Arizona","city":"Tucson","st":"AZ","lat":32.23,"lon":-110.95,"rating":62,"conf":"Western","div":"Western B","tier":"d1","rival":"Arizona State","rivals":["Arizona State"]},{"id":"d136","name":"Arizona State","city":"Tempe","st":"AZ","lat":33.42,"lon":-111.93,"rating":76,"conf":"Western","div":"Western A","tier":"d1","rival":"Arizona","rivals":["Arizona"]},{"id":"d137","name":"Baylor","city":"Waco","st":"TX","lat":31.55,"lon":-97.11,"rating":72,"conf":"Central","div":"Central B","tier":"d1","rival":"Texas Tech","rivals":["Texas Tech"]},{"id":"d138","name":"BYU","city":"Provo","st":"UT","lat":40.25,"lon":-111.65,"rating":80,"conf":"Western","div":"Western B","tier":"d1","rival":"Utah","rivals":["Utah"]},{"id":"d139","name":"Cincinnati","city":"Cincinnati","st":"OH","lat":39.13,"lon":-84.52,"rating":68,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Miami (OH)","rivals":["Miami (OH)"]},{"id":"d140","name":"Colorado","city":"Boulder","st":"CO","lat":40.01,"lon":-105.27,"rating":64,"conf":"Western","div":"Western B","tier":"d1","rival":null,"rivals":[]},{"id":"d141","name":"Houston","city":"Houston","st":"TX","lat":29.72,"lon":-95.34,"rating":62,"conf":"Central","div":"Central A","tier":"d1","rival":"Rice","rivals":["Rice"]},{"id":"d142","name":"Iowa State","city":"Ames","st":"IA","lat":42.03,"lon":-93.64,"rating":74,"conf":"Central","div":"Central B","tier":"d1","rival":"Iowa","rivals":["Iowa"]},{"id":"d143","name":"Kansas","city":"Lawrence","st":"KS","lat":38.96,"lon":-95.25,"rating":63,"conf":"Western","div":"Western B","tier":"d1","rival":"Kansas State","rivals":["Kansas State"]},{"id":"d144","name":"Kansas State","city":"Manhattan","st":"KS","lat":39.19,"lon":-96.58,"rating":72,"conf":"Western","div":"Western A","tier":"d1","rival":"Kansas","rivals":["Kansas"]},{"id":"d145","name":"Oklahoma State","city":"Stillwater","st":"OK","lat":36.12,"lon":-97.07,"rating":63,"conf":"Central","div":"Central A","tier":"d1","rival":"Oklahoma","rivals":["Oklahoma"]},{"id":"d146","name":"TCU","city":"Fort Worth","st":"TX","lat":32.71,"lon":-97.36,"rating":74,"conf":"Central","div":"Central A","tier":"d1","rival":"SMU","rivals":["SMU"]},{"id":"d147","name":"Texas Tech","city":"Lubbock","st":"TX","lat":33.58,"lon":-101.88,"rating":82,"conf":"Western","div":"Western B","tier":"d1","rival":"Baylor","rivals":["Baylor"]},{"id":"d148","name":"UCF","city":"Orlando","st":"FL","lat":28.6,"lon":-81.2,"rating":62,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"South Florida","rivals":["South Florida"]},{"id":"d149","name":"Utah","city":"Salt Lake City","st":"UT","lat":40.76,"lon":-111.85,"rating":76,"conf":"Western","div":"Western B","tier":"d1","rival":"BYU","rivals":["BYU"]},{"id":"d150","name":"West Virginia","city":"Morgantown","st":"WV","lat":39.63,"lon":-79.95,"rating":60,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Pittsburgh","rivals":["Pittsburgh"]},{"id":"d151","name":"Alabama","city":"Tuscaloosa","st":"AL","lat":33.21,"lon":-87.55,"rating":92,"conf":"Central","div":"Central A","tier":"d1","rival":"Auburn","rivals":["Auburn"]},{"id":"d152","name":"Arkansas","city":"Fayetteville","st":"AR","lat":36.07,"lon":-94.17,"rating":64,"conf":"Central","div":"Central B","tier":"d1","rival":"Missouri","rivals":["Missouri"]},{"id":"d153","name":"Auburn","city":"Auburn","st":"AL","lat":32.6,"lon":-85.49,"rating":78,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Alabama","rivals":["Alabama"]},{"id":"d154","name":"Florida","city":"Gainesville","st":"FL","lat":29.65,"lon":-82.34,"rating":80,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Florida State","rivals":["Florida State"]},{"id":"d155","name":"Georgia","city":"Athens","st":"GA","lat":33.95,"lon":-83.38,"rating":94,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Georgia Tech","rivals":["Georgia Tech"]},{"id":"d156","name":"Kentucky","city":"Lexington","st":"KY","lat":38.03,"lon":-84.5,"rating":60,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Louisville","rivals":["Louisville"]},{"id":"d157","name":"LSU","city":"Baton Rouge","st":"LA","lat":30.41,"lon":-91.18,"rating":86,"conf":"Central","div":"Central A","tier":"d1","rival":"Tulane","rivals":["Tulane"]},{"id":"d158","name":"Ole Miss","city":"Oxford","st":"MS","lat":34.36,"lon":-89.54,"rating":80,"conf":"Central","div":"Central B","tier":"d1","rival":"Mississippi State","rivals":["Mississippi State"]},{"id":"d159","name":"Mississippi State","city":"Starkville","st":"MS","lat":33.45,"lon":-88.79,"rating":58,"conf":"Central","div":"Central B","tier":"d1","rival":"Ole Miss","rivals":["Ole Miss"]},{"id":"d160","name":"Missouri","city":"Columbia","st":"MO","lat":38.94,"lon":-92.33,"rating":72,"conf":"Central","div":"Central B","tier":"d1","rival":"Arkansas","rivals":["Arkansas"]},{"id":"d161","name":"Oklahoma","city":"Norman","st":"OK","lat":35.21,"lon":-97.44,"rating":82,"conf":"Central","div":"Central B","tier":"d1","rival":"Oklahoma State","rivals":["Oklahoma State"]},{"id":"d162","name":"South Carolina","city":"Columbia","st":"SC","lat":34.0,"lon":-81.03,"rating":78,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Clemson","rivals":["Clemson"]},{"id":"d163","name":"Tennessee","city":"Knoxville","st":"TN","lat":35.95,"lon":-83.93,"rating":84,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Vanderbilt","rivals":["Vanderbilt"]},{"id":"d164","name":"Texas","city":"Austin","st":"TX","lat":30.28,"lon":-97.73,"rating":91,"conf":"Central","div":"Central B","tier":"d1","rival":"Texas A&M","rivals":["Texas A&M"]},{"id":"d165","name":"Texas A&M","city":"College Station","st":"TX","lat":30.61,"lon":-96.34,"rating":85,"conf":"Central","div":"Central A","tier":"d1","rival":"Texas","rivals":["Texas"]},{"id":"d166","name":"Vanderbilt","city":"Nashville","st":"TN","lat":36.14,"lon":-86.8,"rating":66,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Tennessee","rivals":["Tennessee"]},{"id":"d167","name":"Notre Dame","city":"South Bend","st":"IN","lat":41.7,"lon":-86.24,"rating":88,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d168","name":"UConn","city":"Storrs","st":"CT","lat":41.81,"lon":-72.25,"rating":54,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"UMass","rivals":["UMass"]},{"id":"d169","name":"Army","city":"West Point","st":"NY","lat":41.39,"lon":-73.96,"rating":60,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Navy","rivals":["Navy"]},{"id":"d170","name":"Charlotte","city":"Charlotte","st":"NC","lat":35.31,"lon":-80.73,"rating":42,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Appalachian State","rivals":["Appalachian State"]},{"id":"d171","name":"East Carolina","city":"Greenville","st":"NC","lat":35.61,"lon":-77.37,"rating":58,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":null,"rivals":[]},{"id":"d172","name":"Florida Atlantic","city":"Boca Raton","st":"FL","lat":26.37,"lon":-80.1,"rating":44,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"FIU","rivals":["FIU"]},{"id":"d173","name":"Memphis","city":"Memphis","st":"TN","lat":35.12,"lon":-89.94,"rating":64,"conf":"Central","div":"Central B","tier":"d1","rival":"Arkansas State","rivals":["Arkansas State"]},{"id":"d174","name":"Navy","city":"Annapolis","st":"MD","lat":38.98,"lon":-76.49,"rating":60,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Army","rivals":["Army"]},{"id":"d175","name":"North Texas","city":"Denton","st":"TX","lat":33.21,"lon":-97.15,"rating":58,"conf":"Central","div":"Central A","tier":"d1","rival":null,"rivals":[]},{"id":"d176","name":"Rice","city":"Houston","st":"TX","lat":29.72,"lon":-95.4,"rating":48,"conf":"Central","div":"Central A","tier":"d1","rival":"Houston","rivals":["Houston"]},{"id":"d177","name":"South Florida","city":"Tampa","st":"FL","lat":28.06,"lon":-82.41,"rating":62,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"UCF","rivals":["UCF"]},{"id":"d178","name":"Temple","city":"Philadelphia","st":"PA","lat":39.98,"lon":-75.16,"rating":42,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Rutgers","rivals":["Rutgers"]},{"id":"d179","name":"Tulane","city":"New Orleans","st":"LA","lat":29.94,"lon":-90.12,"rating":60,"conf":"Central","div":"Central A","tier":"d1","rival":"LSU","rivals":["LSU"]},{"id":"d180","name":"Tulsa","city":"Tulsa","st":"OK","lat":36.15,"lon":-95.95,"rating":44,"conf":"Central","div":"Central A","tier":"d1","rival":null,"rivals":[]},{"id":"d181","name":"UAB","city":"Birmingham","st":"AL","lat":33.5,"lon":-86.8,"rating":46,"conf":"Central","div":"Central B","tier":"d1","rival":null,"rivals":[]},{"id":"d182","name":"UTSA","city":"San Antonio","st":"TX","lat":29.58,"lon":-98.62,"rating":56,"conf":"Central","div":"Central A","tier":"d1","rival":"Texas State","rivals":["Texas State"]},{"id":"d183","name":"Delaware","city":"Newark","st":"DE","lat":39.68,"lon":-75.75,"rating":50,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":null,"rivals":[]},{"id":"d184","name":"FIU","city":"Miami","st":"FL","lat":25.76,"lon":-80.37,"rating":40,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Florida Atlantic","rivals":["Florida Atlantic"]},{"id":"d185","name":"Jacksonville State","city":"Jacksonville","st":"AL","lat":33.82,"lon":-85.77,"rating":52,"conf":"Central","div":"Central B","tier":"d1","rival":"Sam Houston","rivals":["Sam Houston"]},{"id":"d186","name":"Kennesaw State","city":"Kennesaw","st":"GA","lat":34.03,"lon":-84.58,"rating":38,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Georgia State","rivals":["Georgia State"]},{"id":"d187","name":"Liberty","city":"Lynchburg","st":"VA","lat":37.35,"lon":-79.18,"rating":56,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"James Madison","rivals":["James Madison"]},{"id":"d188","name":"Louisiana Tech","city":"Ruston","st":"LA","lat":32.53,"lon":-92.65,"rating":48,"conf":"Central","div":"Central B","tier":"d1","rival":"Southern Miss","rivals":["Southern Miss"]},{"id":"d189","name":"Middle Tennessee","city":"Murfreesboro","st":"TN","lat":35.85,"lon":-86.36,"rating":42,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":"Western Kentucky","rivals":["Western Kentucky"]},{"id":"d190","name":"Missouri State","city":"Springfield","st":"MO","lat":37.2,"lon":-93.28,"rating":42,"conf":"Central","div":"Central A","tier":"d1","rival":null,"rivals":[]},{"id":"d191","name":"New Mexico State","city":"Las Cruces","st":"NM","lat":32.28,"lon":-106.75,"rating":42,"conf":"Western","div":"Western B","tier":"d1","rival":"UTEP","rivals":["UTEP"]},{"id":"d192","name":"Sam Houston","city":"Huntsville","st":"TX","lat":30.71,"lon":-95.55,"rating":44,"conf":"Central","div":"Central A","tier":"d1","rival":"Jacksonville State","rivals":["Jacksonville State"]},{"id":"d193","name":"Western Kentucky","city":"Bowling Green","st":"KY","lat":36.99,"lon":-86.46,"rating":54,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Middle Tennessee","rivals":["Middle Tennessee"]},{"id":"d194","name":"Akron","city":"Akron","st":"OH","lat":41.08,"lon":-81.52,"rating":34,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Kent State","rivals":["Kent State"]},{"id":"d195","name":"Ball State","city":"Muncie","st":"IN","lat":40.2,"lon":-85.41,"rating":44,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Central Michigan","rivals":["Central Michigan"]},{"id":"d196","name":"Bowling Green","city":"Bowling Green","st":"OH","lat":41.38,"lon":-83.63,"rating":48,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Toledo","rivals":["Toledo"]},{"id":"d197","name":"Buffalo","city":"Buffalo","st":"NY","lat":43.0,"lon":-78.79,"rating":46,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Syracuse","rivals":["Syracuse"]},{"id":"d198","name":"Central Michigan","city":"Mount Pleasant","st":"MI","lat":43.59,"lon":-84.78,"rating":42,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Ball State","rivals":["Ball State"]},{"id":"d199","name":"Eastern Michigan","city":"Ypsilanti","st":"MI","lat":42.25,"lon":-83.62,"rating":42,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d1100","name":"Kent State","city":"Kent","st":"OH","lat":41.15,"lon":-81.34,"rating":30,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Akron","rivals":["Akron"]},{"id":"d1101","name":"Miami (OH)","city":"Oxford","st":"OH","lat":39.51,"lon":-84.73,"rating":54,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Cincinnati","rivals":["Cincinnati"]},{"id":"d1102","name":"Ohio","city":"Athens","st":"OH","lat":39.32,"lon":-82.1,"rating":56,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Marshall","rivals":["Marshall"]},{"id":"d1103","name":"Toledo","city":"Toledo","st":"OH","lat":41.66,"lon":-83.61,"rating":56,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Bowling Green","rivals":["Bowling Green"]},{"id":"d1104","name":"UMass","city":"Amherst","st":"MA","lat":42.39,"lon":-72.53,"rating":32,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"UConn","rivals":["UConn"]},{"id":"d1105","name":"Western Michigan","city":"Kalamazoo","st":"MI","lat":42.28,"lon":-85.61,"rating":46,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Northern Illinois","rivals":["Northern Illinois"]},{"id":"d1106","name":"Sacramento State","city":"Sacramento","st":"CA","lat":38.56,"lon":-121.42,"rating":40,"conf":"Western","div":"Western A","tier":"d1","rival":null,"rivals":[]},{"id":"d1107","name":"Air Force","city":"Colorado Springs","st":"CO","lat":38.99,"lon":-104.86,"rating":56,"conf":"Western","div":"Western A","tier":"d1","rival":"Colorado State","rivals":["Colorado State"]},{"id":"d1108","name":"Hawaii","city":"Honolulu","st":"HI","lat":21.3,"lon":-157.82,"rating":44,"conf":"Western","div":"Western A","tier":"d1","rival":"San Jose State","rivals":["San Jose State"]},{"id":"d1109","name":"Nevada","city":"Reno","st":"NV","lat":39.54,"lon":-119.82,"rating":40,"conf":"Western","div":"Western A","tier":"d1","rival":"UNLV","rivals":["UNLV"]},{"id":"d1110","name":"New Mexico","city":"Albuquerque","st":"NM","lat":35.08,"lon":-106.62,"rating":44,"conf":"Western","div":"Western B","tier":"d1","rival":null,"rivals":[]},{"id":"d1111","name":"San Jose State","city":"San Jose","st":"CA","lat":37.34,"lon":-121.88,"rating":46,"conf":"Western","div":"Western A","tier":"d1","rival":"Hawaii","rivals":["Hawaii"]},{"id":"d1112","name":"UNLV","city":"Las Vegas","st":"NV","lat":36.11,"lon":-115.14,"rating":56,"conf":"Western","div":"Western B","tier":"d1","rival":"Nevada","rivals":["Nevada"]},{"id":"d1113","name":"Wyoming","city":"Laramie","st":"WY","lat":41.31,"lon":-105.59,"rating":48,"conf":"Western","div":"Western A","tier":"d1","rival":null,"rivals":[]},{"id":"d1114","name":"UTEP","city":"El Paso","st":"TX","lat":31.77,"lon":-106.5,"rating":34,"conf":"Western","div":"Western B","tier":"d1","rival":"New Mexico State","rivals":["New Mexico State"]},{"id":"d1115","name":"Northern Illinois","city":"DeKalb","st":"IL","lat":41.93,"lon":-88.77,"rating":46,"conf":"Northeast","div":"Northeast A","tier":"d1","rival":"Western Michigan","rivals":["Western Michigan"]},{"id":"d1116","name":"North Dakota State","city":"Fargo","st":"ND","lat":46.9,"lon":-96.8,"rating":54,"conf":"Western","div":"Western B","tier":"d1","rival":"South Dakota State","rivals":["South Dakota State"]},{"id":"d1117","name":"Boise State","city":"Boise","st":"ID","lat":43.6,"lon":-116.2,"rating":74,"conf":"Western","div":"Western A","tier":"d1","rival":"Fresno State","rivals":["Fresno State"]},{"id":"d1118","name":"Colorado State","city":"Fort Collins","st":"CO","lat":40.57,"lon":-105.08,"rating":54,"conf":"Western","div":"Western A","tier":"d1","rival":"Air Force","rivals":["Air Force"]},{"id":"d1119","name":"Fresno State","city":"Fresno","st":"CA","lat":36.81,"lon":-119.75,"rating":52,"conf":"Western","div":"Western B","tier":"d1","rival":"Boise State","rivals":["Boise State"]},{"id":"d1120","name":"Oregon State","city":"Corvallis","st":"OR","lat":44.56,"lon":-123.28,"rating":48,"conf":"Western","div":"Western B","tier":"d1","rival":"Oregon","rivals":["Oregon"]},{"id":"d1121","name":"San Diego State","city":"San Diego","st":"CA","lat":32.78,"lon":-117.07,"rating":54,"conf":"Western","div":"Western A","tier":"d1","rival":null,"rivals":[]},{"id":"d1122","name":"Texas State","city":"San Marcos","st":"TX","lat":29.89,"lon":-97.94,"rating":52,"conf":"Central","div":"Central B","tier":"d1","rival":"UTSA","rivals":["UTSA"]},{"id":"d1123","name":"Utah State","city":"Logan","st":"UT","lat":41.74,"lon":-111.83,"rating":48,"conf":"Western","div":"Western B","tier":"d1","rival":null,"rivals":[]},{"id":"d1124","name":"Washington State","city":"Pullman","st":"WA","lat":46.73,"lon":-117.16,"rating":50,"conf":"Western","div":"Western A","tier":"d1","rival":"Washington","rivals":["Washington"]},{"id":"d1125","name":"Appalachian State","city":"Boone","st":"NC","lat":36.21,"lon":-81.68,"rating":56,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Charlotte","rivals":["Charlotte"]},{"id":"d1126","name":"Arkansas State","city":"Jonesboro","st":"AR","lat":35.84,"lon":-90.68,"rating":46,"conf":"Central","div":"Central B","tier":"d1","rival":"Memphis","rivals":["Memphis"]},{"id":"d1127","name":"Coastal Carolina","city":"Conway","st":"SC","lat":33.8,"lon":-79.01,"rating":50,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":null,"rivals":[]},{"id":"d1128","name":"Georgia Southern","city":"Statesboro","st":"GA","lat":32.42,"lon":-81.78,"rating":52,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":null,"rivals":[]},{"id":"d1129","name":"Georgia State","city":"Atlanta","st":"GA","lat":33.75,"lon":-84.39,"rating":40,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Kennesaw State","rivals":["Kennesaw State"]},{"id":"d1130","name":"James Madison","city":"Harrisonburg","st":"VA","lat":38.44,"lon":-78.87,"rating":64,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":"Liberty","rivals":["Liberty"]},{"id":"d1131","name":"Louisiana","city":"Lafayette","st":"LA","lat":30.21,"lon":-92.02,"rating":58,"conf":"Central","div":"Central A","tier":"d1","rival":"UL Monroe","rivals":["UL Monroe"]},{"id":"d1132","name":"UL Monroe","city":"Monroe","st":"LA","lat":32.53,"lon":-92.07,"rating":32,"conf":"Central","div":"Central B","tier":"d1","rival":"Louisiana","rivals":["Louisiana"]},{"id":"d1133","name":"Marshall","city":"Huntington","st":"WV","lat":38.42,"lon":-82.42,"rating":54,"conf":"Northeast","div":"Northeast B","tier":"d1","rival":"Ohio","rivals":["Ohio"]},{"id":"d1134","name":"Old Dominion","city":"Norfolk","st":"VA","lat":36.89,"lon":-76.31,"rating":46,"conf":"Southeast","div":"Southeast A","tier":"d1","rival":null,"rivals":[]},{"id":"d1135","name":"South Alabama","city":"Mobile","st":"AL","lat":30.7,"lon":-88.18,"rating":52,"conf":"Central","div":"Central B","tier":"d1","rival":"West Florida","rivals":["West Florida"]},{"id":"d1136","name":"Southern Miss","city":"Hattiesburg","st":"MS","lat":31.33,"lon":-89.33,"rating":44,"conf":"Central","div":"Central A","tier":"d1","rival":"Louisiana Tech","rivals":["Louisiana Tech"]},{"id":"d1137","name":"Troy","city":"Troy","st":"AL","lat":31.8,"lon":-85.95,"rating":52,"conf":"Southeast","div":"Southeast B","tier":"d1","rival":null,"rivals":[]}],"d2":[{"id":"d20","name":"Cal Poly","city":"San Luis Obispo","st":"CA","lat":35.3,"lon":-120.66,"rating":12,"conf":"Western","div":"Western A","tier":"d2","rival":"UC Davis","rivals":["UC Davis"]},{"id":"d21","name":"Eastern Washington","city":"Cheney","st":"WA","lat":47.49,"lon":-117.58,"rating":30,"conf":"Western","div":"Western B","tier":"d2","rival":"Idaho","rivals":["Idaho"]},{"id":"d22","name":"Idaho","city":"Moscow","st":"ID","lat":46.73,"lon":-117.01,"rating":36,"conf":"Western","div":"Western B","tier":"d2","rival":"Eastern Washington","rivals":["Eastern Washington"]},{"id":"d23","name":"Idaho State","city":"Pocatello","st":"ID","lat":42.86,"lon":-112.43,"rating":16,"conf":"Western","div":"Western B","tier":"d2","rival":"Weber State","rivals":["Weber State"]},{"id":"d24","name":"Montana","city":"Missoula","st":"MT","lat":46.86,"lon":-113.98,"rating":46,"conf":"Western","div":"Western B","tier":"d2","rival":"Montana State","rivals":["Montana State"]},{"id":"d25","name":"Montana State","city":"Bozeman","st":"MT","lat":45.67,"lon":-111.05,"rating":50,"conf":"Western","div":"Western A","tier":"d2","rival":"Montana","rivals":["Montana"]},{"id":"d26","name":"Northern Arizona","city":"Flagstaff","st":"AZ","lat":35.18,"lon":-111.65,"rating":22,"conf":"Western","div":"Western A","tier":"d2","rival":"Northern Colorado","rivals":["Northern Colorado"]},{"id":"d27","name":"Northern Colorado","city":"Greeley","st":"CO","lat":40.4,"lon":-104.7,"rating":16,"conf":"Western","div":"Western A","tier":"d2","rival":"Northern Arizona","rivals":["Northern Arizona"]},{"id":"d28","name":"Portland State","city":"Portland","st":"OR","lat":45.51,"lon":-122.68,"rating":14,"conf":"Western","div":"Western B","tier":"d2","rival":null,"rivals":[]},{"id":"d29","name":"UC Davis","city":"Davis","st":"CA","lat":38.54,"lon":-121.75,"rating":34,"conf":"Western","div":"Western B","tier":"d2","rival":"Cal Poly","rivals":["Cal Poly"]},{"id":"d210","name":"Weber State","city":"Ogden","st":"UT","lat":41.19,"lon":-111.94,"rating":26,"conf":"Western","div":"Western B","tier":"d2","rival":"Idaho State","rivals":["Idaho State"]},{"id":"d211","name":"Southern Utah","city":"Cedar City","st":"UT","lat":37.68,"lon":-113.07,"rating":18,"conf":"Western","div":"Western A","tier":"d2","rival":"Utah Tech","rivals":["Utah Tech"]},{"id":"d212","name":"Utah Tech","city":"St. George","st":"UT","lat":37.1,"lon":-113.57,"rating":14,"conf":"Western","div":"Western A","tier":"d2","rival":"Southern Utah","rivals":["Southern Utah"]},{"id":"d213","name":"Eastern Illinois","city":"Charleston","st":"IL","lat":39.48,"lon":-88.18,"rating":14,"conf":"Central","div":"Central B","tier":"d2","rival":"Southeast Missouri","rivals":["Southeast Missouri"]},{"id":"d214","name":"Lindenwood","city":"St. Charles","st":"MO","lat":38.79,"lon":-90.51,"rating":10,"conf":"Western","div":"Western B","tier":"d2","rival":"Western Illinois","rivals":["Western Illinois"]},{"id":"d215","name":"Southeast Missouri","city":"Cape Girardeau","st":"MO","lat":37.31,"lon":-89.52,"rating":22,"conf":"Central","div":"Central A","tier":"d2","rival":"Eastern Illinois","rivals":["Eastern Illinois"]},{"id":"d216","name":"Tennessee State","city":"Nashville","st":"TN","lat":36.17,"lon":-86.83,"rating":24,"conf":"Central","div":"Central A","tier":"d2","rival":"Austin Peay","rivals":["Austin Peay"]},{"id":"d217","name":"UT Martin","city":"Martin","st":"TN","lat":36.34,"lon":-88.85,"rating":26,"conf":"Central","div":"Central B","tier":"d2","rival":"Murray State","rivals":["Murray State"]},{"id":"d218","name":"Western Illinois","city":"Macomb","st":"IL","lat":40.47,"lon":-90.68,"rating":8,"conf":"Western","div":"Western B","tier":"d2","rival":"Lindenwood","rivals":["Lindenwood"]},{"id":"d219","name":"Charleston Southern","city":"Charleston","st":"SC","lat":32.96,"lon":-80.07,"rating":12,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Gardner-Webb","rivals":["Gardner-Webb"]},{"id":"d220","name":"Gardner-Webb","city":"Boiling Springs","st":"NC","lat":35.25,"lon":-81.67,"rating":12,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Charleston Southern","rivals":["Charleston Southern"]},{"id":"d221","name":"Albany","city":"Albany","st":"NY","lat":42.69,"lon":-73.82,"rating":24,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Stony Brook","rivals":["Stony Brook"]},{"id":"d222","name":"Bryant","city":"Smithfield","st":"RI","lat":41.92,"lon":-71.55,"rating":20,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Sacred Heart","rivals":["Sacred Heart"]},{"id":"d223","name":"Campbell","city":"Buies Creek","st":"NC","lat":35.41,"lon":-78.74,"rating":14,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Elon","rivals":["Elon"]},{"id":"d224","name":"Elon","city":"Elon","st":"NC","lat":36.1,"lon":-79.5,"rating":24,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Campbell","rivals":["Campbell"]},{"id":"d225","name":"Hampton","city":"Hampton","st":"VA","lat":37.02,"lon":-76.34,"rating":14,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Norfolk State","rivals":["Norfolk State"]},{"id":"d226","name":"Maine","city":"Orono","st":"ME","lat":44.9,"lon":-68.67,"rating":22,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"New Hampshire","rivals":["New Hampshire"]},{"id":"d227","name":"Monmouth","city":"West Long Branch","st":"NJ","lat":40.28,"lon":-74.01,"rating":26,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Rhode Island","rivals":["Rhode Island"]},{"id":"d228","name":"New Hampshire","city":"Durham","st":"NH","lat":43.14,"lon":-70.93,"rating":26,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Maine","rivals":["Maine"]},{"id":"d229","name":"North Carolina A&T","city":"Greensboro","st":"NC","lat":36.07,"lon":-79.77,"rating":18,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"North Carolina Central","rivals":["North Carolina Central"]},{"id":"d230","name":"Rhode Island","city":"Kingston","st":"RI","lat":41.48,"lon":-71.53,"rating":30,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Monmouth","rivals":["Monmouth"]},{"id":"d231","name":"Richmond","city":"Richmond","st":"VA","lat":37.58,"lon":-77.54,"rating":34,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"William & Mary","rivals":["William & Mary"]},{"id":"d232","name":"Sacred Heart","city":"Fairfield","st":"CT","lat":41.22,"lon":-73.25,"rating":14,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Bryant","rivals":["Bryant"]},{"id":"d233","name":"Stony Brook","city":"Stony Brook","st":"NY","lat":40.91,"lon":-73.12,"rating":24,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Albany","rivals":["Albany"]},{"id":"d234","name":"Towson","city":"Towson","st":"MD","lat":39.39,"lon":-76.61,"rating":26,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Howard","rivals":["Howard"]},{"id":"d235","name":"Brown","city":"Providence","st":"RI","lat":41.83,"lon":-71.4,"rating":12,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Dartmouth","rivals":["Dartmouth"]},{"id":"d236","name":"Columbia","city":"New York","st":"NY","lat":40.81,"lon":-73.96,"rating":12,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Cornell","rivals":["Cornell"]},{"id":"d237","name":"Cornell","city":"Ithaca","st":"NY","lat":42.45,"lon":-76.48,"rating":14,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Columbia","rivals":["Columbia"]},{"id":"d238","name":"Dartmouth","city":"Hanover","st":"NH","lat":43.7,"lon":-72.29,"rating":22,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Brown","rivals":["Brown"]},{"id":"d239","name":"Harvard","city":"Cambridge","st":"MA","lat":42.37,"lon":-71.12,"rating":24,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Yale","rivals":["Yale"]},{"id":"d240","name":"Penn","city":"Philadelphia","st":"PA","lat":39.95,"lon":-75.19,"rating":20,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Princeton","rivals":["Princeton"]},{"id":"d241","name":"Princeton","city":"Princeton","st":"NJ","lat":40.35,"lon":-74.66,"rating":22,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Penn","rivals":["Penn"]},{"id":"d242","name":"Yale","city":"New Haven","st":"CT","lat":41.31,"lon":-72.93,"rating":16,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Harvard","rivals":["Harvard"]},{"id":"d243","name":"Delaware State","city":"Dover","st":"DE","lat":39.19,"lon":-75.54,"rating":10,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Morgan State","rivals":["Morgan State"]},{"id":"d244","name":"Howard","city":"Washington","st":"DC","lat":38.92,"lon":-77.02,"rating":18,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Towson","rivals":["Towson"]},{"id":"d245","name":"Morgan State","city":"Baltimore","st":"MD","lat":39.34,"lon":-76.58,"rating":12,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Delaware State","rivals":["Delaware State"]},{"id":"d246","name":"Norfolk State","city":"Norfolk","st":"VA","lat":36.85,"lon":-76.26,"rating":16,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Hampton","rivals":["Hampton"]},{"id":"d247","name":"North Carolina Central","city":"Durham","st":"NC","lat":36.0,"lon":-78.9,"rating":20,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"North Carolina A&T","rivals":["North Carolina A&T"]},{"id":"d248","name":"South Carolina State","city":"Orangeburg","st":"SC","lat":33.5,"lon":-80.86,"rating":18,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":null,"rivals":[]},{"id":"d249","name":"Illinois State","city":"Normal","st":"IL","lat":40.51,"lon":-88.99,"rating":34,"conf":"Western","div":"Western A","tier":"d2","rival":"Northern Iowa","rivals":["Northern Iowa"]},{"id":"d250","name":"Indiana State","city":"Terre Haute","st":"IN","lat":39.47,"lon":-87.41,"rating":10,"conf":"Central","div":"Central A","tier":"d2","rival":"Southern Illinois","rivals":["Southern Illinois"]},{"id":"d251","name":"Murray State","city":"Murray","st":"KY","lat":36.61,"lon":-88.32,"rating":12,"conf":"Central","div":"Central B","tier":"d2","rival":"UT Martin","rivals":["UT Martin"]},{"id":"d252","name":"North Dakota","city":"Grand Forks","st":"ND","lat":47.92,"lon":-97.07,"rating":30,"conf":"Western","div":"Western B","tier":"d2","rival":"South Dakota","rivals":["South Dakota"]},{"id":"d253","name":"Northern Iowa","city":"Cedar Falls","st":"IA","lat":42.52,"lon":-92.46,"rating":42,"conf":"Western","div":"Western A","tier":"d2","rival":"Illinois State","rivals":["Illinois State"]},{"id":"d254","name":"South Dakota","city":"Vermillion","st":"SD","lat":42.78,"lon":-96.93,"rating":44,"conf":"Western","div":"Western A","tier":"d2","rival":"North Dakota","rivals":["North Dakota"]},{"id":"d255","name":"South Dakota State","city":"Brookings","st":"SD","lat":44.31,"lon":-96.79,"rating":52,"conf":"Western","div":"Western B","tier":"d2","rival":"North Dakota State","rivals":["North Dakota State"]},{"id":"d256","name":"Southern Illinois","city":"Carbondale","st":"IL","lat":37.71,"lon":-89.22,"rating":32,"conf":"Central","div":"Central B","tier":"d2","rival":"Indiana State","rivals":["Indiana State"]},{"id":"d257","name":"Youngstown State","city":"Youngstown","st":"OH","lat":41.1,"lon":-80.65,"rating":34,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Mercyhurst","rivals":["Mercyhurst"]},{"id":"d258","name":"Central Connecticut","city":"New Britain","st":"CT","lat":41.69,"lon":-72.77,"rating":14,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"New Haven","rivals":["New Haven"]},{"id":"d259","name":"Duquesne","city":"Pittsburgh","st":"PA","lat":40.44,"lon":-79.99,"rating":18,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Robert Morris","rivals":["Robert Morris"]},{"id":"d260","name":"LIU","city":"Brookville","st":"NY","lat":40.81,"lon":-73.6,"rating":6,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Wagner","rivals":["Wagner"]},{"id":"d261","name":"Mercyhurst","city":"Erie","st":"PA","lat":42.09,"lon":-80.07,"rating":8,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Youngstown State","rivals":["Youngstown State"]},{"id":"d262","name":"Merrimack","city":"North Andover","st":"MA","lat":42.67,"lon":-71.13,"rating":12,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Stonehill","rivals":["Stonehill"]},{"id":"d263","name":"New Haven","city":"West Haven","st":"CT","lat":41.29,"lon":-72.96,"rating":8,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Central Connecticut","rivals":["Central Connecticut"]},{"id":"d264","name":"Robert Morris","city":"Moon Township","st":"PA","lat":40.51,"lon":-80.21,"rating":12,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Duquesne","rivals":["Duquesne"]},{"id":"d265","name":"Stonehill","city":"Easton","st":"MA","lat":42.05,"lon":-71.09,"rating":6,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Merrimack","rivals":["Merrimack"]},{"id":"d266","name":"Wagner","city":"Staten Island","st":"NY","lat":40.61,"lon":-74.09,"rating":6,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"LIU","rivals":["LIU"]},{"id":"d267","name":"Bucknell","city":"Lewisburg","st":"PA","lat":40.95,"lon":-76.88,"rating":10,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Fordham","rivals":["Fordham"]},{"id":"d268","name":"Colgate","city":"Hamilton","st":"NY","lat":42.82,"lon":-75.54,"rating":12,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Holy Cross","rivals":["Holy Cross"]},{"id":"d269","name":"Fordham","city":"Bronx","st":"NY","lat":40.86,"lon":-73.89,"rating":16,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Bucknell","rivals":["Bucknell"]},{"id":"d270","name":"Georgetown","city":"Washington","st":"DC","lat":38.91,"lon":-77.07,"rating":12,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":null,"rivals":[]},{"id":"d271","name":"Holy Cross","city":"Worcester","st":"MA","lat":42.24,"lon":-71.81,"rating":26,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Colgate","rivals":["Colgate"]},{"id":"d272","name":"Lafayette","city":"Easton","st":"PA","lat":40.7,"lon":-75.21,"rating":16,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"Lehigh","rivals":["Lehigh"]},{"id":"d273","name":"Lehigh","city":"Bethlehem","st":"PA","lat":40.61,"lon":-75.38,"rating":20,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":"Lafayette","rivals":["Lafayette"]},{"id":"d274","name":"Villanova","city":"Villanova","st":"PA","lat":40.04,"lon":-75.34,"rating":38,"conf":"Northeast","div":"Northeast B","tier":"d2","rival":null,"rivals":[]},{"id":"d275","name":"William & Mary","city":"Williamsburg","st":"VA","lat":37.27,"lon":-76.71,"rating":34,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Richmond","rivals":["Richmond"]},{"id":"d276","name":"Butler","city":"Indianapolis","st":"IN","lat":39.84,"lon":-86.17,"rating":8,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Valparaiso","rivals":["Valparaiso"]},{"id":"d277","name":"Davidson","city":"Davidson","st":"NC","lat":35.5,"lon":-80.85,"rating":14,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Presbyterian","rivals":["Presbyterian"]},{"id":"d278","name":"Dayton","city":"Dayton","st":"OH","lat":39.74,"lon":-84.18,"rating":16,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Drake","rivals":["Drake"]},{"id":"d279","name":"Drake","city":"Des Moines","st":"IA","lat":41.6,"lon":-93.65,"rating":10,"conf":"Western","div":"Western B","tier":"d2","rival":"Dayton","rivals":["Dayton"]},{"id":"d280","name":"Marist","city":"Poughkeepsie","st":"NY","lat":41.72,"lon":-73.93,"rating":8,"conf":"Northeast","div":"Northeast A","tier":"d2","rival":"St. Thomas","rivals":["St. Thomas"]},{"id":"d281","name":"Morehead State","city":"Morehead","st":"KY","lat":38.19,"lon":-83.43,"rating":8,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Eastern Kentucky","rivals":["Eastern Kentucky"]},{"id":"d282","name":"Presbyterian","city":"Clinton","st":"SC","lat":34.47,"lon":-81.87,"rating":10,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Davidson","rivals":["Davidson"]},{"id":"d283","name":"San Diego","city":"San Diego","st":"CA","lat":32.77,"lon":-117.19,"rating":18,"conf":"Western","div":"Western A","tier":"d2","rival":null,"rivals":[]},{"id":"d284","name":"St. Thomas","city":"St. Paul","st":"MN","lat":44.94,"lon":-93.19,"rating":26,"conf":"Western","div":"Western B","tier":"d2","rival":"Marist","rivals":["Marist"]},{"id":"d285","name":"Stetson","city":"DeLand","st":"FL","lat":29.04,"lon":-81.3,"rating":8,"conf":"Central","div":"Central B","tier":"d2","rival":null,"rivals":[]},{"id":"d286","name":"Valparaiso","city":"Valparaiso","st":"IN","lat":41.47,"lon":-87.04,"rating":6,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Butler","rivals":["Butler"]},{"id":"d287","name":"Chattanooga","city":"Chattanooga","st":"TN","lat":35.05,"lon":-85.29,"rating":28,"conf":"Central","div":"Central B","tier":"d2","rival":"The Citadel","rivals":["The Citadel"]},{"id":"d288","name":"The Citadel","city":"Charleston","st":"SC","lat":32.8,"lon":-79.96,"rating":12,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Chattanooga","rivals":["Chattanooga"]},{"id":"d289","name":"East Tennessee State","city":"Johnson City","st":"TN","lat":36.3,"lon":-82.37,"rating":24,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Western Carolina","rivals":["Western Carolina"]},{"id":"d290","name":"Furman","city":"Greenville","st":"SC","lat":34.92,"lon":-82.44,"rating":32,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Wofford","rivals":["Wofford"]},{"id":"d291","name":"Mercer","city":"Macon","st":"GA","lat":32.83,"lon":-83.65,"rating":30,"conf":"Central","div":"Central A","tier":"d2","rival":"Samford","rivals":["Samford"]},{"id":"d292","name":"Samford","city":"Birmingham","st":"AL","lat":33.46,"lon":-86.79,"rating":26,"conf":"Central","div":"Central B","tier":"d2","rival":"Mercer","rivals":["Mercer"]},{"id":"d293","name":"VMI","city":"Lexington","st":"VA","lat":37.79,"lon":-79.44,"rating":10,"conf":"Southeast","div":"Southeast B","tier":"d2","rival":"Tennessee Tech","rivals":["Tennessee Tech"]},{"id":"d294","name":"Western Carolina","city":"Cullowhee","st":"NC","lat":35.31,"lon":-83.18,"rating":16,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"East Tennessee State","rivals":["East Tennessee State"]},{"id":"d295","name":"Wofford","city":"Spartanburg","st":"SC","lat":34.95,"lon":-81.93,"rating":14,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Furman","rivals":["Furman"]},{"id":"d296","name":"Tennessee Tech","city":"Cookeville","st":"TN","lat":36.17,"lon":-85.5,"rating":14,"conf":"Central","div":"Central B","tier":"d2","rival":"VMI","rivals":["VMI"]},{"id":"d297","name":"Houston Christian","city":"Houston","st":"TX","lat":29.69,"lon":-95.46,"rating":10,"conf":"Western","div":"Western A","tier":"d2","rival":"Incarnate Word","rivals":["Incarnate Word"]},{"id":"d298","name":"Incarnate Word","city":"San Antonio","st":"TX","lat":29.47,"lon":-98.47,"rating":34,"conf":"Western","div":"Western A","tier":"d2","rival":"Houston Christian","rivals":["Houston Christian"]},{"id":"d299","name":"Lamar","city":"Beaumont","st":"TX","lat":30.04,"lon":-94.07,"rating":12,"conf":"Central","div":"Central B","tier":"d2","rival":"McNeese","rivals":["McNeese"]},{"id":"d2100","name":"McNeese","city":"Lake Charles","st":"LA","lat":30.18,"lon":-93.21,"rating":24,"conf":"Central","div":"Central B","tier":"d2","rival":"Lamar","rivals":["Lamar"]},{"id":"d2101","name":"Nicholls","city":"Thibodaux","st":"LA","lat":29.79,"lon":-90.81,"rating":22,"conf":"Central","div":"Central B","tier":"d2","rival":"Southeastern Louisiana","rivals":["Southeastern Louisiana"]},{"id":"d2102","name":"Northwestern State","city":"Natchitoches","st":"LA","lat":31.75,"lon":-93.08,"rating":10,"conf":"Central","div":"Central A","tier":"d2","rival":"Stephen F. Austin","rivals":["Stephen F. Austin"]},{"id":"d2103","name":"Southeastern Louisiana","city":"Hammond","st":"LA","lat":30.51,"lon":-90.47,"rating":28,"conf":"Central","div":"Central A","tier":"d2","rival":"Nicholls","rivals":["Nicholls"]},{"id":"d2104","name":"Stephen F. Austin","city":"Nacogdoches","st":"TX","lat":31.61,"lon":-94.65,"rating":16,"conf":"Western","div":"Western B","tier":"d2","rival":"Northwestern State","rivals":["Northwestern State"]},{"id":"d2105","name":"Texas A&M-Commerce","city":"Commerce","st":"TX","lat":33.24,"lon":-95.9,"rating":10,"conf":"Western","div":"Western A","tier":"d2","rival":"UTRGV","rivals":["UTRGV"]},{"id":"d2106","name":"UTRGV","city":"Edinburg","st":"TX","lat":26.31,"lon":-98.17,"rating":8,"conf":"Western","div":"Western A","tier":"d2","rival":"Texas A&M-Commerce","rivals":["Texas A&M-Commerce"]},{"id":"d2107","name":"Alabama A&M","city":"Huntsville","st":"AL","lat":34.78,"lon":-86.57,"rating":18,"conf":"Central","div":"Central B","tier":"d2","rival":"Alabama State","rivals":["Alabama State"]},{"id":"d2108","name":"Alabama State","city":"Montgomery","st":"AL","lat":32.36,"lon":-86.29,"rating":20,"conf":"Central","div":"Central A","tier":"d2","rival":"Alabama A&M","rivals":["Alabama A&M"]},{"id":"d2109","name":"Alcorn State","city":"Lorman","st":"MS","lat":31.87,"lon":-91.13,"rating":12,"conf":"Central","div":"Central A","tier":"d2","rival":"Jackson State","rivals":["Jackson State"]},{"id":"d2110","name":"Arkansas-Pine Bluff","city":"Pine Bluff","st":"AR","lat":34.24,"lon":-92.02,"rating":8,"conf":"Central","div":"Central B","tier":"d2","rival":"Central Arkansas","rivals":["Central Arkansas"]},{"id":"d2111","name":"Bethune-Cookman","city":"Daytona Beach","st":"FL","lat":29.2,"lon":-81.05,"rating":12,"conf":"Central","div":"Central B","tier":"d2","rival":"Florida A&M","rivals":["Florida A&M"]},{"id":"d2112","name":"Florida A&M","city":"Tallahassee","st":"FL","lat":30.42,"lon":-84.29,"rating":26,"conf":"Central","div":"Central A","tier":"d2","rival":"Bethune-Cookman","rivals":["Bethune-Cookman"]},{"id":"d2113","name":"Grambling","city":"Grambling","st":"LA","lat":32.53,"lon":-92.71,"rating":16,"conf":"Central","div":"Central A","tier":"d2","rival":"Southern","rivals":["Southern"]},{"id":"d2114","name":"Jackson State","city":"Jackson","st":"MS","lat":32.3,"lon":-90.21,"rating":26,"conf":"Central","div":"Central A","tier":"d2","rival":"Alcorn State","rivals":["Alcorn State"]},{"id":"d2115","name":"Mississippi Valley State","city":"Itta Bena","st":"MS","lat":33.5,"lon":-90.33,"rating":4,"conf":"Central","div":"Central A","tier":"d2","rival":null,"rivals":[]},{"id":"d2116","name":"Prairie View A&M","city":"Prairie View","st":"TX","lat":30.09,"lon":-95.99,"rating":18,"conf":"Western","div":"Western B","tier":"d2","rival":"Texas Southern","rivals":["Texas Southern"]},{"id":"d2117","name":"Southern","city":"Baton Rouge","st":"LA","lat":30.52,"lon":-91.19,"rating":22,"conf":"Central","div":"Central A","tier":"d2","rival":"Grambling","rivals":["Grambling"]},{"id":"d2118","name":"Texas Southern","city":"Houston","st":"TX","lat":29.72,"lon":-95.36,"rating":10,"conf":"Western","div":"Western B","tier":"d2","rival":"Prairie View A&M","rivals":["Prairie View A&M"]},{"id":"d2119","name":"Abilene Christian","city":"Abilene","st":"TX","lat":32.47,"lon":-99.71,"rating":20,"conf":"Western","div":"Western A","tier":"d2","rival":"Tarleton State","rivals":["Tarleton State"]},{"id":"d2120","name":"Austin Peay","city":"Clarksville","st":"TN","lat":36.53,"lon":-87.35,"rating":18,"conf":"Central","div":"Central A","tier":"d2","rival":"Tennessee State","rivals":["Tennessee State"]},{"id":"d2121","name":"Central Arkansas","city":"Conway","st":"AR","lat":35.08,"lon":-92.46,"rating":22,"conf":"Central","div":"Central B","tier":"d2","rival":"Arkansas-Pine Bluff","rivals":["Arkansas-Pine Bluff"]},{"id":"d2122","name":"Eastern Kentucky","city":"Richmond","st":"KY","lat":37.74,"lon":-84.3,"rating":20,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":"Morehead State","rivals":["Morehead State"]},{"id":"d2123","name":"North Alabama","city":"Florence","st":"AL","lat":34.81,"lon":-87.68,"rating":22,"conf":"Central","div":"Central B","tier":"d2","rival":"West Georgia","rivals":["West Georgia"]},{"id":"d2124","name":"Tarleton State","city":"Stephenville","st":"TX","lat":32.22,"lon":-98.21,"rating":30,"conf":"Western","div":"Western A","tier":"d2","rival":"Abilene Christian","rivals":["Abilene Christian"]},{"id":"d2125","name":"West Georgia","city":"Carrollton","st":"GA","lat":33.57,"lon":-85.1,"rating":12,"conf":"Central","div":"Central A","tier":"d2","rival":"North Alabama","rivals":["North Alabama"]},{"id":"d2126","name":"West Florida","city":"Pensacola","st":"FL","lat":30.55,"lon":-87.22,"rating":20,"conf":"Central","div":"Central A","tier":"d2","rival":"South Alabama","rivals":["South Alabama"]},{"id":"d2127","name":"Chicago State","city":"Chicago","st":"IL","lat":41.72,"lon":-87.61,"rating":2,"conf":"Southeast","div":"Southeast A","tier":"d2","rival":null,"rivals":[]}],"divs":["Northeast A","Northeast B","Southeast A","Southeast B","Central A","Central B","Western A","Western B"],"confs":["Northeast","Southeast","Central","Western"],"map":{"paths":{"Alabama":"M646.3,375.7 677.9,372.9 683.2,391.8 690.9,419.5 693.7,425.5 696.2,428.8 695.6,431.0 697.9,432.1 695.1,435.3 695.5,438.1 694.3,442.1 696.9,448.6 696.3,454.6 699.0,460.4 689.7,461.6 649.9,465.6 649.5,468.5 654.1,472.4 653.7,476.2 655.4,477.8 652.8,481.4 650.3,482.4 645.1,479.1 644.2,473.7 641.2,477.5 640.9,481.6 635.9,480.9 631.7,446.9 632.6,404.1 633.1,379.3 631.1,377.1 646.3,375.7Z","Arizona":"M260.7,322.1 243.2,448.2 205.2,442.5 184.7,430.7 140.5,404.4 143.2,399.8 146.9,399.7 148.3,398.0 148.1,393.7 145.6,393.1 146.1,384.6 150.4,382.2 151.5,379.1 151.8,373.7 154.8,370.3 157.9,369.4 160.6,366.9 157.7,363.1 156.4,356.8 154.2,352.6 154.7,349.8 156.4,347.0 156.8,342.8 156.2,338.3 157.7,325.2 164.3,325.6 165.9,328.7 170.2,325.5 173.7,307.7 235.3,318.2 260.7,322.1Z","Arkansas":"M517.1,348.8 593.8,346.0 595.6,350.2 593.0,353.1 590.5,357.4 602.0,356.7 601.7,360.9 599.1,362.3 598.7,365.8 595.6,369.7 596.3,375.1 594.7,379.1 593.0,379.9 594.2,381.8 591.4,383.7 590.3,387.5 588.5,388.6 589.1,393.0 585.8,394.5 582.4,399.8 583.7,402.2 580.5,405.9 578.0,413.0 581.3,415.8 579.8,417.7 581.1,422.3 579.8,425.4 534.4,426.8 526.4,427.0 526.2,415.1 523.5,414.1 519.9,415.3 517.9,413.2 518.3,373.7 514.6,348.9 517.1,348.8Z","California":"M48.1,161.5 61.7,165.3 82.9,171.5 99.3,175.9 89.7,213.5 82.5,241.1 99.1,266.1 115.2,290.3 128.2,309.8 137.7,324.1 154.7,349.8 154.2,352.6 156.4,356.8 157.7,363.1 160.6,366.9 157.9,369.4 154.8,370.3 151.8,373.7 151.5,379.1 150.4,382.2 146.1,384.6 145.6,393.1 148.1,393.7 148.3,398.0 146.9,399.7 143.2,399.8 118.5,396.9 98.4,394.5 96.9,391.1 97.8,386.5 97.6,380.8 95.9,376.4 91.5,369.8 85.5,363.2 83.8,364.2 81.3,362.7 82.2,360.6 80.1,355.5 75.7,355.4 69.1,350.3 68.7,347.5 64.6,343.0 58.9,341.7 54.6,339.0 48.6,338.1 46.2,334.4 48.5,328.5 49.5,323.2 45.8,318.8 46.8,314.3 43.3,309.0 41.6,307.7 41.3,305.0 37.2,294.3 34.8,290.8 36.1,283.7 39.6,280.8 38.3,276.3 35.2,276.0 32.2,271.4 31.6,268.3 32.6,265.8 31.7,261.8 33.3,256.1 36.4,257.0 37.4,248.7 34.4,252.9 30.9,252.8 27.8,248.7 28.6,243.4 27.3,238.7 24.6,235.2 23.7,231.8 20.5,224.8 21.8,223.4 21.7,215.5 23.9,211.8 24.3,205.4 21.9,198.2 18.8,193.7 19.2,189.5 26.2,181.3 27.9,178.4 27.9,175.7 31.3,169.7 31.8,163.4 30.5,161.4 32.7,156.9 48.1,161.5Z","Colorado":"M291.6,235.3 327.9,239.6 355.8,242.0 389.1,244.5 387.6,267.0 383.5,334.6 366.7,333.3 343.2,331.5 298.8,327.0 289.1,325.7 260.7,322.1 264.3,296.1 264.4,293.6 267.1,274.7 273.0,232.9 291.6,235.3Z","Connecticut":"M863.7,179.1 883.7,174.4 887.2,187.7 886.7,189.9 878.6,193.4 870.1,195.0 867.2,198.9 863.5,200.8 859.5,204.5 857.8,202.2 861.2,198.9 859.6,197.4 856.7,180.6 863.7,179.1Z","Delaware":"M836.7,237.0 835.7,240.0 834.3,241.8 835.4,245.2 838.6,248.0 840.4,253.2 845.2,258.1 849.4,265.4 838.4,267.6 830.9,240.2 833.2,237.2 836.7,237.0Z","District of Columbia":"M813.3,260.6 815.9,262.3 814.2,265.1 812.2,262.2 813.3,260.6Z","Florida":"M689.7,461.6 699.0,460.4 702.4,466.5 728.6,464.8 753.1,463.1 754.7,467.7 757.0,467.2 757.2,462.6 755.8,458.6 757.3,456.6 762.0,457.8 767.3,457.8 769.9,467.2 774.0,477.6 781.7,490.8 792.8,504.5 793.2,512.7 798.1,519.9 806.5,534.6 808.5,539.3 809.2,544.4 810.1,562.8 808.3,563.4 807.2,569.4 808.2,571.0 805.0,575.7 803.3,575.0 799.8,577.3 793.6,579.3 791.4,577.3 791.7,573.8 785.7,564.9 781.9,563.6 779.0,565.4 775.8,560.4 774.5,556.1 769.6,551.8 768.2,548.7 768.1,543.9 765.7,543.4 766.7,546.1 764.7,547.1 756.7,536.1 753.8,533.4 758.5,523.8 754.7,524.8 752.5,528.0 749.3,524.0 751.0,511.5 750.3,501.4 747.6,499.3 746.4,496.1 742.6,495.9 737.5,491.2 733.8,489.5 733.1,486.2 730.5,485.3 728.1,482.0 720.1,478.1 713.9,479.9 714.6,483.3 712.4,483.0 704.9,488.0 696.5,490.0 696.4,487.5 694.1,484.9 683.4,479.4 676.0,477.3 669.6,477.2 664.3,478.2 652.8,481.4 655.4,477.8 653.7,476.2 654.1,472.4 649.5,468.5 649.9,465.6 689.7,461.6Z","Georgia":"M722.7,367.0 719.5,372.3 719.6,374.6 726.2,378.6 728.1,378.0 731.5,382.4 732.5,384.9 736.0,389.1 740.6,391.3 743.6,395.1 749.0,398.2 749.2,400.8 753.1,404.4 758.5,407.1 760.3,410.5 761.2,415.2 764.0,416.4 767.8,421.9 768.5,425.6 773.1,426.9 769.7,435.1 769.5,439.1 768.1,442.8 768.4,446.4 766.6,448.3 767.3,457.8 762.0,457.8 757.3,456.6 755.8,458.6 757.2,462.6 757.0,467.2 754.7,467.7 753.1,463.1 728.6,464.8 702.4,466.5 699.0,460.4 696.3,454.6 696.9,448.6 694.3,442.1 695.5,438.1 695.1,435.3 697.9,432.1 695.6,431.0 696.2,428.8 693.7,425.5 690.9,419.5 683.2,391.8 677.9,372.9 701.0,370.1 713.6,368.6 722.7,367.0Z","Idaho":"M195.3,38.2 190.6,60.3 194.1,67.4 192.9,73.3 195.2,76.5 198.0,78.1 202.4,86.7 202.6,89.2 206.1,92.3 210.4,94.5 206.6,102.2 205.2,107.2 206.1,110.9 202.9,112.8 203.5,115.2 202.3,117.5 205.1,120.4 209.5,118.1 211.4,116.0 213.8,118.7 213.0,120.4 213.8,124.9 215.5,129.8 217.0,131.8 216.2,136.0 217.6,138.1 220.8,138.9 221.6,146.4 223.1,147.9 225.1,146.2 230.0,147.2 233.9,145.8 235.9,147.3 239.7,147.0 243.6,148.0 247.9,144.0 249.8,148.2 252.3,151.0 243.5,205.8 225.4,202.9 195.0,197.4 146.9,187.2 155.9,147.2 159.6,140.5 158.7,138.4 155.8,137.4 155.4,134.1 160.3,127.1 164.3,123.9 164.5,121.8 166.9,119.6 168.7,115.9 173.2,110.2 172.7,106.9 169.4,104.6 168.2,100.5 168.9,96.6 167.8,92.4 168.5,90.6 174.9,61.7 181.0,35.1 195.3,38.2Z","Illinois":"M577.5,211.4 607.7,209.8 623.8,208.5 623.6,212.8 626.5,217.6 629.9,225.6 634.5,278.5 633.0,282.7 635.6,287.3 636.2,291.2 634.3,294.6 634.0,297.6 631.3,302.7 629.4,303.2 630.1,306.0 628.2,312.6 626.9,317.4 628.9,321.2 621.9,323.9 621.4,326.2 623.2,329.1 621.2,331.1 614.5,328.1 612.5,328.5 610.1,332.7 608.2,333.8 603.8,327.7 605.2,326.1 603.4,321.9 603.2,318.4 597.3,314.0 595.4,314.6 593.3,311.8 587.9,307.6 587.8,304.0 590.3,298.0 589.7,296.0 591.3,293.1 588.7,291.7 584.9,290.9 583.1,293.1 581.7,291.9 580.1,284.5 574.2,280.0 568.7,274.5 566.2,267.7 565.8,263.2 567.1,259.9 567.2,255.8 571.8,253.1 572.1,249.7 574.1,247.3 574.2,243.4 571.3,240.3 572.2,236.4 578.6,234.9 583.6,231.8 583.9,228.3 586.0,226.7 586.3,222.4 585.7,219.6 581.9,217.6 581.3,215.3 577.5,211.4Z","Indiana":"M655.0,222.1 674.4,219.9 677.8,248.0 681.2,279.2 682.1,286.3 679.2,286.8 676.2,289.2 671.7,288.8 672.4,293.1 669.7,295.3 668.8,298.3 665.9,299.7 664.9,305.5 663.1,307.2 659.0,305.5 658.1,303.0 654.6,306.2 655.1,308.6 651.3,309.9 649.9,307.8 645.8,310.4 644.6,312.9 639.9,309.9 637.7,310.9 636.0,309.4 634.7,311.2 630.4,311.8 628.9,314.0 628.8,307.2 629.4,303.2 631.3,302.7 634.0,297.6 634.3,294.6 636.2,291.2 635.6,287.3 633.0,282.7 634.5,278.5 629.9,225.6 631.6,226.9 636.7,226.5 641.3,223.4 655.0,222.1Z","Iowa":"M564.5,189.9 567.0,189.7 567.4,193.0 569.9,195.1 568.0,197.9 568.8,202.9 570.3,206.4 576.2,208.7 577.5,211.4 581.3,215.3 581.9,217.6 585.7,219.6 586.3,222.4 586.0,226.7 583.9,228.3 583.6,231.8 578.6,234.9 572.2,236.4 571.3,240.3 574.2,243.4 574.1,247.3 572.1,249.7 571.8,253.1 567.2,255.8 567.1,259.9 565.3,259.3 561.6,254.9 536.0,256.5 513.0,257.3 493.9,257.1 492.0,254.1 492.9,248.3 491.3,243.3 491.4,237.6 488.4,235.7 488.0,232.6 489.0,229.9 487.9,225.9 485.7,224.5 482.7,214.4 479.7,209.4 481.2,206.1 481.7,201.7 483.0,200.1 481.0,197.9 481.5,194.0 480.6,192.1 482.8,191.7 564.5,189.9Z","Kansas":"M390.1,267.2 501.8,270.2 503.4,272.3 508.9,274.0 505.2,280.6 507.4,282.8 510.1,288.0 513.8,289.1 514.4,337.7 418.0,336.3 383.5,334.6 387.6,267.0 390.1,267.2Z","Kentucky":"M697.7,284.8 701.9,287.3 704.5,285.4 711.1,286.2 712.7,283.8 715.0,282.7 716.3,286.4 718.4,286.7 721.1,289.4 721.6,296.2 724.3,300.2 727.5,303.1 728.7,305.5 732.4,307.6 734.8,307.7 729.0,314.6 723.1,318.8 720.9,322.4 721.0,324.3 717.8,325.6 717.0,328.2 708.0,332.7 692.7,334.7 679.5,335.5 676.0,336.2 656.4,337.4 634.2,339.9 630.3,339.3 630.9,343.3 608.9,344.7 606.8,345.1 607.5,342.2 610.2,343.0 611.0,333.8 612.5,328.5 614.5,328.1 621.2,331.1 623.2,329.1 621.4,326.2 621.9,323.9 628.9,321.2 626.9,317.4 628.9,314.0 630.4,311.8 634.7,311.2 636.0,309.4 637.7,310.9 639.9,309.9 644.6,312.9 645.8,310.4 649.9,307.8 651.3,309.9 655.1,308.6 654.6,306.2 658.1,303.0 659.0,305.5 663.1,307.2 664.9,305.5 665.9,299.7 668.8,298.3 669.7,295.3 672.4,293.1 671.7,288.8 676.2,289.2 679.2,286.8 682.1,286.3 680.0,280.4 687.7,278.4 691.7,282.7 692.3,284.6 697.7,284.8Z","Louisiana":"M534.4,426.8 579.8,425.4 581.7,427.9 580.4,433.5 583.3,436.2 584.1,442.8 582.1,448.1 577.8,451.5 576.9,456.6 575.0,456.2 575.1,464.4 572.8,464.7 574.4,469.1 573.1,470.7 609.1,468.7 607.7,476.2 611.1,480.8 612.1,484.5 614.6,486.6 609.1,490.0 608.8,492.3 613.6,493.4 615.3,489.8 619.6,493.0 619.5,495.8 617.2,497.2 612.8,496.4 613.5,498.5 612.2,501.7 616.1,504.3 622.1,504.7 624.5,507.8 623.4,512.2 619.9,511.7 616.8,508.0 609.5,506.4 609.3,502.6 605.9,504.1 606.3,507.2 604.9,510.3 602.3,510.9 600.2,507.7 595.7,507.9 594.3,511.4 591.4,512.5 588.1,510.6 585.5,510.5 582.8,505.1 578.3,502.9 574.7,498.8 569.7,499.6 569.5,496.8 564.6,499.7 565.3,501.8 561.6,503.9 555.6,503.1 548.6,500.3 543.7,499.1 533.2,500.5 530.1,499.2 534.5,491.2 532.9,486.9 534.2,484.6 533.5,481.5 535.3,479.2 537.2,473.4 536.7,468.6 531.3,459.7 531.1,454.8 526.9,449.9 526.4,427.0 534.4,426.8Z","Maine":"M895.0,147.4 892.7,146.4 892.4,144.2 889.3,142.4 880.6,114.2 876.1,100.5 881.8,95.8 880.4,94.5 881.9,90.6 884.1,88.3 885.0,84.5 883.3,81.0 883.2,74.9 884.9,72.4 884.1,66.2 890.8,46.6 893.6,46.5 895.0,50.4 897.3,51.3 901.3,47.5 904.3,46.7 905.9,44.5 911.0,46.7 914.2,48.7 921.7,72.6 923.1,78.4 928.7,78.3 928.7,81.0 930.8,82.9 930.4,85.3 933.5,87.9 936.1,86.4 941.2,93.1 939.1,97.5 936.9,96.8 936.1,99.6 933.8,99.6 934.1,101.7 931.2,102.3 928.1,108.3 926.1,105.4 926.2,108.9 923.2,111.5 921.6,109.1 920.3,111.0 916.4,112.2 915.4,109.0 913.3,110.4 914.3,112.5 913.5,117.9 912.2,122.4 909.1,122.3 908.2,125.5 905.9,126.5 904.6,129.3 902.1,129.5 900.8,127.4 898.3,132.1 899.9,134.2 897.6,135.7 898.0,137.8 895.8,141.1 895.0,147.4Z","Maryland":"M769.3,252.2 830.9,240.2 838.4,267.6 849.4,265.4 848.1,275.4 845.6,276.3 841.2,278.7 837.8,280.4 837.1,276.8 835.4,275.6 837.0,273.7 833.7,270.6 833.2,272.3 829.5,272.7 827.5,269.0 827.6,263.6 828.3,261.3 825.3,254.6 826.3,250.1 829.0,248.8 828.5,244.5 826.6,245.4 826.9,247.6 823.1,251.3 822.4,254.1 823.4,260.5 822.4,263.9 824.2,268.8 827.1,271.8 827.4,274.6 829.4,276.9 829.0,278.9 824.4,276.2 818.4,275.7 816.1,272.6 813.3,275.2 811.6,272.8 813.4,268.9 814.2,265.1 815.9,262.3 813.3,260.6 812.2,262.2 809.6,260.6 805.9,260.2 805.2,256.9 803.1,255.5 800.4,255.6 797.3,249.8 794.4,250.4 791.2,248.8 790.0,250.8 787.2,251.2 787.0,253.8 781.8,253.1 779.1,257.0 776.7,256.7 774.1,261.0 771.1,263.7 769.3,252.2Z","Massachusetts":"M892.7,152.0 896.0,155.5 896.1,158.8 894.4,162.3 895.2,165.7 898.8,165.2 901.8,168.1 902.2,170.9 904.1,171.2 905.0,173.6 910.0,174.5 914.6,171.1 914.3,174.3 907.4,179.1 904.7,179.9 902.4,178.4 900.0,179.7 897.6,183.0 895.3,179.4 892.6,177.7 890.4,172.8 888.0,173.4 883.8,174.8 863.7,179.1 856.7,180.6 856.5,164.6 869.4,161.8 887.9,157.7 889.1,155.2 892.7,152.0Z","Michigan":"M696.6,217.7 674.5,221.3 655.0,222.1 641.3,223.4 644.3,220.2 646.1,214.9 647.8,211.7 648.9,207.2 649.2,201.0 648.1,194.5 642.1,182.0 643.0,177.0 641.4,171.2 644.5,164.9 644.7,159.8 643.9,157.2 646.4,155.8 646.4,152.1 650.3,150.7 652.9,146.4 653.6,154.4 656.8,150.4 656.2,143.6 657.3,141.7 661.4,140.1 659.5,135.6 661.8,131.2 665.3,130.6 669.5,132.7 673.3,132.6 675.6,135.5 678.5,135.4 683.7,137.6 688.7,141.7 686.9,144.5 689.4,147.5 690.7,151.1 690.8,159.5 687.9,162.0 687.7,166.4 684.0,168.3 682.6,173.7 683.6,175.5 687.7,176.9 690.3,173.7 693.0,167.5 698.2,164.6 701.1,165.9 703.2,168.8 706.2,177.8 707.1,182.4 709.7,187.7 709.1,196.0 706.7,197.6 706.1,194.7 704.5,195.8 703.4,202.8 700.5,205.8 700.2,211.0 696.6,215.8 696.6,217.7ZM653.1,132.9 653.6,135.5 651.6,136.2 652.1,132.4 653.1,132.9ZM622.1,150.2 619.5,148.1 620.7,144.8 616.9,144.6 618.1,141.5 618.0,137.6 614.5,135.2 612.5,132.5 605.7,130.9 603.7,131.7 596.9,129.0 580.7,125.5 578.8,121.9 575.8,120.7 581.7,118.0 584.2,115.2 590.8,113.6 594.9,110.1 596.9,109.8 598.4,107.4 602.9,103.7 605.1,100.8 608.5,98.7 612.0,99.9 606.6,107.2 605.4,109.6 605.8,113.7 608.5,110.4 613.8,110.4 618.0,112.2 622.3,118.0 624.4,118.9 628.2,117.5 633.1,119.1 640.8,113.2 645.0,112.3 650.8,111.9 654.4,109.8 657.3,109.3 658.6,115.4 661.7,115.9 664.6,114.6 666.1,115.9 667.8,113.8 672.2,112.7 673.3,120.4 675.7,123.4 678.8,123.9 678.9,121.7 681.8,121.3 683.7,123.4 682.6,125.2 674.0,124.9 670.1,126.3 665.4,124.2 664.4,126.8 665.2,128.8 663.2,128.5 660.0,125.8 654.8,124.6 652.3,124.7 650.1,127.9 646.2,129.1 641.7,128.9 640.0,130.3 639.9,132.8 635.2,135.3 635.2,132.4 633.0,132.0 632.5,135.1 628.9,135.6 627.4,137.1 625.5,142.5 621.7,149.6 622.1,150.2ZM598.2,87.9 594.6,91.0 592.7,91.5 592.7,89.2 601.7,83.3 600.2,87.0 598.2,87.9Z","Minnesota":"M551.2,118.9 546.9,119.9 547.4,133.1 542.2,136.4 538.8,141.3 538.6,144.5 540.4,144.7 542.5,147.4 540.8,150.9 541.3,154.7 540.4,162.9 544.7,166.8 548.1,167.0 549.8,169.4 554.8,171.7 555.7,174.6 560.4,178.2 563.0,178.9 566.3,183.6 566.0,187.2 567.0,189.7 564.5,189.9 482.8,191.7 483.0,151.5 479.4,148.9 476.7,144.6 481.0,139.9 481.3,137.3 480.8,128.4 478.9,126.1 477.7,121.2 478.0,115.3 477.1,100.1 474.2,92.5 473.1,88.3 472.7,79.3 473.7,76.3 471.8,69.3 502.6,69.4 502.5,60.9 505.4,61.1 507.4,62.8 509.4,74.2 511.0,75.5 515.9,75.8 522.2,77.3 522.9,79.7 527.8,78.9 531.6,76.6 534.9,77.0 538.8,78.7 540.0,81.0 542.2,80.7 544.4,85.5 545.3,83.4 549.0,82.3 549.8,84.3 554.3,85.6 554.4,87.5 556.7,89.0 561.1,87.9 563.7,85.6 567.4,84.1 568.9,87.3 571.4,86.4 574.4,87.0 577.9,86.3 582.1,88.8 586.0,88.1 580.9,92.4 574.0,95.0 569.6,97.6 563.3,103.6 560.7,107.3 556.5,111.5 549.9,117.1 551.2,118.9Z","Mississippi":"M626.2,377.5 631.1,377.1 633.1,379.3 632.6,404.1 631.7,446.9 635.9,480.9 633.9,482.0 629.2,481.9 627.2,480.6 622.7,481.9 616.5,484.9 614.6,486.6 612.1,484.5 611.1,480.8 607.7,476.2 609.1,468.7 573.1,470.7 574.4,469.1 572.8,464.7 575.1,464.4 575.0,456.2 576.9,456.6 577.8,451.5 582.1,448.1 584.1,442.8 583.3,436.2 580.4,433.5 580.4,429.0 579.8,425.4 581.1,422.3 579.8,417.7 581.3,415.8 578.0,413.0 580.5,405.9 583.7,402.2 582.4,399.8 586.0,395.9 589.1,393.0 588.5,388.6 590.3,387.5 591.4,383.7 594.2,381.8 593.0,379.9 626.2,377.5Z","Missouri":"M559.9,255.1 565.3,259.3 567.1,259.9 565.8,263.2 566.2,267.7 568.7,274.5 574.2,280.0 580.1,284.5 581.7,291.9 583.1,293.1 584.9,290.9 588.7,291.7 591.3,293.1 589.7,296.0 590.3,298.0 587.8,304.0 587.9,307.6 593.3,311.8 595.4,314.6 597.3,314.0 603.2,318.4 603.4,321.9 605.2,326.1 603.8,327.7 608.2,333.8 611.0,333.8 610.2,343.0 607.5,342.2 606.8,345.1 604.6,345.3 605.1,350.8 602.0,356.7 590.5,357.4 593.0,353.1 595.6,350.2 593.8,346.0 517.1,348.8 514.6,348.9 514.4,337.7 513.8,289.1 510.1,288.0 507.4,282.8 505.2,280.6 508.9,274.0 503.4,272.3 501.8,270.2 497.6,264.3 493.9,257.1 513.0,257.3 536.0,256.5 559.9,255.1Z","Montana":"M371.0,64.4 368.9,89.4 365.2,131.8 363.5,152.9 334.2,150.0 284.7,144.0 254.0,139.4 252.3,151.0 249.8,148.2 247.9,144.0 243.6,148.0 240.3,148.3 235.9,147.3 233.9,145.8 230.0,147.2 225.1,146.2 223.1,147.9 221.6,146.4 220.8,138.9 217.6,138.1 216.2,136.0 217.0,131.8 215.5,129.8 213.8,124.9 213.0,120.4 213.8,118.7 211.4,116.0 209.5,118.1 205.1,120.4 202.3,117.5 203.5,115.2 202.9,112.8 206.1,110.9 205.2,107.2 206.6,102.2 210.4,94.5 206.0,93.7 202.6,89.2 202.4,86.7 198.0,79.7 195.2,76.5 192.9,73.3 194.1,67.4 190.6,60.3 195.3,38.2 261.4,50.9 291.4,55.3 371.0,64.4Z","Nebraska":"M371.4,198.3 398.8,200.3 449.5,202.4 458.3,207.8 460.3,205.6 462.6,206.2 470.2,206.3 478.7,210.5 479.8,213.7 482.7,214.4 485.7,224.5 487.9,225.9 489.0,229.9 488.0,232.6 488.4,235.7 491.4,237.6 491.3,243.3 492.9,248.3 492.0,254.1 493.9,257.1 497.6,264.3 501.8,270.2 390.1,267.2 387.6,267.0 389.1,244.5 355.8,242.0 359.6,197.3 371.4,198.3Z","Nevada":"M146.9,187.2 195.0,197.4 173.7,307.7 170.2,325.5 167.7,328.9 164.3,325.6 157.7,325.2 156.2,338.3 156.8,342.8 156.4,347.0 154.7,349.8 137.7,324.1 128.2,309.8 115.2,290.3 99.1,266.1 82.5,241.1 89.7,213.5 99.3,175.9 120.1,181.2 146.9,187.2Z","New Hampshire":"M876.1,100.5 880.6,114.2 889.3,142.4 892.4,144.2 892.7,146.4 895.0,147.4 894.3,151.9 889.1,155.2 887.9,157.7 869.4,161.8 867.6,160.4 866.9,157.2 868.0,155.6 867.1,152.6 865.9,143.1 867.6,138.2 867.7,132.9 868.6,130.8 867.1,125.5 871.7,122.1 873.3,117.8 870.9,114.6 872.1,110.5 871.4,108.5 872.1,102.3 875.7,102.0 876.1,100.5Z","New Jersey":"M849.3,203.3 855.5,205.2 855.0,212.0 852.7,214.1 852.0,217.8 856.9,218.4 857.8,220.8 858.6,233.0 855.5,243.0 852.7,246.3 850.9,252.5 848.6,249.3 843.3,248.6 836.3,245.0 835.2,241.9 835.7,240.0 836.7,237.0 840.7,234.2 844.8,227.7 845.2,225.6 839.5,222.2 838.7,219.5 836.5,219.3 835.8,216.8 837.4,212.4 835.6,210.4 838.6,204.9 839.0,202.3 840.8,200.3 849.3,203.3Z","New Mexico":"M289.1,325.7 298.8,327.0 343.2,331.5 366.7,333.3 365.8,344.5 360.9,400.2 358.8,422.8 357.2,445.3 290.7,439.0 289.9,441.2 291.8,444.0 260.3,440.2 259.0,450.3 243.2,448.2 260.7,322.1 289.1,325.7Z","New York":"M843.3,115.6 844.6,120.0 844.7,124.3 847.1,127.9 847.7,132.1 847.0,137.0 849.8,142.6 849.3,144.6 852.7,147.6 855.8,162.7 856.5,164.6 856.1,179.8 859.6,197.4 861.2,198.9 857.8,202.2 859.5,204.5 866.9,204.6 868.0,202.9 873.9,201.4 876.8,200.0 880.9,195.3 881.9,197.7 884.7,198.1 879.6,202.8 868.2,210.7 863.2,213.0 859.6,213.6 857.3,215.3 855.0,212.0 855.5,205.2 849.3,203.3 840.8,200.3 837.2,199.3 833.4,196.2 833.1,192.9 830.6,190.8 826.9,188.6 755.8,202.6 754.9,197.0 763.6,188.6 764.6,185.3 767.4,182.7 765.5,179.1 762.0,172.8 770.9,168.5 779.1,167.1 782.5,167.1 786.6,168.8 788.6,167.4 795.5,166.1 799.3,163.7 802.9,158.8 805.8,158.1 804.6,152.1 805.3,148.3 801.3,146.7 801.5,143.7 806.9,138.7 808.5,135.0 814.4,126.0 820.5,120.8 831.1,119.0 843.3,115.6Z","North Carolina":"M755.4,326.7 767.4,325.1 781.1,322.9 844.5,310.3 848.4,318.6 843.4,318.8 837.3,322.6 832.8,325.2 837.9,324.6 843.8,323.3 846.0,324.9 848.9,323.4 851.2,328.5 850.7,331.2 848.7,331.9 845.4,338.3 839.5,339.8 839.4,343.7 842.7,346.9 844.8,347.2 842.3,354.2 839.0,354.1 833.4,355.9 829.8,358.0 824.5,363.4 820.6,370.0 819.4,377.5 815.4,376.6 809.1,379.3 784.9,361.9 764.8,364.9 764.7,362.3 761.3,358.9 759.7,360.6 759.2,358.3 737.0,360.5 732.2,362.1 728.7,364.7 722.7,367.0 713.6,368.6 701.0,370.1 700.9,364.8 704.3,363.8 705.2,360.0 709.2,356.1 714.1,355.4 718.0,351.4 722.4,349.5 725.6,344.0 727.8,342.2 728.6,344.3 735.0,339.0 738.3,339.4 739.9,334.9 743.0,333.3 743.0,328.0 755.4,326.7Z","North Dakota":"M471.8,69.3 473.7,76.3 472.7,79.3 473.1,88.3 474.2,92.5 477.1,100.1 477.4,114.3 477.7,121.2 478.9,126.1 480.8,128.4 481.3,137.3 365.2,131.8 368.9,89.4 371.0,64.4 471.8,69.3Z","Ohio":"M743.7,205.1 748.6,234.9 746.3,236.5 747.9,238.7 748.3,242.2 746.9,247.9 746.7,256.3 741.3,264.5 739.3,265.8 737.2,264.6 735.8,268.1 733.8,268.3 732.3,272.9 733.2,275.3 731.7,277.7 728.7,274.6 726.3,280.5 727.7,283.8 725.8,285.3 725.6,288.3 721.1,289.4 718.4,286.7 716.3,286.4 715.0,282.7 712.7,283.8 711.1,286.2 704.5,285.4 701.9,287.3 697.7,284.8 692.3,284.6 691.7,282.7 687.7,278.4 681.2,279.2 677.8,248.0 674.5,221.3 696.6,217.7 703.4,219.9 705.8,221.4 707.2,219.5 711.3,222.5 713.7,223.3 720.9,219.3 725.5,219.2 729.7,214.3 736.1,209.2 743.7,205.1Z","Oklahoma":"M418.0,336.3 514.4,337.7 514.6,348.9 518.3,373.7 517.9,413.2 510.9,410.9 509.0,408.3 504.3,406.1 503.1,408.1 498.3,408.0 493.0,409.0 491.2,407.8 487.3,408.9 483.6,412.3 482.2,410.4 478.4,408.7 474.4,408.7 473.1,406.1 468.4,411.1 466.9,408.3 464.8,409.1 463.2,407.2 458.9,405.4 455.7,408.3 454.3,405.2 451.7,404.8 450.3,402.3 446.8,401.2 444.4,403.3 443.0,401.4 439.3,401.5 435.4,399.4 431.7,399.6 430.5,395.2 424.7,394.8 422.5,395.4 418.6,390.9 419.0,347.6 386.9,345.9 365.8,344.5 366.7,333.3 383.5,334.6 418.0,336.3Z","Oregon":"M74.8,72.1 78.8,75.5 79.4,78.4 78.3,85.1 85.4,89.7 92.9,88.1 97.1,88.9 101.5,91.4 110.7,92.1 112.4,93.6 117.0,94.2 121.3,93.1 128.4,92.9 134.5,93.9 136.9,93.0 168.2,100.5 169.4,104.6 172.7,106.9 173.2,110.2 168.7,115.9 166.9,119.6 164.5,121.8 164.3,123.9 162.0,126.7 155.4,134.1 155.8,137.4 158.7,138.4 159.6,140.5 155.9,147.2 146.9,187.2 120.1,181.2 99.3,175.9 82.9,171.5 61.7,165.3 48.1,161.5 32.7,156.9 31.2,153.8 32.1,146.5 33.9,141.8 32.9,137.3 35.5,134.3 38.4,128.9 42.5,123.5 45.2,118.4 52.4,100.7 52.9,98.2 56.8,90.7 60.7,79.9 61.7,73.6 63.5,70.2 70.4,68.8 72.3,72.0 74.8,72.1Z","Pennsylvania":"M754.9,197.0 755.8,202.6 826.9,188.6 829.3,191.2 833.1,192.9 833.4,196.2 837.2,199.3 839.7,198.9 839.0,202.3 838.6,204.9 835.6,210.4 837.4,212.4 835.8,216.8 836.5,219.3 838.7,219.5 839.5,222.2 845.2,225.6 844.8,227.7 840.6,232.5 836.7,237.0 833.2,237.2 830.9,240.2 769.3,252.2 751.9,255.2 748.6,234.9 743.7,205.1 746.5,203.4 754.8,196.6 754.9,197.0Z","Rhode Island":"M895.3,179.4 897.6,183.0 894.6,184.3 895.3,179.4ZM888.0,173.4 890.4,172.8 892.6,177.7 894.7,178.8 892.7,179.0 891.9,182.6 892.5,187.3 886.7,189.9 887.2,187.7 883.8,174.8 888.0,173.4Z","South Carolina":"M728.7,364.7 732.2,362.1 737.0,360.5 759.2,358.3 759.7,360.6 761.3,358.9 764.7,362.3 764.8,364.9 784.9,361.9 809.1,379.3 806.1,380.9 802.8,385.3 800.0,391.7 800.1,396.4 797.6,400.6 793.5,401.3 793.1,404.1 789.3,407.8 787.4,411.4 783.8,413.3 780.2,417.4 776.5,421.5 773.1,426.9 768.5,425.6 767.8,421.9 764.0,416.4 761.2,415.2 760.3,410.5 758.5,407.1 753.1,404.4 749.2,400.8 749.0,398.2 743.6,395.1 740.6,391.3 736.0,389.1 732.5,384.9 731.5,382.4 728.1,378.0 726.2,378.6 719.6,374.6 719.5,372.3 722.7,367.0 728.7,364.7Z","South Dakota":"M365.2,131.8 481.3,137.3 481.0,139.9 476.7,144.6 479.4,148.9 483.0,151.5 482.8,191.7 480.6,192.1 481.5,194.0 481.0,197.9 483.0,200.1 481.7,201.7 481.2,206.1 479.7,209.4 482.7,214.4 479.8,213.7 478.7,210.5 470.2,206.3 462.6,206.2 460.3,205.6 458.3,207.8 450.0,203.6 398.8,200.3 371.4,198.3 359.6,197.3 363.3,152.9 365.2,131.8Z","Tennessee":"M630.9,343.3 630.3,339.3 634.2,339.9 656.4,337.4 676.0,336.2 679.5,335.5 692.7,334.7 707.7,333.1 743.0,328.0 743.0,333.3 739.9,334.9 738.3,339.4 735.0,339.0 728.6,344.3 727.8,342.2 725.6,344.0 722.4,349.5 718.0,351.4 714.1,355.4 709.2,356.1 705.2,360.0 704.3,363.8 700.9,364.8 701.0,370.1 677.9,372.9 646.3,375.7 631.1,377.1 626.2,377.5 593.0,379.9 594.7,379.1 596.3,375.1 595.6,369.7 598.7,365.8 599.1,362.3 601.7,360.9 602.0,356.7 605.1,350.8 604.6,345.3 606.8,345.1 608.9,344.7 630.9,343.3Z","Texas":"M386.9,345.9 419.0,347.6 417.2,391.1 422.5,395.4 424.7,394.8 430.5,395.2 431.7,399.6 435.4,399.4 439.3,401.5 443.0,401.4 444.4,403.3 446.8,401.2 450.3,402.3 451.7,404.8 454.3,405.2 455.7,408.3 458.9,405.4 463.2,407.2 464.8,409.1 466.9,408.3 468.4,411.1 473.1,406.1 474.4,408.7 478.4,408.7 482.2,410.4 483.6,412.3 487.3,408.9 491.2,407.8 493.0,409.0 497.3,406.8 503.1,408.1 504.3,406.1 509.0,408.3 510.9,410.9 517.9,413.2 519.9,415.3 523.5,414.1 526.2,415.1 526.4,427.0 526.9,449.9 531.1,454.8 531.3,459.7 536.7,468.6 537.2,473.4 535.3,479.2 533.5,481.5 534.2,484.6 532.9,486.9 534.5,491.2 530.1,499.2 531.9,501.4 528.7,501.6 518.7,504.8 515.0,503.2 514.3,499.5 511.8,502.1 510.0,501.5 509.1,504.7 511.1,506.0 511.5,510.2 507.9,514.6 502.1,520.1 490.3,526.0 485.6,526.5 480.6,526.1 478.4,523.3 482.1,529.7 478.3,531.5 474.8,530.3 474.2,534.4 469.8,538.5 465.1,546.1 462.1,554.0 459.9,553.4 459.3,556.3 461.6,555.6 460.4,561.4 458.7,564.9 460.6,566.8 461.0,573.4 463.2,575.8 463.7,580.0 465.4,583.8 459.2,586.0 456.7,583.1 451.9,581.9 445.6,582.0 440.3,578.2 436.2,577.7 433.2,574.8 429.0,573.7 426.3,570.8 424.6,564.0 421.2,559.9 421.7,556.5 420.2,552.8 420.9,549.7 418.5,546.1 416.5,545.6 413.2,542.3 412.3,538.3 409.5,534.5 405.5,531.3 403.7,524.5 401.9,522.6 399.6,517.1 398.9,512.7 396.6,509.4 392.6,506.4 391.8,504.4 388.1,502.5 385.4,497.4 377.0,495.8 371.9,495.7 367.7,493.7 366.6,496.0 361.9,496.4 358.0,500.8 355.4,508.1 351.2,512.3 348.0,512.2 343.5,508.4 331.9,501.9 329.8,498.8 325.4,495.6 322.7,489.0 323.0,483.2 320.2,478.3 319.9,474.2 318.0,471.5 311.0,467.0 307.6,461.4 304.5,459.3 301.6,454.5 297.1,451.7 294.4,445.5 291.8,444.0 289.9,441.2 290.7,439.0 357.2,445.3 358.8,422.8 360.9,400.2 365.2,344.4 386.9,345.9Z","Utah":"M225.4,202.9 243.5,205.8 240.0,228.0 273.0,232.9 267.1,274.7 264.4,293.6 264.3,296.1 260.7,322.1 235.3,318.2 173.7,307.7 195.0,197.4 225.4,202.9Z","Vermont":"M871.4,108.5 872.1,110.5 870.9,114.6 873.3,117.8 871.7,122.1 867.1,125.5 868.6,130.8 867.7,132.9 867.6,138.2 865.9,143.1 867.1,152.6 868.0,155.6 866.9,157.2 867.6,160.4 869.4,161.8 856.5,164.6 855.8,162.7 852.7,147.6 849.3,144.6 849.8,142.6 847.0,137.0 847.7,132.1 847.1,127.9 844.7,124.3 844.6,120.0 843.3,115.6 859.2,111.9 871.4,108.5Z","Virginia":"M845.6,276.3 848.1,275.4 846.7,279.6 844.7,281.5 844.4,286.8 842.6,295.8 840.0,298.1 838.4,295.3 838.5,288.2 841.2,278.7 845.6,276.3ZM789.2,254.5 799.4,260.2 800.4,255.6 803.1,255.5 805.2,256.9 805.9,260.2 809.6,260.6 812.2,262.2 814.2,265.1 813.4,268.9 811.5,270.3 810.9,273.7 812.1,275.8 816.5,274.2 818.0,277.5 824.3,277.7 826.5,280.2 831.9,282.2 831.1,288.8 834.1,293.2 832.2,296.0 832.5,298.8 835.0,300.1 833.2,303.2 828.9,300.5 831.9,303.7 840.6,302.5 844.5,310.3 781.1,322.9 767.4,325.1 755.4,326.7 743.0,328.0 708.0,332.7 717.0,328.2 717.8,325.6 721.0,324.3 720.9,322.4 723.3,320.5 729.0,314.6 734.8,307.7 734.8,309.5 737.7,313.0 740.9,314.3 743.1,313.9 746.0,310.4 748.7,312.4 753.0,310.5 760.2,304.9 763.8,303.7 763.2,299.7 764.5,295.8 767.1,292.0 767.7,287.8 770.4,283.1 770.8,277.7 774.2,280.3 777.2,280.7 778.7,278.6 780.9,270.1 783.4,271.6 789.6,261.2 789.2,254.5Z","Washington":"M181.0,35.1 174.9,61.7 168.5,90.6 167.8,92.4 168.9,96.6 168.2,100.5 136.9,93.0 134.5,93.9 128.4,92.9 121.3,93.1 117.0,94.2 112.4,93.6 110.7,92.1 101.7,92.9 97.1,88.9 92.9,88.1 85.4,89.7 78.3,85.1 79.4,78.4 78.8,75.5 76.3,72.3 72.3,72.0 70.4,68.8 68.0,67.2 65.4,67.8 63.1,65.1 64.6,62.3 67.0,61.4 65.4,56.1 66.9,44.0 66.1,42.1 67.1,33.5 65.2,29.5 65.9,22.9 68.8,19.2 71.1,22.1 76.2,26.5 80.2,27.6 83.9,29.9 88.0,29.9 89.3,32.3 92.7,33.2 93.7,38.5 95.6,38.7 94.1,45.1 93.5,51.1 95.1,45.6 96.8,40.9 100.6,36.7 99.3,34.2 100.1,30.7 99.8,26.4 101.3,23.8 101.3,20.3 99.1,19.2 97.7,16.2 99.0,14.0 181.0,35.1ZM95.3,28.8 97.4,28.4 95.9,32.6 94.1,30.3 95.3,28.8ZM92.6,21.7 94.9,19.4 96.1,23.3 94.6,26.1 91.5,24.3 92.6,21.7Z","West Virginia":"M748.6,234.9 751.9,255.2 769.3,252.2 771.1,263.7 774.1,261.0 776.7,256.7 779.1,257.0 781.8,253.1 787.0,253.8 787.2,251.2 790.0,250.8 791.2,248.8 794.4,250.4 797.3,249.8 800.4,255.6 799.4,260.2 789.2,254.5 789.6,261.2 783.4,271.6 780.9,270.1 778.7,278.6 777.2,280.7 774.2,280.3 770.8,277.7 770.4,283.1 767.7,287.8 767.1,292.0 764.5,295.8 763.2,299.7 763.8,303.7 761.0,306.2 753.0,310.5 748.7,312.4 746.0,310.4 743.1,313.9 740.9,314.3 737.7,313.0 734.8,309.5 734.8,307.7 732.4,307.6 728.7,305.5 727.5,303.1 724.3,300.2 721.6,296.2 721.1,289.4 725.6,288.3 725.8,285.3 727.7,283.8 726.3,280.5 728.7,274.6 731.7,277.7 733.2,275.3 732.3,272.9 733.8,268.3 735.8,268.1 737.2,264.6 739.3,265.8 741.3,264.5 746.7,256.3 746.9,247.9 748.3,242.2 747.9,238.7 746.3,236.5 748.6,234.9Z","Wisconsin":"M575.8,120.7 578.8,121.9 580.7,125.5 596.9,129.0 603.7,131.7 605.7,130.9 612.5,132.5 614.5,135.2 618.0,137.6 618.1,141.5 616.9,144.6 620.7,144.8 619.5,148.1 622.1,150.2 621.7,152.9 618.8,153.7 616.6,159.0 616.0,162.6 617.8,163.1 620.0,160.6 622.2,155.9 625.4,153.9 627.4,148.1 630.6,146.6 630.6,149.5 628.6,152.4 625.1,162.1 624.3,167.3 624.7,171.0 623.2,172.3 622.1,177.5 623.0,181.7 621.9,184.6 620.5,191.8 621.4,197.2 623.8,202.0 623.8,208.5 607.7,209.8 577.5,211.4 576.2,208.7 570.3,206.4 568.8,202.9 568.0,197.9 569.9,195.1 567.4,193.0 567.0,189.7 566.0,187.2 566.3,183.6 563.0,178.9 560.4,178.2 555.7,174.6 554.8,171.7 549.8,169.4 548.1,167.0 544.7,166.8 540.4,162.9 541.3,154.7 540.8,150.9 542.5,147.4 540.4,144.7 538.6,144.5 538.8,141.3 542.2,136.4 546.5,134.4 546.9,119.9 549.9,118.0 554.6,119.0 565.1,114.7 568.9,112.4 570.3,113.9 568.4,117.0 573.6,120.5 575.8,120.7Z","Wyoming":"M284.7,144.0 334.2,150.0 363.3,152.9 359.6,197.3 355.8,242.0 327.9,239.6 291.6,235.3 273.0,232.9 240.0,228.0 243.5,205.8 252.3,151.0 254.0,139.4 284.7,144.0Z"},"meta":{"minx":-2350.016609836784,"maxy":1558.9711690163426,"sc":0.20050649070152968,"ox":18.82799160702416,"oy":14.0,"W":960,"H":600}}};
+const CONFS = DATA.confs, DIVS = DATA.divs;
+const CC = {Northeast:'#b388ff', Southeast:'#ff6fa3', Central:'#f9c74f', Western:'#4cc9f0'};
+// Two hue-adjacent shades per conference: the halves read as siblings, not strangers.
+const DC = {'Northeast A':'#b388ff','Northeast B':'#7b6cf6',
+            'Southeast A':'#ff6fa3','Southeast B':'#e94bc6',
+            'Central A':'#f9c74f','Central B':'#f3903f',
+            'Western A':'#4cc9f0','Western B':'#35d0b0'};
+const dcol = d => DC[d] || CC[d.split(' ')[0]] || '#87a292';
+const M = DATA.map.meta;
+
+const $ = s => document.querySelector(s);
+const el = (t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function group(arr,k){const o={};for(const x of arr){(o[x[k]]=o[x[k]]||[]).push(x)}return o;}
+const pct = t => t.w+t.l ? t.w/(t.w+t.l) : 0;
+
+function proj(lat,lon){
+  const R=Math.PI/180, la=lat*R, lo=lon*R, la0=37.5*R, lo0=-96*R;
+  const p1=29.5*R,p2=45.5*R, n=.5*(Math.sin(p1)+Math.sin(p2));
+  const C=Math.cos(p1)**2+2*n*Math.sin(p1);
+  const rho=Math.sqrt(C-2*n*Math.sin(la))/n, rho0=Math.sqrt(C-2*n*Math.sin(la0))/n;
+  const th=n*(lo-lo0);
+  return [rho*Math.sin(th)*6371,(rho0-rho*Math.cos(th))*6371];
+}
+function screenXY(t){
+  if(t.st==='HI') return [64,512];
+  const [x,y]=proj(t.lat,t.lon);
+  return [M.ox+(x-M.minx)*M.sc, M.oy+(M.maxy-y)*M.sc];
+}
+
+/* ---------- state ---------- */
+// Everything the promotion and relegation rules need, accumulated across the
+// two seasons of a cycle rather than read off a single year.
+function blankCycle(){
+  return {cw:0,cl:0, ccw:0,ccl:0, cpd:0, copp:0,cgm:0, crk:0,crkN:0, cpo:0, ch2h:{}};
+}
+const PD_CAP=21;                        // margin credited per game, so nobody
+                                        // escapes the drop by burying cupcakes
+const cycPct  = t => t.cw+t.cl ? t.cw/(t.cw+t.cl) : 0;
+const confPct = t => t.ccw+t.ccl ? t.ccw/(t.ccw+t.ccl) : 0;
+const cycSos  = t => t.cgm ? t.copp/t.cgm : 0;
+const cycRank = t => t.crkN ? t.crk/t.crkN : 999;
+let S;
+function boot(){
+  const mk = r => Object.assign({}, r, {base:r.rating, w:0,l:0,dw:0,dl:0,pf:0,pa:0,opps:[]}, blankCycle());
+  S = {season:2027, inCycle:0, cycle:1, phase:'pre', teams:[...DATA.d1,...DATA.d2].map(mk),
+       snaps:[], view:0, moves:[]};
+}
+boot();
+const byId = () => Object.fromEntries(S.teams.map(t=>[t.id,t]));
+const tierTeams = tr => S.teams.filter(t=>t.tier===tr);
+const sizeOf = tr => tierTeams(tr).length;
+const snap = () => S.snaps[S.view];
+S.snaps.push(makePre()); S.view=0;
+
+/* ---------- schedule building ---------- */
+// A rivalry is played three years in four. Which year it sits out depends on
+// the pairing, so the league is never short of rivalry weekends all at once.
+function rivalOn(a,b,year){
+  const k=(a.id<b.id?a.id+b.id:b.id+a.id);
+  let h=0; for(let i=0;i<k.length;i++) h=(h*31+k.charCodeAt(i))>>>0;
+  return (year+h)%4 !== 0;
+}
+function divisionOrder(list,year){
+  const pool=[...list].sort((a,b)=>a.lon-b.lon);
+  const out=[], used=new Set();
+  let cur=pool[0];
+  while(out.length<pool.length){
+    out.push(cur); used.add(cur.id);
+    let nxt=null;
+    if(cur.rival){
+      const c=pool.find(t=>t.name===cur.rival && !used.has(t.id));
+      if(c && rivalOn(cur,c,year)) nxt=c;
+    }
+    if(!nxt) nxt=pool.find(t=>!used.has(t.id));
+    if(!nxt) break;
+    cur=nxt;
+  }
+  return out;
+}
+// A division's full slate is split across the two seasons of a cycle using
+// circulant offsets. Offsets 1..m each pair every team with two others; when the
+// division has an even size, offset n/2 is a perfect matching worth one game.
+// Season A takes the low offsets, season B the rest, so together they cover the
+// complete round robin: every team plays every division mate once per cycle.
+function divSlate(n, half){
+  const even = n%2===0, m = even ? n/2-1 : (n-1)/2;
+  const aN = Math.ceil(m/2);
+  const offs = [];
+  for(let o=1;o<=m;o++) if((o<=aN)===(half===0)) offs.push(o);
+  let match = false;
+  if(even){
+    const degA = 2*aN, degB = 2*(m-aN);
+    match = (degA<=degB ? 0 : 1) === half;
+  }
+  return {offs, match, deg: 2*offs.length + (match?1:0)};
+}
+function buildSchedule(tier,year,half){
+  const teams=tierTeams(tier), byDiv=group(teams,'div');
+  const seen=new Set(), games=[], cnt={}, home={}, dc={}, xc={}, dcap={};
+  teams.forEach(t=>{cnt[t.id]=0;home[t.id]=0;dc[t.id]=0;xc[t.id]=0;});
+  const slate={};
+  for(const d of Object.keys(byDiv)){
+    slate[d]=divSlate(byDiv[d].length, half);
+    for(const t of byDiv[d]) dcap[t.id]=slate[d].deg;
+  }
+  const key=(a,b)=> a.id<b.id ? a.id+'|'+b.id : b.id+'|'+a.id;
+  const bucket=(a,b)=> a.div===b.div ? 'div' : (a.conf===b.conf ? 'cross' : 'nc');
+  function add(a,b,type,force){
+    if(a===b) return false;
+    const k=key(a,b); if(seen.has(k)) return false;
+    if(cnt[a.id]>=12||cnt[b.id]>=12) return false;
+    const bk=bucket(a,b);
+    // the allotment is a hard ceiling; a rivalry rematch is the one thing that
+    // may sit on top of it, and it spends an outside slot to do so
+    if(bk==='div' && type!=='rivalry' && (dc[a.id]>=dcap[a.id]||dc[b.id]>=dcap[b.id])) return false;
+    if(!force && bk==='cross' && (xc[a.id]>=3||xc[b.id]>=3)) return false;
+    seen.add(k); cnt[a.id]++; cnt[b.id]++;
+    if(bk==='div'){ if(type!=='rivalry'){dc[a.id]++;dc[b.id]++;} }
+    else if(bk==='cross'){xc[a.id]++;xc[b.id]++;}
+    const hA = home[a.id]<=home[b.id];
+    const h = hA?a:b, v = hA?b:a; home[h.id]++;
+    games.push({h,v,type:type||bk}); return true;
+  }
+  for(const d of Object.keys(byDiv)){
+    // order has to stay put across the cycle or the two halves stop dovetailing
+    const o=[...byDiv[d]].sort((a,b)=>a.id<b.id?-1:1), n=o.length, sl=slate[d];
+    for(const off of sl.offs) for(let i=0;i<n;i++) add(o[i],o[(i+off)%n],null);
+    if(sl.match) for(let i=0;i<n/2;i++) add(o[i],o[i+n/2],null);
+  }
+  // Rivalries come next, ahead of every other outside game. If the pair already
+  // met on the slate this is a no-op; otherwise the game is purely additive and
+  // spends an outside slot, which is how a rivalry survives back-to-back years
+  // without anyone's division allotment moving.
+  for(const t of teams){
+    if(!t.rival) continue;
+    const r=teams.find(x=>x.name===t.rival);
+    if(!r || t.id>r.id) continue;
+    if(rivalOn(t,r,year)) add(t,r,'rivalry');
+  }
+  for(const c of CONFS){
+    const ds=DIVS.filter(x=>x.indexOf(c+' ')===0);
+    const A=byDiv[ds[0]]||[], B=byDiv[ds[1]]||[];
+    if(!A.length||!B.length) continue;
+    for(let k=0;k<3;k++){const off=year*3+k;
+      for(let i=0;i<A.length;i++) add(A[i],B[(i+off)%B.length],'cross');}
+    for(let k=0;k<3;k++){const off=year*3+k;
+      for(let i=0;i<B.length;i++) add(B[i],A[(i+off)%A.length],'cross');}
+  }
+  const mean=teams.reduce((s,t)=>s+t.rating,0)/teams.length;
+  const oppSum={}; teams.forEach(t=>oppSum[t.id]=0);
+  for(const g of games){oppSum[g.h.id]+=g.v.rating; oppSum[g.v.id]+=g.h.rating;}
+  const dev=(t,addR)=>Math.abs((oppSum[t.id]+addR)/12-mean);
+  let guard=0;
+  while(guard++<6000){
+    const open=teams.filter(t=>cnt[t.id]<12);
+    if(open.length<2) break;
+    open.sort((a,b)=>(12-cnt[b.id])-(12-cnt[a.id])||b.rating-a.rating);
+    const a=open[0];
+    let best=null;
+    const eligible = b => b!==a && !seen.has(key(a,b)) &&
+      !(bucket(a,b)==='div' && (dc[a.id]>=dcap[a.id]||dc[b.id]>=dcap[b.id]));
+    for(const b of open){
+      if(!eligible(b)) continue;
+      const sc=Math.abs(a.rating-b.rating)+2.2*(dev(a,b.rating)+dev(b,a.rating))+(b.conf===a.conf?26:0);
+      if(!best||sc<best.sc) best={b,sc};
+    }
+    if(!best){
+      // nothing new left: replay someone from outside the division rather than leave a hole
+      const b=open.find(x=>x!==a && bucket(a,x)!=='div');
+      if(!b){cnt[a.id]=12;continue;}
+      seen.delete(key(a,b)); add(a,b,null,true); continue;
+    }
+    oppSum[a.id]+=best.b.rating; oppSum[best.b.id]+=a.rating;
+    add(a,best.b,null,true);
+  }
+  assignWeeks(games, teams);
+  return games;
+}
+
+// Spread the finished slate across a fourteen-week calendar: each week takes a
+// maximal set of games whose teams are both free, teams carrying the most games
+// left going first. Division games stop clumping at the front and everybody ends
+// up with at least one open Saturday.
+const WEEKS=14;
+function assignWeeks(games, teams){
+  const busy={}, left={};
+  teams.forEach(t=>{ busy[t.id]=new Map(); left[t.id]=0; });
+  for(const g of games){ left[g.h.id]++; left[g.v.id]++; }
+  let rest=games.slice();
+  for(let i=rest.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=rest[i]; rest[i]=rest[j]; rest[j]=t; }
+  const place=(g,wk)=>{ g.week=wk; busy[g.h.id].set(wk,g); busy[g.v.id].set(wk,g); };
+  const lift=g=>{ busy[g.h.id].delete(g.week); busy[g.v.id].delete(g.week); g.week=null; };
+  const freeWeek=(g,skip)=>{
+    for(let wk=1;wk<=WEEKS;wk++)
+      if(wk!==skip && !busy[g.h.id].has(wk) && !busy[g.v.id].has(wk)) return wk;
+    return 0;
+  };
+  // Work the weeks in random order rather than first to last, or the early
+  // Saturdays fill solid and every bye lands in November.
+  const order=[]; for(let k=1;k<=WEEKS;k++) order.push(k);
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=order[i]; order[i]=order[j]; order[j]=t; }
+  for(const wk of order){
+    if(!rest.length) break;
+    rest.sort((a,b)=>(left[b.h.id]+left[b.v.id])-(left[a.h.id]+left[a.v.id]));
+    const used=new Set(), next=[];
+    for(const g of rest){
+      if(!used.has(g.h.id) && !used.has(g.v.id)){
+        place(g,wk); used.add(g.h.id); used.add(g.v.id);
+        left[g.h.id]--; left[g.v.id]--;
+      } else next.push(g);
+    }
+    rest=next;
+  }
+  // anything still homeless: take a free week, or bump a game that has one
+  const stuck=[];
+  for(const g of rest){
+    const wk=freeWeek(g);
+    if(wk){ place(g,wk); continue; }
+    let done=false;
+    for(let w=1; w<=WEEKS && !done; w++){
+      for(const side of [g.h.id, g.v.id]){
+        const other = side===g.h.id ? g.v.id : g.h.id;
+        if(busy[side].has(w) || !busy[other].has(w)) continue;
+        const blocker=busy[other].get(w);
+        lift(blocker);
+        const alt=freeWeek(blocker,w);
+        if(alt){ place(blocker,alt); place(g,w); done=true; break; }
+        place(blocker,w);
+      }
+    }
+    if(!done) stuck.push(g);
+  }
+  let over=WEEKS;
+  for(const g of stuck){ over++; place(g,over); }
+  return over;
+}
+
+/* ---------- simulation ---------- */
+function simGame(g){
+  const m=(g.h.rating-g.v.rating)*.52+2.6+gauss()*13;
+  const tot=46+(g.h.rating+g.v.rating-100)*.07+gauss()*10;
+  let hs=Math.max(0,Math.round((tot+m)/2)), vs=Math.max(0,Math.round((tot-m)/2));
+  if(hs===vs){ if(m>=0) hs+=3; else vs+=3; }
+  g.hs=hs; g.vs=vs;
+  const W=hs>vs?g.h:g.v, L=hs>vs?g.v:g.h;
+  W.w++; L.l++; W.cw++; L.cl++;
+  if(g.h.conf===g.v.conf){ W.ccw++; L.ccl++; }
+  const mg=Math.min(PD_CAP, Math.abs(hs-vs));
+  W.cpd+=mg; L.cpd-=mg;
+  W.ch2h[L.id]=(W.ch2h[L.id]||0)+1; L.ch2h[W.id]=(L.ch2h[W.id]||0)-1;
+  g.h.copp+=g.v.rating; g.h.cgm++; g.v.copp+=g.h.rating; g.v.cgm++;
+  g.h.pf+=hs; g.h.pa+=vs; g.v.pf+=vs; g.v.pa+=hs;
+  g.h.opps.push(g.v.rating); g.v.opps.push(g.h.rating);
+  if(g.h.div===g.v.div){W.dw++; L.dl++;}   // label may say 'rivalry'; the division still counts it
+  return g;
+}
+const sos = t => t.opps.length ? t.opps.reduce((a,b)=>a+b,0)/t.opps.length : 50;
+const cscore = t => t.w*100+(t.pf-t.pa)*.4+sos(t)*1.5+t.rating*.8;
+
+function h2h(games,a,b){
+  const g=games.find(x=>(x.h===a&&x.v===b)||(x.h===b&&x.v===a));
+  if(!g) return 0;
+  return (g.hs>g.vs?g.h:g.v)===a ? -1 : 1;
+}
+function standings(tier,games){
+  const out={};
+  for(const d of DIVS){
+    const list=tierTeams(tier).filter(t=>t.div===d);
+    if(!list.length) continue;
+    list.sort((a,b)=>{
+      const pa=a.dw+a.dl?a.dw/(a.dw+a.dl):0, pb=b.dw+b.dl?b.dw/(b.dw+b.dl):0;
+      if(pb!==pa) return pb-pa;
+      const h=h2h(games,a,b); if(h) return h;
+      if(pct(b)!==pct(a)) return pct(b)-pct(a);
+      return cscore(b)-cscore(a);
+    });
+    out[d]=list;
+  }
+  return out;
+}
+function playoff(tier,tbl,year){
+  const dws=[], rest=[];
+  for(const d of DIVS){const l=tbl[d]; if(!l) continue; dws.push(l[0]); rest.push(...l.slice(1));}
+  if(dws.length<8) return null;
+  const at=rest.sort((a,b)=>cscore(b)-cscore(a)).slice(0,16);
+  const neutral=g=>{
+    const m=(g.h.rating-g.v.rating)*.52+gauss()*13;
+    const tot=46+(g.h.rating+g.v.rating-100)*.07+gauss()*10;
+    let hs=Math.max(0,Math.round((tot+m)/2)),vs=Math.max(0,Math.round((tot-m)/2));
+    if(hs===vs){m>=0?hs+=3:vs+=3;}
+    g.hs=hs;g.vs=vs;g.win=hs>vs?g.h:g.v;g.lose=hs>vs?g.v:g.h;return g;};
+  // conference title games move around the membership, one campus a year
+  const ccg=CONFS.map(c=>{
+    const pair=dws.filter(t=>t.conf===c).sort((x,y)=>cscore(y)-cscore(x));
+    const mem=tierTeams(tier).filter(t=>t.conf===c).sort((a,b)=>a.id<b.id?-1:1);
+    const host=mem[year%Math.max(1,mem.length)];
+    return neutral({h:pair[0],v:pair[1],label:c+' championship',
+      city:host?host.city+', '+host.st:''});});
+  const champs=ccg.map(g=>g.win).sort((a,b)=>cscore(b)-cscore(a));
+  const runners=ccg.map(g=>g.lose).sort((a,b)=>cscore(b)-cscore(a));
+  const BW=bowlPlan(tier,year);
+  const pin=[]; for(let i=0;i<8;i++) pin.push(neutral({h:at[i],v:at[15-i],label:'Play-in',
+    bowl:BW.pin[i][0], city:BW.pin[i][1]}));
+  const pw=pin.map(g=>g.win).sort((a,b)=>cscore(b)-cscore(a));
+  const seeds=[...champs,...runners,...pw];
+  const order=[1,16,8,9,4,13,5,12,2,15,7,10,3,14,6,11];
+  let live=order.map(s=>seeds[s-1]);
+  const rounds=[], names=['Round of 16','Quarterfinals','Semifinals','Championship'];
+  const pools=[BW.r16,BW.qf,BW.sf,null];
+  const site=NFL_SITES[year%NFL_SITES.length];
+  for(let r=0;r<4;r++){
+    const gs=[];
+    for(let i=0;i<live.length;i+=2)
+      gs.push(neutral({h:live[i],v:live[i+1],label:names[r],
+        bowl: pools[r] ? pools[r][i/2][0] : 'National Championship',
+        city: pools[r] ? pools[r][i/2][1] : site[0]+' \u2014 '+site[1]}));
+    rounds.push({name:names[r],games:gs});
+    live=gs.map(g=>g.win);
+  }
+  // whatever the playoff did not claim still gets played
+  const inField=new Set([...dws,...at].map(t=>t.id));
+  const spare=tierTeams(tier).filter(t=>!inField.has(t.id) && t.w>=6)   // real bowl eligibility
+    .sort((a,b)=>cscore(b)-cscore(a));
+  const bowls=[];
+  for(let i=0;i+1<spare.length && bowls.length<BW.extra.length;i+=2){
+    const bw=BW.extra[bowls.length];
+    bowls.push(neutral({h:spare[i],v:spare[i+1],label:'Bowl game',bowl:bw[0],city:bw[1]}));
+  }
+  return {ccg,pin,seeds,rounds,champion:live[0],at,bowls};
+}
+
+/* ---------- bowls ---------- */
+// The six majors rotate: two host semifinals and four host quarterfinals, and
+// which is which shifts every year. The rest of the slate rotates too — sixteen
+// are pulled into the play-in and round of 16, and whatever is left over hosts
+// the teams that missed the field.
+const BOWLSETS = {
+  d1:{
+    major:[
+      ['Rose Bowl','Pasadena, CA'],['Sugar Bowl','New Orleans, LA'],
+      ['Orange Bowl','Miami Gardens, FL'],['Cotton Bowl','Arlington, TX'],
+      ['Fiesta Bowl','Glendale, AZ'],['Peach Bowl','Atlanta, GA']
+    ],
+    minor:[
+      ['Citrus Bowl','Orlando, FL'],['Alamo Bowl','San Antonio, TX'],
+      ['ReliaQuest Bowl','Tampa, FL'],['Gator Bowl','Jacksonville, FL'],
+      ['Music City Bowl','Nashville, TN'],['Holiday Bowl','San Diego, CA'],
+      ['Las Vegas Bowl','Las Vegas, NV'],['Sun Bowl','El Paso, TX'],
+      ['Pinstripe Bowl','Bronx, NY'],['Texas Bowl','Houston, TX'],
+      ['Liberty Bowl','Memphis, TN'],["Duke's Mayo Bowl",'Charlotte, NC'],
+      ['Pop-Tarts Bowl','Orlando, FL'],['Armed Forces Bowl','Fort Worth, TX'],
+      ['Military Bowl','Annapolis, MD'],['Birmingham Bowl','Birmingham, AL'],
+      ['First Responder Bowl','Dallas, TX'],['Fenway Bowl','Boston, MA'],
+      ['Rate Bowl','Phoenix, AZ'],['GameAbove Sports Bowl','Detroit, MI'],
+      ['Independence Bowl','Shreveport, LA'],['Arizona Bowl','Tucson, AZ'],
+      ['New Mexico Bowl','Albuquerque, NM'],['Frisco Bowl','Frisco, TX'],
+      ['Boca Raton Bowl','Boca Raton, FL'],['New Orleans Bowl','New Orleans, LA'],
+      ['Cure Bowl','Orlando, FL'],['Gasparilla Bowl','Tampa, FL'],
+      ['Myrtle Beach Bowl','Conway, SC'],['LA Bowl','Inglewood, CA'],
+      ['Hawaii Bowl','Honolulu, HI'],['Idaho Potato Bowl','Boise, ID'],
+      ['68 Ventures Bowl','Mobile, AL'],['Salute to Veterans Bowl','Montgomery, AL'],
+      ['Bahamas Bowl','Nassau, Bahamas'],['Celebration Bowl','Atlanta, GA']
+    ]
+  },
+  d2:{
+    major:[
+      ['Heartland Bowl','Des Moines, IA'],['Tidewater Bowl','Norfolk, VA'],
+      ['Cascade Bowl','Eugene, OR'],['Ozark Bowl','Springfield, MO'],
+      ['Piedmont Bowl','Greensboro, NC'],['Bayou Bowl','Lafayette, LA']
+    ],
+    minor:[
+      ['Prairie Bowl','Lincoln, NE'],['Granite Bowl','Manchester, NH'],
+      ['Redwood Bowl','Eureka, CA'],['Delta Bowl','Greenville, MS'],
+      ['Badlands Bowl','Rapid City, SD'],['Sandhills Bowl','Pinehurst, NC'],
+      ['Blue Ridge Bowl','Asheville, NC'],['Rio Grande Bowl','Las Cruces, NM'],
+      ['Foothills Bowl','Boulder, CO'],['Lakeshore Bowl','Erie, PA'],
+      ['Copper Bowl','Butte, MT'],['Harvest Bowl','Fargo, ND'],
+      ['Ironwood Bowl','Duluth, MN'],['Pine Belt Bowl','Hattiesburg, MS'],
+      ['Salt Flats Bowl','Ogden, UT'],['Tallgrass Bowl','Topeka, KS'],
+      ['Cypress Bowl','Lake Charles, LA'],['Driftwood Bowl','Wilmington, NC'],
+      ['Chinook Bowl','Spokane, WA'],['Mesa Bowl','Flagstaff, AZ'],
+      ['Timberline Bowl','Missoula, MT'],['Bluegrass Bowl','Lexington, KY'],
+      ['Cobblestone Bowl','Providence, RI'],['Lighthouse Bowl','Portland, ME'],
+      ['Riverbend Bowl','Chattanooga, TN'],['Sagebrush Bowl','Reno, NV'],
+      ['Windward Bowl','Corpus Christi, TX'],['Quarry Bowl','Bloomington, IN'],
+      ['Sandstone Bowl','St. George, UT'],['Foundry Bowl','Youngstown, OH']
+    ]
+  }
+};
+
+// The title game moves between NFL buildings.
+const NFL_SITES = [
+  ['Hard Rock Stadium','Miami Gardens, FL'],['AT&T Stadium','Arlington, TX'],
+  ['SoFi Stadium','Inglewood, CA'],['Mercedes-Benz Stadium','Atlanta, GA'],
+  ['Lucas Oil Stadium','Indianapolis, IN'],['NRG Stadium','Houston, TX'],
+  ['State Farm Stadium','Glendale, AZ'],['Caesars Superdome','New Orleans, LA'],
+  ['Allegiant Stadium','Las Vegas, NV'],['Ford Field','Detroit, MI'],
+  ['U.S. Bank Stadium','Minneapolis, MN'],["Levi's Stadium",'Santa Clara, CA'],
+  ['MetLife Stadium','East Rutherford, NJ'],['Lumen Field','Seattle, WA'],
+  ['Bank of America Stadium','Charlotte, NC'],['Raymond James Stadium','Tampa, FL'],
+  ['Nissan Stadium','Nashville, TN'],['Arrowhead Stadium','Kansas City, MO'],
+  ['Empower Field','Denver, CO'],['Lincoln Financial Field','Philadelphia, PA']
+];
+
+function bowlPlan(tier,year){
+  const set=BOWLSETS[tier]||BOWLSETS.d1;
+  const rot=(arr,k)=>arr.slice(k%arr.length).concat(arr.slice(0,k%arr.length));
+  const maj=rot(set.major, year);
+  const min=rot(set.minor, (year*16)%set.minor.length);
+  return {sf:maj.slice(0,2), qf:maj.slice(2,6),
+          pin:min.slice(0,8), r16:min.slice(8,16), extra:min.slice(16)};
+}
+
+/* ---------- season ---------- */
+function makePre(){
+  const sn={kind:'pre', season:S.season, teams:{}, rank:{}, sched:{}, tiers:{}, quota:{}};
+  for(const t of S.teams) sn.teams[t.id]={name:t.name,city:t.city,st:t.st,conf:t.conf,
+    div:t.div,tier:t.tier,rival:t.rival,rating:Math.round(t.rating)};
+  for(const tr of ['d1','d2']){
+    const ranked=tierTeams(tr).slice().sort((a,b)=>b.rating-a.rating);
+    ranked.forEach((t,i)=>{sn.rank[t.id]=i+1;});
+    const divs={};
+    for(const d of DIVS){
+      const ids=ranked.filter(t=>t.div===d).map(t=>t.id);
+      if(ids.length) divs[d]=ids;
+    }
+    sn.tiers[tr]={divs:divs, at:[], seedOf:{}, po:null};
+  }
+  return sn;
+}
+function advance(){
+  if(S.phase!=='done' || S.inCycle>=2) return;
+  if($('#driftBox').checked){
+    for(const t of S.teams){
+      const mean=t.tier==='d1'?60:20;
+      t.rating=Math.max(1,Math.min(99,t.rating+gauss()*3.4-(t.rating-mean)*.045));
+    }
+  }
+  S.season++; S.phase='pre';
+  S.snaps.push(makePre());
+  S.view=S.snaps.length-1;
+}
+function playSeason(){
+  for(const t of S.teams){t.w=t.l=t.dw=t.dl=t.pf=t.pa=0;t.opps=[];}
+  const yr=S.season-2027, res={};
+  for(const tr of ['d1','d2']){
+    const games=buildSchedule(tr,yr,S.inCycle%2);
+    games.forEach(simGame);
+    const tbl=standings(tr,games);
+    res[tr]={games,tbl,po:playoff(tr,tbl,yr)};
+  }
+  S.inCycle++;
+  const sn0=makeSnap(res);
+  for(const t of S.teams){ if(sn0.rank[t.id]){ t.crk+=sn0.rank[t.id]; t.crkN++; } }
+  for(const tr of ['d1','d2']){
+    const po=res[tr].po; if(!po) continue;
+    const seenT=new Set();
+    for(const g of [...po.ccg,...po.pin,...po.rounds.flatMap(r=>r.games)]){
+      for(const t of [g.h,g.v]) if(!seenT.has(t.id)){ seenT.add(t.id); t.cpo+=1; }
+      g.win.cpo+=1;
+    }   // po.bowls are consolation games and earn nothing
+  }
+  S.snaps.push(sn0);
+  S.view=S.snaps.length-1;
+  S.phase='done';
+}
+const fg = g => ({h:g.h.id,v:g.v.id,hs:g.hs,vs:g.vs,label:g.label,bowl:g.bowl||null,city:g.city||null});
+function makeSnap(res){
+  const sn={kind:'season', season:S.season, weeks:WEEKS, tiers:{}, rank:{}, teams:{}, sched:{},
+    quota:Object.fromEntries(DIVS.map(d=>[d,quotaFor(d)]))};
+  for(const t of S.teams){
+    sn.teams[t.id]={name:t.name,city:t.city,st:t.st,conf:t.conf,div:t.div,tier:t.tier,
+      rival:t.rival,rating:Math.round(t.rating),w:t.w,l:t.l,dw:t.dw,dl:t.dl,pf:t.pf,pa:t.pa,
+      sos:Math.round(sos(t)),cs:Math.round(cscore(t))};
+  }
+  for(const tr of ['d1','d2']){
+    const ranked=tierTeams(tr).slice().sort((a,b)=>cscore(b)-cscore(a));
+    ranked.forEach((t,i)=>sn.rank[t.id]=i+1);
+    tierTeams(tr).slice().sort((a,b)=>sos(b)-sos(a))
+      .forEach((t,i)=>{sn.teams[t.id].sosRank=i+1;});
+    const po=res[tr].po;
+    sn.tiers[tr]={
+      divs:Object.fromEntries(DIVS.filter(d=>res[tr].tbl[d]).map(d=>[d,res[tr].tbl[d].map(t=>t.id)])),
+      at:po?po.at.map(t=>t.id):[],
+      seedOf:po?Object.fromEntries(po.seeds.map((t,i)=>[t.id,i+1])):{},
+      po:po?{ccg:po.ccg.map(fg),pin:po.pin.map(fg),bowls:po.bowls.map(fg),
+        rounds:po.rounds.map(r=>({name:r.name,games:r.games.map(fg)})),
+        champion:po.champion.id}:null
+    };
+  }
+  const push=(id,o)=>{(sn.sched[id]=sn.sched[id]||[]).push(o);};
+  for(const tr of ['d1','d2']){
+    for(const g of res[tr].games){
+      push(g.h.id,{o:g.v.id,home:true,f:g.hs,a:g.vs,t:g.type,wk:g.week});
+      push(g.v.id,{o:g.h.id,home:false,f:g.vs,a:g.hs,t:g.type,wk:g.week});
+    }
+    const po=res[tr].po; if(!po) continue;
+    for(const g of [...po.ccg,...po.pin,...po.rounds.flatMap(r=>r.games)]){
+      push(g.h.id,{o:g.v.id,home:null,f:g.hs,a:g.vs,t:g.label,b:g.bowl||null,c:g.city||null,ps:1});
+      push(g.v.id,{o:g.h.id,home:null,f:g.vs,a:g.hs,t:g.label,b:g.bowl||null,c:g.city||null,ps:1});
+    }
+    for(const g of po.bowls){
+      push(g.h.id,{o:g.v.id,home:null,f:g.hs,a:g.vs,t:g.label,b:g.bowl,c:g.city,ps:1,x:1});
+      push(g.v.id,{o:g.h.id,home:null,f:g.vs,a:g.hs,t:g.label,b:g.bowl,c:g.city,ps:1,x:1});
+    }
+  }
+  return sn;
+}
+
+/* ---------- promotion & relegation ---------- */
+const quotaFor = d => S.cycle>1 ? 1 : Math.max(0,tierTeams('d1').filter(t=>t.div===d).length-16);
+
+// Relegation: worst combined two-year record, then down the ladder.
+const REL_STEPS=[
+  ['two-year record',      (a,b)=> cycPct(a)-cycPct(b),   (t)=> t.cw+'-'+t.cl],
+  ['conference record',    (a,b)=> confPct(a)-confPct(b), (t)=> t.ccw+'-'+t.ccl],
+  ['head to head',         (a,b)=> (a.ch2h[b.id]||0),     (t,o)=> {const n=t.ch2h[o.id]||0; return n>0?'won '+n:(n<0?'lost '+(-n):'split');}],
+  ['point differential',   (a,b)=> a.cpd-b.cpd,           (t)=> (t.cpd>0?'+':'')+t.cpd],
+  ['strength of schedule', (a,b)=> cycSos(a)-cycSos(b),   (t)=> cycSos(t).toFixed(1)],
+  ['playoff ranking',      (a,b)=> cycRank(b)-cycRank(a), (t)=> '#'+cycRank(t).toFixed(0)],
+  ['random draw',          ()=> Math.random()-0.5,        ()=> 'drawn']
+];
+const REL_FMT = Object.fromEntries(REL_STEPS.map(x=>[x[0],x[2]]));
+function relCompare(a,b){
+  for(const st of REL_STEPS){
+    const v=st[1](a,b);
+    if(v>1e-9||v<-1e-9) return {v:v, why:st[0]};
+  }
+  return {v:0, why:'random draw'};
+}
+
+// Promotion: a weighted two-year score, so a soft schedule and a gaudy record
+// is not by itself a ticket up.
+const PRO_W={record:.60, playoff:.20, sos:.10, rank:.10};
+// A season is worth one point for reaching the field and one per win, and the
+// deepest possible run is five games, so six is a perfect playoff season.
+// Scoring against that rather than against the division's best run means a
+// division where nobody went far hands out a low playoff score to everybody.
+const PO_PERFECT=6;
+function promotionScores(pool){
+  const n=pool.length||1;
+  const sosV=pool.map(cycSos), lo=Math.min(...sosV), hi=Math.max(...sosV);
+  const out=new Map();
+  for(const t of pool){
+    const rec=cycPct(t);
+    const po=Math.min(1, t.cpo/(PO_PERFECT*Math.max(1,t.crkN)));
+    const sos=hi>lo ? (cycSos(t)-lo)/(hi-lo) : .5;
+    const rk=Math.max(0, Math.min(1, (n-cycRank(t))/Math.max(1,n-1)));
+    out.set(t.id,{rec:rec, po:po, sos:sos, rank:rk,
+      score: PRO_W.record*rec + PRO_W.playoff*po + PRO_W.sos*sos + PRO_W.rank*rk});
+  }
+  return out;
+}
+
+function settle(){
+  const moves=[];
+  for(const d of DIVS){
+    const pool=tierTeams('d1').filter(t=>t.div===d);
+    const ordered=[...pool].sort((a,b)=>relCompare(a,b).v);
+    const q=quotaFor(d);
+    const down=ordered.slice(0,q);
+    const WORST=['worst','second worst','third worst','fourth worst'];
+    for(let i=0;i<down.length;i++){
+      const t=down[i], next=ordered[i+1];   // whoever sat immediately above it
+      t.tier='d2'; t.rating=Math.max(2,t.rating-4);
+      const place=WORST[i]||(i+1)+'th worst';
+      moves.push({id:t.id,name:t.name,dir:'down',div:d,rec:t.cw+'-'+t.cl,
+        why: next ? place+' on '+relCompare(t,next).why : place+' record'});
+    }
+    // the two who came closest to going with them
+    const lastDown=down[down.length-1];
+    if(lastDown) for(let k=q;k<Math.min(q+2,ordered.length);k++){
+      const t=ordered[k], c=relCompare(t,lastDown), f=REL_FMT[c.why];
+      moves.push({id:t.id,name:t.name,dir:'nearDown',pos:k-q+1,div:d,rec:t.cw+'-'+t.cl,
+        why:'stayed up over '+lastDown.name+' on '+c.why+
+            ' ('+f(t,lastDown)+' to '+f(lastDown,t)+')'});
+    }
+    if(S.cycle>1){
+      const up=tierTeams('d2').filter(t=>t.div===d && down.indexOf(t)<0);
+      if(up.length){
+        const sc=promotionScores(up);
+        up.sort((a,b)=>sc.get(b.id).score-sc.get(a.id).score);
+        const parts=c=>'rec '+c.rec.toFixed(2)+', playoff '+c.po.toFixed(2)+
+          ', sched '+c.sos.toFixed(2)+', rank '+c.rank.toFixed(2);
+        const win=up[0], wc=sc.get(win.id);
+        win.tier='d1'; win.rating=Math.min(97,win.rating+4);
+        moves.push({id:win.id,name:win.name,dir:'up',div:d,rec:win.cw+'-'+win.cl,
+          why:'score '+wc.score.toFixed(3)+' ('+parts(wc)+')'});
+        for(let k=1;k<Math.min(3,up.length);k++){
+          const t=up[k], c=sc.get(t.id);
+          moves.push({id:t.id,name:t.name,dir:'nearUp',pos:k,div:d,rec:t.cw+'-'+t.cl,
+            why:'score '+c.score.toFixed(3)+' ('+parts(c)+'), short of '+win.name+
+                ' by '+(wc.score-c.score).toFixed(3)});
+        }
+      }
+    }
+  }
+  S.moves.unshift({cycle:S.cycle,season:S.season-1,moves});
+  rebalance(moves);
+  // stamp the season that closed the cycle so its standings can show the fallout
+  const last=S.snaps[S.snaps.length-1];
+  if(last && last.kind==='season'){
+    const note={};
+    for(const m of moves) if(m.id) note[m.id]={dir:m.dir, why:m.why, rec:m.rec, pos:m.pos};
+    const ids=k=>moves.filter(m=>m.dir===k).map(m=>m.id);
+    last.moves={up:ids('up'), down:ids('down'),
+                nearUp:ids('nearUp'), nearDown:ids('nearDown'), note:note};
+  }
+  S.cycle++; S.inCycle=0;
+  for(const t of S.teams) Object.assign(t, blankCycle());
+  renderAll();
+  return moves;
+}
+
+// Divisions are strength-balanced, not geographic, so after teams move up and
+// down the halves are nudged back level with the fewest swaps that will do it.
+function rebalance(moves){
+  for(const c of CONFS){
+    const ds=DIVS.filter(x=>x.indexOf(c+' ')===0);
+    for(let pass=0;pass<2;pass++){
+      const A=tierTeams('d1').filter(t=>t.div===ds[0]), B=tierTeams('d1').filter(t=>t.div===ds[1]);
+      if(!A.length||!B.length) break;
+      const avg=l=>l.reduce((s,t)=>s+t.rating,0)/l.length;
+      const gap=Math.abs(avg(A)-avg(B));
+      if(gap<=1.5) break;
+      let best=null;
+      for(const a of A) for(const b of B){
+        const na=avg(A)+(b.rating-a.rating)/A.length, nb=avg(B)+(a.rating-b.rating)/B.length;
+        const g=Math.abs(na-nb);
+        if(g<gap-1e-9 && (!best||g<best.g)) best={a,b,g};
+      }
+      if(!best) break;
+      best.a.div=ds[1]; best.b.div=ds[0];
+      moves.push({name:best.a.name,dir:'swap',div:ds[0]+' \u2192 '+ds[1],rec:'balance'});
+      moves.push({name:best.b.name,dir:'swap',div:ds[1]+' \u2192 '+ds[0],rec:'balance'});
+    }
+  }
+}
+
+/* ---------- schedule detail ---------- */
+function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+function schedHTML(id){
+  const sn=snap();
+  if(!sn.sched[id]) return '<p class="note" style="margin:6px 2px">'+
+    (sn.kind==='pre'?'No games yet \u2014 this is the '+sn.season+' preseason.'
+                    :'This team did not play in '+sn.season+'.')+'</p>';
+  const g=sn.sched[id], T=sn.teams, R=sn.rank;
+  const reg=g.filter(x=>!x.ps), post=g.filter(x=>x.ps&&!x.x), extraB=g.filter(x=>x.x);
+  // the yellow tag already says "rivalry", so this column names the bucket the
+  // game actually falls in rather than repeating it
+  const PSABBR={'Play-in':'PI','Round of 16':'R16','Quarterfinals':'QF',
+                'Semifinals':'SF','Championship':'NCG','Bowl game':'Bowl'};
+  const stage=x=> /championship$/.test(x.t) ? 'CCG' : (PSABBR[x.t]||'PS');
+  const kind=x=>{
+    const o=T[x.o], m=T[id];
+    return o.div===m.div ? 'division' : (o.conf===m.conf ? 'crossover' : 'non-conference');
+  };
+  const line=(x,lab)=>{
+    const win=x.f>x.a, o=T[x.o];
+    const rv = x.t==='rivalry' ? '<span class="rivtag">rivalry</span>' : '';
+    const out = o.conf!==T[id].conf
+      ? '<span class="cdot" style="background:'+CC[o.conf]+'" title="'+esc(o.conf)+'"></span>' : '';
+    return '<tr'+(x.ps?' class="ps"':'')+'><td class="n" style="color:var(--muted)">'+
+      (x.ps?'<span class="stage">'+lab+'</span>':lab)+'</td>'+
+      '<td>'+out+'<span class="rk">#'+R[x.o]+'</span>'+(x.home===false?'at ':(x.ps?'vs ':''))+esc(o.name)+rv+'</td>'+
+      '<td class="hidesm" style="color:var(--muted)">'+
+        esc(x.ps?((x.b||x.t)+(x.c?' \u00b7 '+x.c:'')):kind(x))+'</td>'+
+      '<td class="n" style="color:'+(win?'var(--up)':'var(--down)')+'">'+(win?'W':'L')+' '+x.f+'\u2013'+x.a+'</td></tr>';
+  };
+  const me=T[id], w=reg.filter(x=>x.f>x.a).length;
+  const avgRk=Math.round(reg.reduce((s,x)=>s+R[x.o],0)/reg.length);
+  const avgRt=Math.round(reg.reduce((s,x)=>s+T[x.o].rating,0)/reg.length);
+  let head=esc(me.name)+' finished '+w+'\u2013'+(reg.length-w)+', ranked #'+R[id]+' in '+
+    (me.tier==='d1'?'Tier I':'Tier II')+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
+    ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+
+    (reg.some(x=>T[x.o].conf!==me.conf)?' A dot marks an opponent from another conference.':'')+
+    (me.rival?' Rival: '+esc(me.rival)+'.':'');
+  if(post.length){
+    const pw=post.filter(x=>x.f>x.a).length;
+    head += pw===post.length ? ' Won the title, '+pw+'\u20130 in the playoff.'
+      : ' Went '+pw+'\u2013'+(post.length-pw)+' in the playoff, out in the '+esc(post[post.length-1].t.toLowerCase())+'.';
+  }else if(extraB.length){
+    const b=extraB[0];
+    head += ' Missed the field and '+(b.f>b.a?'won':'lost')+' the '+esc(b.b)+'.';
+  }
+  let verdict='';
+  const mv = sn.moves && sn.moves.note && sn.moves.note[id];
+  if(mv){
+    const ord2 = mv.pos===1 ? 'Closest' : 'Second closest';
+    const L={up:['vup','Promoted to Tier I','Best promotion score in its division \u2014 '],
+             down:['vdown','Relegated to Tier II','Finished '],
+             nearDown:['vnear','Survived the drop',ord2+' to the drop \u2014 '],
+             nearUp:['vnear','Missed promotion',(mv.pos===1?'Runner-up':'Third')+' on score \u2014 ']}[mv.dir];
+    const tail = mv.dir==='down' ? L[2]+esc(mv.why)+' in its division over the cycle.'
+               : L[2]+esc(mv.why)+'.';
+    verdict='<p class="verdict '+L[0]+'">'+L[1]+' after this season. Two-year record '+
+      esc(mv.rec)+'. '+tail+'</p>';
+  }
+  const byWk={}; let maxWk=0;
+  for(const x of reg){ const k=x.wk||0; byWk[k]=x; if(k>maxWk) maxWk=k; }
+  const total=Math.max(sn.weeks||maxWk, maxWk);
+  const rows=[];
+  for(let wk=1; wk<=total; wk++){
+    rows.push(byWk[wk] ? line(byWk[wk],wk)
+      : '<tr class="bye"><td class="n">'+wk+'</td><td colspan="3">bye</td></tr>');
+  }
+  return '<div class="sched">'+verdict+'<p class="note" style="margin:2px 2px 6px">'+head+'</p><table>'+
+    rows.join('')+
+    (post.length?'<tr class="pshead"><td colspan="4">Playoff</td></tr>'+post.map(x=>line(x,stage(x))).join(''):'')+
+    (extraB.length?'<tr class="pshead"><td colspan="4">Bowl</td></tr>'+extraB.map(x=>line(x,stage(x))).join(''):'')+
+    '</table></div>';
+}
+function expandable(row,id,cols){
+  row.classList.add('clickrow'); row.tabIndex=0;
+  const go=()=>{
+    const nx=row.nextElementSibling;
+    if(nx&&nx.dataset.sched===id){nx.remove();row.classList.remove('open');return;}
+    row.parentNode.querySelectorAll('tr[data-sched]').forEach(r=>{
+      if(r.previousElementSibling) r.previousElementSibling.classList.remove('open');
+      r.remove();});
+    const r=el('tr','schedrow'); r.dataset.sched=id;
+    r.innerHTML='<td colspan="'+cols+'">'+schedHTML(id)+'</td>';
+    row.after(r); row.classList.add('open');
+  };
+  row.onclick=go;
+  row.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}};
+}
+
+/* ---------- chrome ---------- */
+const TABS=[['league','League'],['map','Map'],['playoff','Playoff'],['move','Up & down'],['ratings','Ratings']];
+function buildTabs(){
+  const n=$('#tabs');
+  TABS.forEach(function(pair,i){
+    const b=el('button',null,pair[1]);
+    b.setAttribute('role','tab'); b.setAttribute('aria-selected',i===0?'true':'false');
+    b.onclick=()=>{
+      n.querySelectorAll('button').forEach(x=>x.setAttribute('aria-selected','false'));
+      b.setAttribute('aria-selected','true');
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+      $('#p-'+pair[0]).classList.add('on');
+    };
+    n.appendChild(b);
+  });
+}
+function renderDeck(){
+  $('#s-d1').textContent=sizeOf('d1');
+  $('#s-d2').textContent=sizeOf('d2');
+  $('#s-cycle').textContent = S.inCycle>=2 ? 'Ready now' : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s');
+  const pending = S.phase==='done' && S.inCycle>=2;
+  $('#settleBtn').hidden = !pending;
+  const btn=$('#playBtn');
+  if(S.phase==='pre'){
+    btn.textContent='Play the '+S.season+' season';
+    btn.disabled=false; btn.className='btn';
+    btn.onclick=()=>{playSeason();renderAll();};
+  }else{
+    btn.textContent='Advance to '+(S.season+1);
+    btn.className='btn ghost';
+    btn.disabled=pending;
+    btn.onclick=()=>{advance();renderAll();};
+  }
+  $('#deckHint').textContent = pending
+    ? 'Two seasons are in the books. Settle the table before moving on.' : '';
+  const sel=$('#yearSel'); sel.innerHTML='';
+  S.snaps.forEach((sn,i)=>{
+    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason'));
+    o.value=String(i); sel.appendChild(o);
+  });
+  sel.value=String(S.view);
+  const archive = S.view !== S.snaps.length-1;
+  $('#cell-season').classList.toggle('archive',archive);
+  $('#seasonLbl').textContent = archive ? 'Archive \u00b7 now in '+S.season : 'Viewing';
+}
+
+/* ---------- map ---------- */
+let mapGroup='conf';
+let mapFilter=new Set(CONFS);
+let mapFocus=null;
+const groupKeys = () => mapGroup==='conf' ? CONFS : DIVS;
+const groupOf = t => mapGroup==='conf' ? t.conf : t.div;
+const groupCol = k => mapGroup==='conf' ? CC[k] : dcol(k);
+function renderChips(){
+  const c=$('#mapChips'); c.innerHTML='';
+  groupKeys().forEach(k=>{
+    const b=el('button','chip','<i></i>'+k);
+    b.dataset.on=mapFilter.has(k)?'1':'0';
+    if(mapFilter.has(k)) b.style.color=groupCol(k);
+    b.onclick=()=>{mapFilter.has(k)?mapFilter.delete(k):mapFilter.add(k);renderChips();renderMap();};
+    c.appendChild(b);
+  });
+}
+function starPoints(cx,cy,R,r){
+  const p=[];
+  for(let i=0;i<10;i++){
+    const a=-Math.PI/2 + i*Math.PI/5, rad = i%2 ? r : R;
+    p.push((cx+rad*Math.cos(a)).toFixed(1)+','+(cy+rad*Math.sin(a)).toFixed(1));
+  }
+  return p.join(' ');
+}
+function markerSVG(x,y,shape,fill,ring){
+  if(shape==='square') return '<rect x="'+(x-5)+'" y="'+(y-5)+'" width="10" height="10" rx="1.5" fill="'+fill+'" stroke="'+ring+'" stroke-width="2"/>';
+  if(shape==='diamond') return '<polygon points="'+x+','+(y-6.6)+' '+(x+6.6)+','+y+' '+x+','+(y+6.6)+' '+(x-6.6)+','+y+'" fill="'+fill+'" stroke="'+ring+'" stroke-width="2"/>';
+  return '<circle cx="'+x+'" cy="'+y+'" r="5.5" fill="'+fill+'" stroke="'+ring+'" stroke-width="2"/>';
+}
+const WIN='#7ee787', LOSS='#ff7b72';
+function renderMapFocus(sn){
+  const ix=byId(), me=ix[mapFocus], games=sn.sched[mapFocus];
+  let s='<svg class="map" viewBox="0 0 '+M.W+' '+M.H+'" role="img" aria-label="Season map for '+esc(me.name)+'">';
+  for(const k in DATA.map.paths) s+='<path class="st" d="'+DATA.map.paths[k]+'"/>';
+  s+='<rect class="inset" x="30" y="486" width="86" height="52" rx="6"/><text class="insetlbl" x="36" y="500">Hawaii</text>';
+  const c0=screenXY(me), mx=c0[0].toFixed(1), my=c0[1].toFixed(1);
+  games.forEach(g=>{
+    const o=ix[g.o]; if(!o) return;
+    const p=screenXY(o), win=g.f>g.a;
+    s+='<line x1="'+mx+'" y1="'+my+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="'+
+       (win?WIN:LOSS)+'" stroke-width="1.3" stroke-opacity=".42"'+(g.ps?' stroke-dasharray="4 3"':'')+'/>';
+  });
+  games.forEach((g,i)=>{
+    const o=ix[g.o]; if(!o) return;
+    const p=screenXY(o), win=g.f>g.a;
+    const shape = g.ps?'diamond':(g.home?'circle':'square');
+    s+='<g class="dot" data-id="'+o.id+'" data-g="'+i+'">'+
+       markerSVG(+p[0].toFixed(1),+p[1].toFixed(1),shape,dcol(o.div),win?WIN:LOSS)+'</g>';
+  });
+  s+='<g class="dot" data-id="'+me.id+'" data-g="-1"><circle cx="'+mx+'" cy="'+my+'" r="9.5" fill="none" stroke="#eef4ec" stroke-width="1.6" stroke-opacity=".8"/>'+
+     '<circle cx="'+mx+'" cy="'+my+'" r="5.5" fill="'+dcol(me.div)+'" stroke="#eef4ec" stroke-width="1.8"/></g>';
+  $('#mapHost').innerHTML=s+'</svg>';
+  const tip=$('#tip');
+  $('#mapHost').querySelectorAll('.dot').forEach(el2=>{
+    const gi=+el2.dataset.g, t=ix[el2.dataset.id];
+    const showTip=e=>{
+      const p=e.touches?e.touches[0]:e;
+      let body;
+      if(gi<0) body='<small>'+esc(t.city)+', '+t.st+'<br>'+esc(t.div)+' \u00b7 ranked #'+sn.rank[t.id]+'</small>';
+      else{
+        const g=games[gi], win=g.f>g.a;
+        const where=g.ps?'neutral site':(g.home?'at home':'on the road');
+        const num=g.ps?esc(g.t):'game '+(gi+1);
+        body='<small>#'+sn.rank[t.id]+' \u00b7 '+esc(t.div)+'<br>'+num+', '+where+
+             '<br><b style="color:'+(win?WIN:LOSS)+'">'+(win?'W':'L')+' '+g.f+'\u2013'+g.a+'</b></small>';
+      }
+      tip.innerHTML='<b>'+esc(t.name)+'</b>'+body;
+      tip.style.opacity=1;
+      tip.style.left=Math.min(innerWidth-232,p.clientX+12)+'px';
+      tip.style.top=Math.max(8,p.clientY-64)+'px';
+    };
+    el2.addEventListener('mousemove',showTip);
+    el2.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
+    el2.addEventListener('click',e=>{
+      showTip(e);
+      if(gi>=0){mapFocus=t.id;renderMap();}
+      pickTeam(t);
+      setTimeout(()=>{tip.style.opacity=0;},1800);
+    });
+  });
+}
+function renderMap(){
+  const sn=snap();
+  if(mapFocus && sn.sched[mapFocus]) return renderMapFocus(sn);
+  mapFocus=null;
+  const tier=$('#mapTier').value;
+  const show=S.teams.filter(t=>(tier==='all'||t.tier===tier)&&mapFilter.has(groupOf(t)));
+  let s='<svg class="map" viewBox="0 0 '+M.W+' '+M.H+'" role="img" aria-label="Conference footprints">';
+  for(const k in DATA.map.paths) s+='<path class="st" d="'+DATA.map.paths[k]+'"/>';
+  s+='<rect class="inset" x="30" y="486" width="86" height="52" rx="6"/><text class="insetlbl" x="36" y="500">Hawaii</text>';
+  const winners=new Set(), champs=new Set();
+  if(sn.kind==='season') for(const tr2 of ['d1','d2']){
+    const tin=sn.tiers[tr2]; if(!tin) continue;
+    for(const dd in tin.divs) if(tin.divs[dd].length) winners.add(tin.divs[dd][0]);
+    if(tin.po) champs.add(tin.po.champion);
+  }
+  const rank2=t=> champs.has(t.id)?3 : winners.has(t.id)?2 : (t.tier==='d2'?0:1);
+  const ordered=[...show].sort((a,b)=>rank2(a)-rank2(b));
+  for(const t of ordered){
+    const xy=screenXY(t), c=dcol(t.div), X=+xy[0].toFixed(1), Y=+xy[1].toFixed(1);
+    const fill = t.tier==='d1' ? c : '#0c2318';
+    s+='<g class="dot" data-id="'+t.id+'">';
+    if(champs.has(t.id)){
+      s+='<circle cx="'+X+'" cy="'+Y+'" r="10.5" fill="none" stroke="'+c+'" stroke-width="1.5" stroke-opacity=".85"/>'+
+         '<polygon points="'+starPoints(X,Y,8,3.5)+'" fill="'+fill+'" stroke="'+c+'" stroke-width="1.6" stroke-linejoin="round"/>';
+    }else if(winners.has(t.id)){
+      s+='<polygon points="'+starPoints(X,Y,6.6,2.9)+'" fill="'+fill+'" stroke="'+c+'" stroke-width="1.5" stroke-linejoin="round"/>';
+    }else{
+      s+= t.tier==='d1'
+        ? '<circle cx="'+X+'" cy="'+Y+'" r="5" fill="'+c+'" stroke="'+c+'" stroke-width="1.4"/>'
+        : '<circle cx="'+X+'" cy="'+Y+'" r="3.4" fill="#0c2318" stroke="'+c+'" stroke-width="1.8"/>';
+    }
+    s+='</g>';
+  }
+  $('#mapHost').innerHTML=s+'</svg>';
+  const tip=$('#tip'), ix=byId();
+  $('#mapHost').querySelectorAll('.dot').forEach(g=>{
+    const t=ix[g.dataset.id];
+    const showTip=e=>{
+      const p=e.touches?e.touches[0]:e;
+      const rk=sn.rank[t.id]?' \u00b7 #'+sn.rank[t.id]:'';
+      const crown = champs.has(t.id)?'<br><b style="color:var(--central)">\u2605 national champion</b>'
+                  : winners.has(t.id)?'<br><b style="color:var(--central)">\u2605 division winner</b>':'';
+      tip.innerHTML='<b>'+esc(t.name)+'</b><small>'+esc(t.city)+', '+t.st+' \u00b7 '+esc(t.div)+
+        '<br>'+(t.tier==='d1'?'Tier I':'Tier II')+' \u00b7 rating '+Math.round(t.rating)+rk+crown+'</small>';
+      tip.style.opacity=1;
+      tip.style.left=Math.min(innerWidth-232,p.clientX+12)+'px';
+      tip.style.top=Math.max(8,p.clientY-56)+'px';
+    };
+    g.addEventListener('mousemove',showTip);
+    g.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
+    g.addEventListener('click',e=>{showTip(e);pickTeam(t);setTimeout(()=>{tip.style.opacity=0;},1800);});
+  });
+}
+function pickTeam(t){
+  const sn=snap(), rk=sn.rank[t.id], canFocus=!!sn.sched[t.id];
+  const focused = mapFocus===t.id;
+  const legend = focused ? '<div class="legend">'+
+      '<span><svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="var(--muted)" stroke="var(--chalk)" stroke-width="2"/></svg>home</span>'+
+      '<span><svg width="16" height="16"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="var(--muted)" stroke="var(--chalk)" stroke-width="2"/></svg>away</span>'+
+      '<span><svg width="16" height="16"><polygon points="8,1.5 14.5,8 8,14.5 1.5,8" fill="var(--muted)" stroke="var(--chalk)" stroke-width="2"/></svg>playoff</span>'+
+      '<span><i style="background:'+WIN+'"></i>won</span>'+
+      '<span><i style="background:'+LOSS+'"></i>lost</span>'+
+      '<span>fill is the opponent\u2019s conference</span></div>' : '';
+  $('#mapPick').innerHTML='<div class="divblock"><div class="divhead" style="--c:'+dcol(t.div)+'">'+
+    '<h3>'+esc(t.name)+'</h3><span>'+esc(t.city)+', '+t.st+'</span></div><div class="divbody">'+
+    '<p class="note">'+(t.tier==='d1'?'Tier I':'Tier II')+' \u00b7 '+esc(t.div)+
+    ' \u00b7 rating '+Math.round(t.rating)+(rk?' \u00b7 ranked #'+rk:'')+'</p>'+
+    (canFocus?'<p><button class="btn '+(focused?'':'ghost')+'" id="focusBtn">'+
+      (focused?'Show every team again':'Show this season on the map')+'</button></p>':'')+
+    legend+schedHTML(t.id)+'</div></div>';
+  const fb=$('#focusBtn');
+  if(fb) fb.onclick=()=>{ mapFocus = focused?null:t.id; renderMap(); pickTeam(t);
+    const mb=document.querySelector('.mapbox'); if(mb&&mb.scrollIntoView) mb.scrollIntoView({block:'nearest'}); };
+}
+
+/* ---------- league ---------- */
+function renderLeague(){
+  const host=$('#league'), pick=$('#lgTier').value, sortBy=$('#lgSort').value, sn=snap();
+  const pre = sn.kind==='pre';
+  host.innerHTML='';
+  $('#lgNote').textContent = pre
+    ? sn.season+' preseason. Rank is by rating; no games played yet.'
+    : sn.season+' results. Rank is across the whole tier. Tap a team to open its schedule.'+
+      (sn.moves ? ' This season closed a cycle \u2014 promotions and relegations are marked.' : '');
+  const M=sn.moves||{};
+  const upS=new Set(M.up||[]), dnS=new Set(M.down||[]);
+  const nuS=new Set(M.nearUp||[]), ndS=new Set(M.nearDown||[]);
+  const moveTag = id => dnS.has(id) ? '<span class="tag reltag">relegated</span>'
+                     : upS.has(id) ? '<span class="tag protag">promoted</span>'
+                     : ndS.has(id) ? '<span class="tag neartag">stayed up</span>'
+                     : nuS.has(id) ? '<span class="tag neartag">just missed</span>' : '';
+  const tiers = pick==='all'?['d1','d2']:[pick];
+  const get = id => sn.teams[id];
+  if($('#lgView').value==='list') return renderFlat(sn,pre,tiers,get,sortBy,host);
+  for(const tr of tiers){
+    if(pick==='all') host.appendChild(el('h2','sec',tr==='d1'?'Tier I':'Tier II'));
+    const tin=sn.tiers[tr];
+    const atl=new Set(tin.at), seedOf=tin.seedOf;
+    const champId=tin.po?tin.po.champion:null;
+    for(const c of CONFS) for(const d of DIVS.filter(x=>x.indexOf(c+' ')===0)){
+      const ids=tin.divs[d]||[];
+      if(!ids.length) continue;
+      let order=[...ids];
+      if(sortBy==='name') order.sort((a,b)=>get(a).name.localeCompare(get(b).name));
+      else if(sortBy==='rating') order.sort((a,b)=>get(b).rating-get(a).rating);
+      const q=(!pre&&tr==='d1')?Math.max(sn.quota[d]||0,1):0;
+      const drop=q?ids.slice(ids.length-q):[];
+      const box=el('div','divblock');
+      const avg=(ids.reduce((a,id)=>a+get(id).rating,0)/ids.length).toFixed(1);
+      box.innerHTML='<div class="divhead" style="--c:'+dcol(d)+'"><h3>'+esc(d)+'</h3><span>'+
+        (pre?ids.length+' teams \u00b7 avg '+avg:'winner '+esc(get(ids[0]).name)+' \u00b7 avg '+avg)+
+        '</span></div><div class="divbody"></div>';
+      const tb=el('table');
+      tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="n">Rtg</th>'+
+        (pre?'<th class="hidesm">Home</th>':'<th class="n">Div</th><th class="n">W-L</th><th class="n">SOS</th>')+
+        '</tr></thead>';
+      const body=el('tbody');
+      for(const id of order){
+        const t=get(id), row=el('tr');
+        if(!pre){
+          if(dnS.has(id)) row.className='rel';
+          else if(upS.has(id)) row.className='pro';
+          else if(id===champId) row.className='ch';
+          else if(ndS.has(id)||nuS.has(id)) row.className='near';
+          else if(id===ids[0]) row.className='dw';
+          else if(atl.has(id)) row.className='atl';
+          else if(!sn.moves && drop.indexOf(id)>=0) row.className='rel';
+        }
+        const crown = (!pre&&id===champId)?'<span class="tag chtag">\u2605 champion</span>':'';
+        const tag = !pre ? (id===ids[0]?'<span class="tag dwtag">wins division</span>'
+                  : (atl.has(id)?'<span class="tag atltag">at-large</span>':'')) : '';
+        const sd = seedOf[id]?'<span class="tag sdtag">seed '+seedOf[id]+'</span>':'';
+        row.innerHTML='<td class="n" style="color:var(--muted)">'+sn.rank[id]+'</td>'+
+          '<td>'+esc(t.name)+moveTag(id)+crown+tag+sd+'</td><td class="n">'+t.rating+'</td>'+
+          (pre?'<td class="hidesm">'+esc(t.city)+', '+t.st+'</td>'
+             :'<td class="n">'+t.dw+'-'+t.dl+'</td><td class="n">'+t.w+'-'+t.l+'</td>'+
+              '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>');
+        expandable(row,id,pre?4:6);
+        body.appendChild(row);
+      }
+      tb.appendChild(body); box.querySelector('.divbody').appendChild(tb); host.appendChild(box);
+    }
+  }
+}
+
+function renderFlat(sn,pre,tiers,get,sortBy,host){
+  const M=sn.moves||{};
+  const upS=new Set(M.up||[]), dnS=new Set(M.down||[]);
+  const nuS=new Set(M.nearUp||[]), ndS=new Set(M.nearDown||[]);
+  const moveTag = id => dnS.has(id) ? '<span class="tag reltag">relegated</span>'
+                     : upS.has(id) ? '<span class="tag protag">promoted</span>'
+                     : ndS.has(id) ? '<span class="tag neartag">stayed up</span>'
+                     : nuS.has(id) ? '<span class="tag neartag">just missed</span>' : '';
+  for(const tr of tiers){
+    const tin=sn.tiers[tr];
+    const ids=[].concat.apply([],Object.values(tin.divs));
+    if(!ids.length) continue;
+    const atl=new Set(tin.at), seedOf=tin.seedOf;
+    const champId=tin.po?tin.po.champion:null;
+    const winners=new Set(Object.values(tin.divs).map(l=>l[0]));
+    let order=[...ids];
+    if(sortBy==='name') order.sort((a,b)=>get(a).name.localeCompare(get(b).name));
+    else if(sortBy==='rating') order.sort((a,b)=>get(b).rating-get(a).rating);
+    else order.sort((a,b)=>sn.rank[a]-sn.rank[b]);
+    const box=el('div','divblock');
+    box.innerHTML='<div class="divhead" style="--c:var(--chalk)"><h3>'+
+      (tr==='d1'?'Tier I':'Tier II')+'</h3><span>'+ids.length+' teams, one table</span></div>'+
+      '<div class="divbody"></div>';
+    const idx=el('div','divindex');
+    for(const c of CONFS) for(const d of DIVS.filter(x=>x.indexOf(c+' ')===0)){
+      const list=tin.divs[d]||[];
+      if(!list.length) continue;
+      const avg=(list.reduce((a,id)=>a+get(id).rating,0)/list.length).toFixed(1);
+      idx.insertAdjacentHTML('beforeend','<span><i style="background:'+dcol(d)+'"></i>'+
+        esc(d)+' <em>'+list.length+' \u00b7 avg '+avg+'</em></span>');
+    }
+    const tb=el('table');
+    tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="hidesm">Division</th>'+
+      '<th class="n">Rtg</th>'+(pre?'':'<th class="n">W-L</th><th class="n">SOS</th>')+'</tr></thead>';
+    const body=el('tbody');
+    for(const id of order){
+      const t=get(id), row=el('tr');
+      if(!pre){
+        if(dnS.has(id)) row.className='rel';
+        else if(upS.has(id)) row.className='pro';
+        else if(id===champId) row.className='ch';
+        else if(ndS.has(id)||nuS.has(id)) row.className='near';
+        else if(winners.has(id)) row.className='dw';
+        else if(atl.has(id)) row.className='atl';
+      }
+      const crown = (!pre&&id===champId)?'<span class="tag chtag">\u2605 champion</span>':'';
+      const tag = (!pre&&winners.has(id))?'<span class="tag dwtag">wins division</span>'
+                : (!pre&&atl.has(id))?'<span class="tag atltag">at-large</span>':'';
+      const sd = seedOf[id]?'<span class="tag sdtag">seed '+seedOf[id]+'</span>':'';
+      row.innerHTML='<td class="n" style="color:var(--muted)">'+sn.rank[id]+'</td>'+
+        '<td><span class="tdot" style="background:'+dcol(t.div)+'" title="'+esc(t.div)+'"></span>'+
+        esc(t.name)+moveTag(id)+crown+tag+sd+'</td><td class="hidesm">'+esc(t.div)+'</td>'+
+        '<td class="n">'+t.rating+'</td>'+
+        (pre?'':'<td class="n">'+t.w+'-'+t.l+'</td><td class="n">'+t.sos+
+          '<span class="sosrk">'+t.sosRank+'</span></td>');
+      expandable(row,id,pre?4:6);
+      body.appendChild(row);
+    }
+    tb.appendChild(body);
+    const bd=box.querySelector('.divbody');
+    bd.appendChild(idx); bd.appendChild(tb);
+    host.appendChild(box);
+  }
+}
+
+/* ---------- playoff ---------- */
+function renderPlayoff(){
+  const host=$('#playoffOut'), tr=$('#poTier').value, sn=snap();
+  if(sn.kind==='pre'){host.innerHTML='<div class="empty">No bracket for the '+sn.season+
+    ' preseason. Play the season, or pick a results year above.</div>';return;}
+  const po=sn.tiers[tr].po, T=sn.teams, R=sn.rank, seedOf=sn.tiers[tr].seedOf;
+  if(!po){host.innerHTML='<div class="empty">Not enough divisions to seed a bracket.</div>';return;}
+  host.innerHTML='';
+  const ch=T[po.champion];
+  const chBox=el('div','champ','<b>'+esc(ch.name)+'</b><span class="note">'+
+    (tr==='d1'?'Tier I':'Tier II')+' champion, '+sn.season+' \u00b7 '+ch.w+'-'+ch.l+' \u00b7 '+esc(ch.div)+'</span>');
+  chBox.style.borderColor=CC[ch.conf];
+  chBox.style.background='color-mix(in srgb, '+CC[ch.conf]+' 10%, transparent)';
+  host.appendChild(chBox);
+  const side=(id,cls,score)=>{
+    const c=CC[T[id].conf];
+    const sd='<span class="sd">'+(seedOf[id]?seedOf[id]:'#'+R[id])+'</span>';
+    return '<div class="'+cls+'" style="border-left:3px solid '+c+'">'+
+      '<span><span class="cdot" style="background:'+c+'"></span>'+sd+esc(T[id].name)+'</span>'+
+      '<span>'+score+'</span></div>';
+  };
+  const line=g=>{
+    const hw=g.hs>g.vs;
+    return '<div class="mt">'+side(g.h,hw?'w':'l',g.hs)+side(g.v,hw?'l':'w',g.vs)+'</div>';
+  };
+  const cap=g=>{
+    const n=g.bowl||g.label, c=g.city?'<span class="venue">'+esc(g.city)+'</span>':'';
+    return '<div class="bowl">'+esc(n)+c+'</div>';
+  };
+  const sec=(title,note,games,bowls)=>{
+    const d=el('div','divblock');
+    const body=games.map(g=>(bowls?cap(g):'')+line(g)).join('');
+    d.innerHTML='<div class="divhead" style="--c:var(--line)"><h3>'+title+'</h3><span>'+note+'</span></div>'+
+      '<div class="divbody">'+body+'</div>';
+    return d;
+  };
+  const ccgBox=sec('Conference championships','host campus rotates yearly; winners take seeds 1\u20134',po.ccg,true);
+  host.appendChild(ccgBox);
+  host.appendChild(sec('At-large play-in','eight winners take seeds 9\u201316',po.pin,true));
+  const COLW=190, GAP=46, MH=72, SLOT=92;
+  const pos=[];
+  po.rounds.forEach((rd,r)=>{
+    pos[r]=rd.games.map((g,i)=> r===0 ? i*SLOT : (pos[r-1][2*i]+pos[r-1][2*i+1])/2);
+  });
+  const H=po.rounds[0].games.length*SLOT, W=po.rounds.length*COLW+(po.rounds.length-1)*GAP;
+  let svg='<svg class="brlines" width="'+W+'" height="'+H+'" aria-hidden="true">';
+  for(let r=1;r<po.rounds.length;r++){
+    po.rounds[r].games.forEach((g,i)=>{
+      const tx=r*(COLW+GAP), ty=pos[r][i]+MH/2;
+      [2*i,2*i+1].forEach(f=>{
+        const fx=(r-1)*(COLW+GAP)+COLW, fy=pos[r-1][f]+MH/2, mx=fx+GAP/2;
+        svg+='<path d="M'+fx+' '+fy+' H'+mx+' V'+ty+' H'+tx+'" fill="none" stroke="var(--line)" stroke-width="1.5"/>';
+      });
+    });
+  }
+  svg+='</svg>';
+  let heads='', boxes='';
+  po.rounds.forEach((rd,r)=>{
+    heads+='<div class="brhead" style="left:'+(r*(COLW+GAP))+'px;width:'+COLW+'px">'+rd.name+'</div>';
+    rd.games.forEach((g,i)=>{
+      boxes+='<div class="brmatch" style="left:'+(r*(COLW+GAP))+'px;top:'+pos[r][i]+'px;width:'+COLW+'px">'+
+        cap(g)+line(g)+'</div>';
+    });
+  });
+  const br=el('div','bracket','<div class="brwrap" style="width:'+W+'px;height:'+(H+22)+'px">'+
+    heads+'<div class="brinner" style="height:'+H+'px">'+svg+boxes+'</div></div>');
+  const wrap=el('div','divblock');
+  wrap.innerHTML='<div class="divhead" style="--c:var(--chalk)"><h3>Main bracket</h3>'+
+    '<span>16 teams, fixed seeding</span></div>';
+  const bd=el('div','divbody'); bd.appendChild(br); wrap.appendChild(bd); host.appendChild(wrap);
+  if(po.bowls && po.bowls.length)
+    host.appendChild(sec('Bowl season','the rest of the slate, for teams that missed the field',po.bowls,true));
+}
+
+/* ---------- movement ---------- */
+function renderMove(){
+  const host=$('#moveOut'); host.innerHTML='';
+  const intro=el('details');
+  intro.innerHTML='<summary>How the pyramid moves</summary><p>Every second season the table settles. '+
+    'The first cycle is relegation only: each Tier I division sheds enough teams to reach 16, trimming '+
+    'the tier from '+DATA.d1.length+' to 128. After that it is one down and one up per division, always inside '+
+    'the same footprint, so a team never changes region just because it changed tiers. Cycle standing uses '+
+    'the combined record across both seasons.</p>'+
+    '<p><b>Relegation</b> takes the worst two-year record in each division. Ties run through '+
+    'conference record, head to head over the two years, point differential capped at \u00b1'+PD_CAP+
+    ' a game, strength of schedule, playoff ranking, then a draw. The cap is there so a team cannot '+
+    'bury weak opponents to buy its way clear.</p>'+
+    '<p><b>Promotion</b> scores every Tier II team over the cycle: '+
+    Math.round(PRO_W.record*100)+'% two-year record, '+Math.round(PRO_W.playoff*100)+'% playoff run, '+
+    Math.round(PRO_W.sos*100)+'% strength of schedule, '+Math.round(PRO_W.rank*100)+'% ranking. '+
+    'The playoff share is measured against a perfect run \u2014 reaching the field and winning out \u2014 '+
+    'not against whoever went furthest in that division, so a weak field scores low across the board. '+
+    'Going unbeaten against nobody does not get you up.</p>';
+  host.appendChild(intro);
+  if(S.inCycle>=2){
+    const n=S.cycle===1?(sizeOf('d1')-128):8;
+    const box=el('div','champ');
+    box.innerHTML='<b>The table is settled</b><p class="note" style="margin:6px 0 10px">'+
+      (S.cycle===1 ? 'First cycle is relegation only. '+n+' teams drop so Tier I lands on 128.'
+        : 'Each Tier I division relegates its worst team; each Tier II division promotes its best.')+'</p>';
+    const b=el('button','btn go','Send them up and down'); b.onclick=settle;
+    box.appendChild(b); host.appendChild(box);
+  }
+  if(!S.moves.length){
+    host.appendChild(el('div','empty','Nothing has moved yet. Play two seasons, then settle the table.'));
+    return;
+  }
+  const LABEL={
+    up:   ['up to Tier I','var(--up)','pro'],
+    down: ['down to Tier II','var(--down)','rel'],
+    nearDown:['stayed up','var(--central)','near'],
+    nearUp:  ['just missed','var(--central)','near'],
+    swap: ['rebalanced','var(--muted)','']
+  };
+  const table=(rows,cols)=>{
+    const tb=el('table');
+    tb.innerHTML='<thead><tr><th>Team</th><th>'+cols+'</th><th class="n">Two-year</th>'+
+      '<th class="n">Outcome</th></tr></thead>';
+    const body=el('tbody');
+    rows.forEach(mv=>{
+      const L=LABEL[mv.dir];
+      const row=el('tr',L[2]);
+      row.innerHTML='<td>'+esc(mv.name)+'</td><td>'+esc(mv.div)+'</td>'+
+        '<td class="n">'+esc(mv.rec)+'</td>'+
+        '<td class="n" style="color:'+L[1]+'">'+L[0]+'</td>';
+      body.appendChild(row);
+      if(mv.why){
+        const wr=el('tr','whyrow');
+        wr.innerHTML='<td colspan="4">'+esc(mv.why)+'</td>';
+        body.appendChild(wr);
+      }
+    });
+    tb.appendChild(body);
+    return tb;
+  };
+  const bySort=(x,y)=>x.div.localeCompare(y.div)||x.dir.localeCompare(y.dir);
+
+  S.moves.forEach((m,idx)=>{
+    const pick=k=>m.moves.filter(x=>k.indexOf(x.dir)>=0).sort(bySort);
+    const nMoved=pick(['down','up']).length, nNear=pick(['nearDown','nearUp']).length;
+    const box=el('details','divblock cyc');
+    box.open = idx===0;                       // newest cycle open, the rest folded
+    box.innerHTML='<summary class="divhead" style="--c:var(--chalk)"><h3>Cycle '+m.cycle+'</h3>'+
+      '<span>after '+m.season+' \u00b7 '+nMoved+' moved, '+nNear+' near misses</span></summary>'+
+      '<div class="divbody"></div>';
+    const bd=box.querySelector('.divbody');
+
+    const moved=pick(['down','up']);
+    if(moved.length){
+      bd.appendChild(el('h4','movehead','Changed tier'));
+      bd.appendChild(table(moved,'Division'));
+    }
+    const near=pick(['nearDown','nearUp']);
+    if(near.length){
+      bd.appendChild(el('h4','movehead','Closest calls \u2014 nobody moved'));
+      bd.appendChild(table(near,'Division'));
+    }
+    const swaps=pick(['swap']);
+    if(swaps.length){
+      bd.appendChild(el('h4','movehead','Division rebalancing \u2014 same tier'));
+      bd.appendChild(table(swaps,'Moved between'));
+    }
+    host.appendChild(box);
+  });
+}
+
+/* ---------- ratings ---------- */
+function renderRatings(){
+  const q=$('#rateSearch').value.trim().toLowerCase(), host=$('#ratings');
+  host.innerHTML='';
+  const list=S.teams.filter(t=>!q||t.name.toLowerCase().indexOf(q)>=0||t.city.toLowerCase().indexOf(q)>=0)
+    .sort((a,b)=>b.rating-a.rating).slice(0,180);
+  for(const t of list){
+    const r=el('div','rate','<div>'+esc(t.name)+' <em>'+(t.tier==='d1'?'I':'II')+' \u00b7 '+esc(t.div)+'</em></div>');
+    const inp=el('input'); inp.type='range'; inp.min=1; inp.max=99; inp.step=1;
+    inp.value=Math.round(t.rating); inp.setAttribute('aria-label','Rating for '+t.name);
+    const num=el('div','n',String(Math.round(t.rating))); num.style.textAlign='right';
+    inp.oninput=()=>{t.rating=+inp.value;num.textContent=inp.value;};
+    r.appendChild(inp); r.appendChild(num); host.appendChild(r);
+  }
+  if(!list.length) host.appendChild(el('div','empty','No team by that name.'));
+}
+
+function renderAll(){renderDeck();renderLeague();renderMap();renderPlayoff();renderMove();renderRatings();}
+function renderViews(){renderLeague();mapFocus=null;$('#mapPick').innerHTML='';renderMap();renderPlayoff();}
+
+/* ---------- info sheet ---------- */
+let lastFocus=null;
+function openInfo(){
+  lastFocus=document.activeElement;
+  $('#infoWrap').hidden=false;
+  $('#infoClose').focus();
+  document.body.style.overflow='hidden';
+}
+function closeInfo(){
+  $('#infoWrap').hidden=true;
+  document.body.style.overflow='';
+  if(lastFocus&&lastFocus.focus) lastFocus.focus();
+}
+$('#infoBtn').onclick=openInfo;
+$('#infoClose').onclick=closeInfo;
+$('#infoWrap').addEventListener('click',e=>{ if(e.target===$('#infoWrap')) closeInfo(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#infoWrap').hidden) closeInfo(); });
+
+/* ---------- wiring ---------- */
+buildTabs(); renderChips();
+$('#mapTier').onchange=()=>{mapFocus=null;renderMap();};
+$('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys());mapFocus=null;
+  renderChips();renderMap();$('#mapPick').innerHTML='';};
+$('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;renderChips();renderMap();$('#mapPick').innerHTML='';};
+$('#lgTier').onchange=renderLeague;
+$('#lgView').onchange=renderLeague;
+$('#lgSort').onchange=renderLeague;
+$('#poTier').onchange=renderPlayoff;
+$('#yearSel').onchange=e=>{S.view=+e.target.value;renderViews();renderDeck();};
+$('#rateSearch').oninput=renderRatings;
+$('#rateReset').onclick=()=>{
+  for(const t of S.teams) t.rating=t.base;
+  if(S.phase==='pre'){ S.snaps[S.snaps.length-1]=makePre(); }
+  renderAll();
+};
+$('#play2Btn').onclick=()=>{
+  let guard=0;
+  while(guard++<12 && !(S.phase==='done'&&S.inCycle>=2)){
+    if(S.phase==='pre') playSeason(); else advance();
+  }
+  settle(); $('#tabs').children[3].click();
+};
+$('#settleBtn').onclick=settle;
+renderAll();
+
+</script>
+</body>
+</html>

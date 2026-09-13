@@ -1,0 +1,4210 @@
+{
+"d1": [
+{
+"id": "d10",
+"name": "Boston College",
+"city": "Chestnut Hill",
+"st": "MA",
+"lat": 42.34,
+"lon": -71.17,
+"rating": 58,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d11",
+"name": "California",
+"city": "Berkeley",
+"st": "CA",
+"lat": 37.87,
+"lon": -122.27,
+"rating": 56,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d12",
+"name": "Clemson",
+"city": "Clemson",
+"st": "SC",
+"lat": 34.68,
+"lon": -82.84,
+"rating": 86,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "South Carolina",
+"rivals": [
+"South Carolina"
+]
+},
+{
+"id": "d13",
+"name": "Duke",
+"city": "Durham",
+"st": "NC",
+"lat": 36.0,
+"lon": -78.94,
+"rating": 62,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "North Carolina",
+"rivals": [
+"North Carolina"
+]
+},
+{
+"id": "d14",
+"name": "Florida State",
+"city": "Tallahassee",
+"st": "FL",
+"lat": 30.44,
+"lon": -84.3,
+"rating": 78,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Florida",
+"rivals": [
+"Florida"
+]
+},
+{
+"id": "d15",
+"name": "Georgia Tech",
+"city": "Atlanta",
+"st": "GA",
+"lat": 33.78,
+"lon": -84.4,
+"rating": 72,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Georgia",
+"rivals": [
+"Georgia"
+]
+},
+{
+"id": "d16",
+"name": "Louisville",
+"city": "Louisville",
+"st": "KY",
+"lat": 38.21,
+"lon": -85.76,
+"rating": 76,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Kentucky",
+"rivals": [
+"Kentucky"
+]
+},
+{
+"id": "d17",
+"name": "Miami (FL)",
+"city": "Coral Gables",
+"st": "FL",
+"lat": 25.72,
+"lon": -80.28,
+"rating": 85,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d18",
+"name": "NC State",
+"city": "Raleigh",
+"st": "NC",
+"lat": 35.78,
+"lon": -78.68,
+"rating": 68,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Wake Forest",
+"rivals": [
+"Wake Forest"
+]
+},
+{
+"id": "d19",
+"name": "North Carolina",
+"city": "Chapel Hill",
+"st": "NC",
+"lat": 35.9,
+"lon": -79.05,
+"rating": 63,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Duke",
+"rivals": [
+"Duke"
+]
+},
+{
+"id": "d110",
+"name": "Pittsburgh",
+"city": "Pittsburgh",
+"st": "PA",
+"lat": 40.44,
+"lon": -79.96,
+"rating": 67,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "West Virginia",
+"rivals": [
+"West Virginia"
+]
+},
+{
+"id": "d111",
+"name": "SMU",
+"city": "Dallas",
+"st": "TX",
+"lat": 32.84,
+"lon": -96.78,
+"rating": 74,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "TCU",
+"rivals": [
+"TCU"
+]
+},
+{
+"id": "d112",
+"name": "Stanford",
+"city": "Stanford",
+"st": "CA",
+"lat": 37.43,
+"lon": -122.17,
+"rating": 52,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d113",
+"name": "Syracuse",
+"city": "Syracuse",
+"st": "NY",
+"lat": 43.04,
+"lon": -76.14,
+"rating": 62,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Buffalo",
+"rivals": [
+"Buffalo"
+]
+},
+{
+"id": "d114",
+"name": "Virginia",
+"city": "Charlottesville",
+"st": "VA",
+"lat": 38.03,
+"lon": -78.51,
+"rating": 63,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Virginia Tech",
+"rivals": [
+"Virginia Tech"
+]
+},
+{
+"id": "d115",
+"name": "Virginia Tech",
+"city": "Blacksburg",
+"st": "VA",
+"lat": 37.22,
+"lon": -80.42,
+"rating": 65,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Virginia",
+"rivals": [
+"Virginia"
+]
+},
+{
+"id": "d116",
+"name": "Wake Forest",
+"city": "Winston-Salem",
+"st": "NC",
+"lat": 36.13,
+"lon": -80.28,
+"rating": 58,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "NC State",
+"rivals": [
+"NC State"
+]
+},
+{
+"id": "d117",
+"name": "Illinois",
+"city": "Champaign",
+"st": "IL",
+"lat": 40.11,
+"lon": -88.23,
+"rating": 70,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Northwestern",
+"rivals": [
+"Northwestern"
+]
+},
+{
+"id": "d118",
+"name": "Indiana",
+"city": "Bloomington",
+"st": "IN",
+"lat": 39.17,
+"lon": -86.52,
+"rating": 82,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Purdue",
+"rivals": [
+"Purdue"
+]
+},
+{
+"id": "d119",
+"name": "Iowa",
+"city": "Iowa City",
+"st": "IA",
+"lat": 41.66,
+"lon": -91.54,
+"rating": 75,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Iowa State",
+"rivals": [
+"Iowa State"
+]
+},
+{
+"id": "d120",
+"name": "Maryland",
+"city": "College Park",
+"st": "MD",
+"lat": 38.99,
+"lon": -76.94,
+"rating": 60,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d121",
+"name": "Michigan",
+"city": "Ann Arbor",
+"st": "MI",
+"lat": 42.28,
+"lon": -83.74,
+"rating": 86,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Ohio State",
+"rivals": [
+"Ohio State"
+]
+},
+{
+"id": "d122",
+"name": "Michigan State",
+"city": "East Lansing",
+"st": "MI",
+"lat": 42.73,
+"lon": -84.48,
+"rating": 64,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d123",
+"name": "Minnesota",
+"city": "Minneapolis",
+"st": "MN",
+"lat": 44.97,
+"lon": -93.24,
+"rating": 68,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Wisconsin",
+"rivals": [
+"Wisconsin"
+]
+},
+{
+"id": "d124",
+"name": "Nebraska",
+"city": "Lincoln",
+"st": "NE",
+"lat": 40.82,
+"lon": -96.7,
+"rating": 68,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d125",
+"name": "Northwestern",
+"city": "Evanston",
+"st": "IL",
+"lat": 42.06,
+"lon": -87.69,
+"rating": 56,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Illinois",
+"rivals": [
+"Illinois"
+]
+},
+{
+"id": "d126",
+"name": "Ohio State",
+"city": "Columbus",
+"st": "OH",
+"lat": 40.0,
+"lon": -83.02,
+"rating": 97,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Michigan",
+"rivals": [
+"Michigan"
+]
+},
+{
+"id": "d127",
+"name": "Oregon",
+"city": "Eugene",
+"st": "OR",
+"lat": 44.05,
+"lon": -123.07,
+"rating": 90,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Oregon State",
+"rivals": [
+"Oregon State"
+]
+},
+{
+"id": "d128",
+"name": "Penn State",
+"city": "State College",
+"st": "PA",
+"lat": 40.8,
+"lon": -77.86,
+"rating": 82,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d129",
+"name": "Purdue",
+"city": "West Lafayette",
+"st": "IN",
+"lat": 40.43,
+"lon": -86.91,
+"rating": 54,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Indiana",
+"rivals": [
+"Indiana"
+]
+},
+{
+"id": "d130",
+"name": "Rutgers",
+"city": "Piscataway",
+"st": "NJ",
+"lat": 40.52,
+"lon": -74.46,
+"rating": 58,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Temple",
+"rivals": [
+"Temple"
+]
+},
+{
+"id": "d131",
+"name": "UCLA",
+"city": "Los Angeles",
+"st": "CA",
+"lat": 34.07,
+"lon": -118.44,
+"rating": 62,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "USC",
+"rivals": [
+"USC"
+]
+},
+{
+"id": "d132",
+"name": "USC",
+"city": "Los Angeles",
+"st": "CA",
+"lat": 34.02,
+"lon": -118.29,
+"rating": 84,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "UCLA",
+"rivals": [
+"UCLA"
+]
+},
+{
+"id": "d133",
+"name": "Washington",
+"city": "Seattle",
+"st": "WA",
+"lat": 47.65,
+"lon": -122.3,
+"rating": 79,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Washington State",
+"rivals": [
+"Washington State"
+]
+},
+{
+"id": "d134",
+"name": "Wisconsin",
+"city": "Madison",
+"st": "WI",
+"lat": 43.07,
+"lon": -89.41,
+"rating": 66,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Minnesota",
+"rivals": [
+"Minnesota"
+]
+},
+{
+"id": "d135",
+"name": "Arizona",
+"city": "Tucson",
+"st": "AZ",
+"lat": 32.23,
+"lon": -110.95,
+"rating": 62,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Arizona State",
+"rivals": [
+"Arizona State"
+]
+},
+{
+"id": "d136",
+"name": "Arizona State",
+"city": "Tempe",
+"st": "AZ",
+"lat": 33.42,
+"lon": -111.93,
+"rating": 76,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Arizona",
+"rivals": [
+"Arizona"
+]
+},
+{
+"id": "d137",
+"name": "Baylor",
+"city": "Waco",
+"st": "TX",
+"lat": 31.55,
+"lon": -97.11,
+"rating": 72,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Texas Tech",
+"rivals": [
+"Texas Tech"
+]
+},
+{
+"id": "d138",
+"name": "BYU",
+"city": "Provo",
+"st": "UT",
+"lat": 40.25,
+"lon": -111.65,
+"rating": 80,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Utah",
+"rivals": [
+"Utah"
+]
+},
+{
+"id": "d139",
+"name": "Cincinnati",
+"city": "Cincinnati",
+"st": "OH",
+"lat": 39.13,
+"lon": -84.52,
+"rating": 68,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Miami (OH)",
+"rivals": [
+"Miami (OH)"
+]
+},
+{
+"id": "d140",
+"name": "Colorado",
+"city": "Boulder",
+"st": "CO",
+"lat": 40.01,
+"lon": -105.27,
+"rating": 64,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d141",
+"name": "Houston",
+"city": "Houston",
+"st": "TX",
+"lat": 29.72,
+"lon": -95.34,
+"rating": 62,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Rice",
+"rivals": [
+"Rice"
+]
+},
+{
+"id": "d142",
+"name": "Iowa State",
+"city": "Ames",
+"st": "IA",
+"lat": 42.03,
+"lon": -93.64,
+"rating": 74,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Iowa",
+"rivals": [
+"Iowa"
+]
+},
+{
+"id": "d143",
+"name": "Kansas",
+"city": "Lawrence",
+"st": "KS",
+"lat": 38.96,
+"lon": -95.25,
+"rating": 63,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Kansas State",
+"rivals": [
+"Kansas State"
+]
+},
+{
+"id": "d144",
+"name": "Kansas State",
+"city": "Manhattan",
+"st": "KS",
+"lat": 39.19,
+"lon": -96.58,
+"rating": 72,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Kansas",
+"rivals": [
+"Kansas"
+]
+},
+{
+"id": "d145",
+"name": "Oklahoma State",
+"city": "Stillwater",
+"st": "OK",
+"lat": 36.12,
+"lon": -97.07,
+"rating": 63,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Oklahoma",
+"rivals": [
+"Oklahoma"
+]
+},
+{
+"id": "d146",
+"name": "TCU",
+"city": "Fort Worth",
+"st": "TX",
+"lat": 32.71,
+"lon": -97.36,
+"rating": 74,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "SMU",
+"rivals": [
+"SMU"
+]
+},
+{
+"id": "d147",
+"name": "Texas Tech",
+"city": "Lubbock",
+"st": "TX",
+"lat": 33.58,
+"lon": -101.88,
+"rating": 82,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Baylor",
+"rivals": [
+"Baylor"
+]
+},
+{
+"id": "d148",
+"name": "UCF",
+"city": "Orlando",
+"st": "FL",
+"lat": 28.6,
+"lon": -81.2,
+"rating": 62,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "South Florida",
+"rivals": [
+"South Florida"
+]
+},
+{
+"id": "d149",
+"name": "Utah",
+"city": "Salt Lake City",
+"st": "UT",
+"lat": 40.76,
+"lon": -111.85,
+"rating": 76,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "BYU",
+"rivals": [
+"BYU"
+]
+},
+{
+"id": "d150",
+"name": "West Virginia",
+"city": "Morgantown",
+"st": "WV",
+"lat": 39.63,
+"lon": -79.95,
+"rating": 60,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Pittsburgh",
+"rivals": [
+"Pittsburgh"
+]
+},
+{
+"id": "d151",
+"name": "Alabama",
+"city": "Tuscaloosa",
+"st": "AL",
+"lat": 33.21,
+"lon": -87.55,
+"rating": 92,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Auburn",
+"rivals": [
+"Auburn"
+]
+},
+{
+"id": "d152",
+"name": "Arkansas",
+"city": "Fayetteville",
+"st": "AR",
+"lat": 36.07,
+"lon": -94.17,
+"rating": 64,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Missouri",
+"rivals": [
+"Missouri"
+]
+},
+{
+"id": "d153",
+"name": "Auburn",
+"city": "Auburn",
+"st": "AL",
+"lat": 32.6,
+"lon": -85.49,
+"rating": 78,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Alabama",
+"rivals": [
+"Alabama"
+]
+},
+{
+"id": "d154",
+"name": "Florida",
+"city": "Gainesville",
+"st": "FL",
+"lat": 29.65,
+"lon": -82.34,
+"rating": 80,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Florida State",
+"rivals": [
+"Florida State"
+]
+},
+{
+"id": "d155",
+"name": "Georgia",
+"city": "Athens",
+"st": "GA",
+"lat": 33.95,
+"lon": -83.38,
+"rating": 94,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Georgia Tech",
+"rivals": [
+"Georgia Tech"
+]
+},
+{
+"id": "d156",
+"name": "Kentucky",
+"city": "Lexington",
+"st": "KY",
+"lat": 38.03,
+"lon": -84.5,
+"rating": 60,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Louisville",
+"rivals": [
+"Louisville"
+]
+},
+{
+"id": "d157",
+"name": "LSU",
+"city": "Baton Rouge",
+"st": "LA",
+"lat": 30.41,
+"lon": -91.18,
+"rating": 86,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Tulane",
+"rivals": [
+"Tulane"
+]
+},
+{
+"id": "d158",
+"name": "Ole Miss",
+"city": "Oxford",
+"st": "MS",
+"lat": 34.36,
+"lon": -89.54,
+"rating": 80,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Mississippi State",
+"rivals": [
+"Mississippi State"
+]
+},
+{
+"id": "d159",
+"name": "Mississippi State",
+"city": "Starkville",
+"st": "MS",
+"lat": 33.45,
+"lon": -88.79,
+"rating": 58,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Ole Miss",
+"rivals": [
+"Ole Miss"
+]
+},
+{
+"id": "d160",
+"name": "Missouri",
+"city": "Columbia",
+"st": "MO",
+"lat": 38.94,
+"lon": -92.33,
+"rating": 72,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Arkansas",
+"rivals": [
+"Arkansas"
+]
+},
+{
+"id": "d161",
+"name": "Oklahoma",
+"city": "Norman",
+"st": "OK",
+"lat": 35.21,
+"lon": -97.44,
+"rating": 82,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Oklahoma State",
+"rivals": [
+"Oklahoma State"
+]
+},
+{
+"id": "d162",
+"name": "South Carolina",
+"city": "Columbia",
+"st": "SC",
+"lat": 34.0,
+"lon": -81.03,
+"rating": 78,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Clemson",
+"rivals": [
+"Clemson"
+]
+},
+{
+"id": "d163",
+"name": "Tennessee",
+"city": "Knoxville",
+"st": "TN",
+"lat": 35.95,
+"lon": -83.93,
+"rating": 84,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Vanderbilt",
+"rivals": [
+"Vanderbilt"
+]
+},
+{
+"id": "d164",
+"name": "Texas",
+"city": "Austin",
+"st": "TX",
+"lat": 30.28,
+"lon": -97.73,
+"rating": 91,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Texas A&M",
+"rivals": [
+"Texas A&M"
+]
+},
+{
+"id": "d165",
+"name": "Texas A&M",
+"city": "College Station",
+"st": "TX",
+"lat": 30.61,
+"lon": -96.34,
+"rating": 85,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Texas",
+"rivals": [
+"Texas"
+]
+},
+{
+"id": "d166",
+"name": "Vanderbilt",
+"city": "Nashville",
+"st": "TN",
+"lat": 36.14,
+"lon": -86.8,
+"rating": 66,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Tennessee",
+"rivals": [
+"Tennessee"
+]
+},
+{
+"id": "d167",
+"name": "Notre Dame",
+"city": "South Bend",
+"st": "IN",
+"lat": 41.7,
+"lon": -86.24,
+"rating": 88,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d168",
+"name": "UConn",
+"city": "Storrs",
+"st": "CT",
+"lat": 41.81,
+"lon": -72.25,
+"rating": 54,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "UMass",
+"rivals": [
+"UMass"
+]
+},
+{
+"id": "d169",
+"name": "Army",
+"city": "West Point",
+"st": "NY",
+"lat": 41.39,
+"lon": -73.96,
+"rating": 60,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Navy",
+"rivals": [
+"Navy"
+]
+},
+{
+"id": "d170",
+"name": "Charlotte",
+"city": "Charlotte",
+"st": "NC",
+"lat": 35.31,
+"lon": -80.73,
+"rating": 42,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Appalachian State",
+"rivals": [
+"Appalachian State"
+]
+},
+{
+"id": "d171",
+"name": "East Carolina",
+"city": "Greenville",
+"st": "NC",
+"lat": 35.61,
+"lon": -77.37,
+"rating": 58,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d172",
+"name": "Florida Atlantic",
+"city": "Boca Raton",
+"st": "FL",
+"lat": 26.37,
+"lon": -80.1,
+"rating": 44,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "FIU",
+"rivals": [
+"FIU"
+]
+},
+{
+"id": "d173",
+"name": "Memphis",
+"city": "Memphis",
+"st": "TN",
+"lat": 35.12,
+"lon": -89.94,
+"rating": 64,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Arkansas State",
+"rivals": [
+"Arkansas State"
+]
+},
+{
+"id": "d174",
+"name": "Navy",
+"city": "Annapolis",
+"st": "MD",
+"lat": 38.98,
+"lon": -76.49,
+"rating": 60,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Army",
+"rivals": [
+"Army"
+]
+},
+{
+"id": "d175",
+"name": "North Texas",
+"city": "Denton",
+"st": "TX",
+"lat": 33.21,
+"lon": -97.15,
+"rating": 58,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d176",
+"name": "Rice",
+"city": "Houston",
+"st": "TX",
+"lat": 29.72,
+"lon": -95.4,
+"rating": 48,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Houston",
+"rivals": [
+"Houston"
+]
+},
+{
+"id": "d177",
+"name": "South Florida",
+"city": "Tampa",
+"st": "FL",
+"lat": 28.06,
+"lon": -82.41,
+"rating": 62,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "UCF",
+"rivals": [
+"UCF"
+]
+},
+{
+"id": "d178",
+"name": "Temple",
+"city": "Philadelphia",
+"st": "PA",
+"lat": 39.98,
+"lon": -75.16,
+"rating": 42,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Rutgers",
+"rivals": [
+"Rutgers"
+]
+},
+{
+"id": "d179",
+"name": "Tulane",
+"city": "New Orleans",
+"st": "LA",
+"lat": 29.94,
+"lon": -90.12,
+"rating": 60,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "LSU",
+"rivals": [
+"LSU"
+]
+},
+{
+"id": "d180",
+"name": "Tulsa",
+"city": "Tulsa",
+"st": "OK",
+"lat": 36.15,
+"lon": -95.95,
+"rating": 44,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d181",
+"name": "UAB",
+"city": "Birmingham",
+"st": "AL",
+"lat": 33.5,
+"lon": -86.8,
+"rating": 46,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d182",
+"name": "UTSA",
+"city": "San Antonio",
+"st": "TX",
+"lat": 29.58,
+"lon": -98.62,
+"rating": 56,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Texas State",
+"rivals": [
+"Texas State"
+]
+},
+{
+"id": "d183",
+"name": "Delaware",
+"city": "Newark",
+"st": "DE",
+"lat": 39.68,
+"lon": -75.75,
+"rating": 50,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d184",
+"name": "FIU",
+"city": "Miami",
+"st": "FL",
+"lat": 25.76,
+"lon": -80.37,
+"rating": 40,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Florida Atlantic",
+"rivals": [
+"Florida Atlantic"
+]
+},
+{
+"id": "d185",
+"name": "Jacksonville State",
+"city": "Jacksonville",
+"st": "AL",
+"lat": 33.82,
+"lon": -85.77,
+"rating": 52,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Sam Houston",
+"rivals": [
+"Sam Houston"
+]
+},
+{
+"id": "d186",
+"name": "Kennesaw State",
+"city": "Kennesaw",
+"st": "GA",
+"lat": 34.03,
+"lon": -84.58,
+"rating": 38,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Georgia State",
+"rivals": [
+"Georgia State"
+]
+},
+{
+"id": "d187",
+"name": "Liberty",
+"city": "Lynchburg",
+"st": "VA",
+"lat": 37.35,
+"lon": -79.18,
+"rating": 56,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "James Madison",
+"rivals": [
+"James Madison"
+]
+},
+{
+"id": "d188",
+"name": "Louisiana Tech",
+"city": "Ruston",
+"st": "LA",
+"lat": 32.53,
+"lon": -92.65,
+"rating": 48,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Southern Miss",
+"rivals": [
+"Southern Miss"
+]
+},
+{
+"id": "d189",
+"name": "Middle Tennessee",
+"city": "Murfreesboro",
+"st": "TN",
+"lat": 35.85,
+"lon": -86.36,
+"rating": 42,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Western Kentucky",
+"rivals": [
+"Western Kentucky"
+]
+},
+{
+"id": "d190",
+"name": "Missouri State",
+"city": "Springfield",
+"st": "MO",
+"lat": 37.2,
+"lon": -93.28,
+"rating": 42,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d191",
+"name": "New Mexico State",
+"city": "Las Cruces",
+"st": "NM",
+"lat": 32.28,
+"lon": -106.75,
+"rating": 42,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "UTEP",
+"rivals": [
+"UTEP"
+]
+},
+{
+"id": "d192",
+"name": "Sam Houston",
+"city": "Huntsville",
+"st": "TX",
+"lat": 30.71,
+"lon": -95.55,
+"rating": 44,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Jacksonville State",
+"rivals": [
+"Jacksonville State"
+]
+},
+{
+"id": "d193",
+"name": "Western Kentucky",
+"city": "Bowling Green",
+"st": "KY",
+"lat": 36.99,
+"lon": -86.46,
+"rating": 54,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Middle Tennessee",
+"rivals": [
+"Middle Tennessee"
+]
+},
+{
+"id": "d194",
+"name": "Akron",
+"city": "Akron",
+"st": "OH",
+"lat": 41.08,
+"lon": -81.52,
+"rating": 34,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Kent State",
+"rivals": [
+"Kent State"
+]
+},
+{
+"id": "d195",
+"name": "Ball State",
+"city": "Muncie",
+"st": "IN",
+"lat": 40.2,
+"lon": -85.41,
+"rating": 44,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Central Michigan",
+"rivals": [
+"Central Michigan"
+]
+},
+{
+"id": "d196",
+"name": "Bowling Green",
+"city": "Bowling Green",
+"st": "OH",
+"lat": 41.38,
+"lon": -83.63,
+"rating": 48,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Toledo",
+"rivals": [
+"Toledo"
+]
+},
+{
+"id": "d197",
+"name": "Buffalo",
+"city": "Buffalo",
+"st": "NY",
+"lat": 43.0,
+"lon": -78.79,
+"rating": 46,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Syracuse",
+"rivals": [
+"Syracuse"
+]
+},
+{
+"id": "d198",
+"name": "Central Michigan",
+"city": "Mount Pleasant",
+"st": "MI",
+"lat": 43.59,
+"lon": -84.78,
+"rating": 42,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Ball State",
+"rivals": [
+"Ball State"
+]
+},
+{
+"id": "d199",
+"name": "Eastern Michigan",
+"city": "Ypsilanti",
+"st": "MI",
+"lat": 42.25,
+"lon": -83.62,
+"rating": 42,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1100",
+"name": "Kent State",
+"city": "Kent",
+"st": "OH",
+"lat": 41.15,
+"lon": -81.34,
+"rating": 30,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Akron",
+"rivals": [
+"Akron"
+]
+},
+{
+"id": "d1101",
+"name": "Miami (OH)",
+"city": "Oxford",
+"st": "OH",
+"lat": 39.51,
+"lon": -84.73,
+"rating": 54,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Cincinnati",
+"rivals": [
+"Cincinnati"
+]
+},
+{
+"id": "d1102",
+"name": "Ohio",
+"city": "Athens",
+"st": "OH",
+"lat": 39.32,
+"lon": -82.1,
+"rating": 56,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Marshall",
+"rivals": [
+"Marshall"
+]
+},
+{
+"id": "d1103",
+"name": "Toledo",
+"city": "Toledo",
+"st": "OH",
+"lat": 41.66,
+"lon": -83.61,
+"rating": 56,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Bowling Green",
+"rivals": [
+"Bowling Green"
+]
+},
+{
+"id": "d1104",
+"name": "UMass",
+"city": "Amherst",
+"st": "MA",
+"lat": 42.39,
+"lon": -72.53,
+"rating": 32,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "UConn",
+"rivals": [
+"UConn"
+]
+},
+{
+"id": "d1105",
+"name": "Western Michigan",
+"city": "Kalamazoo",
+"st": "MI",
+"lat": 42.28,
+"lon": -85.61,
+"rating": 46,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Northern Illinois",
+"rivals": [
+"Northern Illinois"
+]
+},
+{
+"id": "d1106",
+"name": "Sacramento State",
+"city": "Sacramento",
+"st": "CA",
+"lat": 38.56,
+"lon": -121.42,
+"rating": 40,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1107",
+"name": "Air Force",
+"city": "Colorado Springs",
+"st": "CO",
+"lat": 38.99,
+"lon": -104.86,
+"rating": 56,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Colorado State",
+"rivals": [
+"Colorado State"
+]
+},
+{
+"id": "d1108",
+"name": "Hawaii",
+"city": "Honolulu",
+"st": "HI",
+"lat": 21.3,
+"lon": -157.82,
+"rating": 44,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "San Jose State",
+"rivals": [
+"San Jose State"
+]
+},
+{
+"id": "d1109",
+"name": "Nevada",
+"city": "Reno",
+"st": "NV",
+"lat": 39.54,
+"lon": -119.82,
+"rating": 40,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "UNLV",
+"rivals": [
+"UNLV"
+]
+},
+{
+"id": "d1110",
+"name": "New Mexico",
+"city": "Albuquerque",
+"st": "NM",
+"lat": 35.08,
+"lon": -106.62,
+"rating": 44,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1111",
+"name": "San Jose State",
+"city": "San Jose",
+"st": "CA",
+"lat": 37.34,
+"lon": -121.88,
+"rating": 46,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Hawaii",
+"rivals": [
+"Hawaii"
+]
+},
+{
+"id": "d1112",
+"name": "UNLV",
+"city": "Las Vegas",
+"st": "NV",
+"lat": 36.11,
+"lon": -115.14,
+"rating": 56,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Nevada",
+"rivals": [
+"Nevada"
+]
+},
+{
+"id": "d1113",
+"name": "Wyoming",
+"city": "Laramie",
+"st": "WY",
+"lat": 41.31,
+"lon": -105.59,
+"rating": 48,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1114",
+"name": "UTEP",
+"city": "El Paso",
+"st": "TX",
+"lat": 31.77,
+"lon": -106.5,
+"rating": 34,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "New Mexico State",
+"rivals": [
+"New Mexico State"
+]
+},
+{
+"id": "d1115",
+"name": "Northern Illinois",
+"city": "DeKalb",
+"st": "IL",
+"lat": 41.93,
+"lon": -88.77,
+"rating": 46,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Western Michigan",
+"rivals": [
+"Western Michigan"
+]
+},
+{
+"id": "d1116",
+"name": "North Dakota State",
+"city": "Fargo",
+"st": "ND",
+"lat": 46.9,
+"lon": -96.8,
+"rating": 54,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "South Dakota State",
+"rivals": [
+"South Dakota State"
+]
+},
+{
+"id": "d1117",
+"name": "Boise State",
+"city": "Boise",
+"st": "ID",
+"lat": 43.6,
+"lon": -116.2,
+"rating": 74,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Fresno State",
+"rivals": [
+"Fresno State"
+]
+},
+{
+"id": "d1118",
+"name": "Colorado State",
+"city": "Fort Collins",
+"st": "CO",
+"lat": 40.57,
+"lon": -105.08,
+"rating": 54,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Air Force",
+"rivals": [
+"Air Force"
+]
+},
+{
+"id": "d1119",
+"name": "Fresno State",
+"city": "Fresno",
+"st": "CA",
+"lat": 36.81,
+"lon": -119.75,
+"rating": 52,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Boise State",
+"rivals": [
+"Boise State"
+]
+},
+{
+"id": "d1120",
+"name": "Oregon State",
+"city": "Corvallis",
+"st": "OR",
+"lat": 44.56,
+"lon": -123.28,
+"rating": 48,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": "Oregon",
+"rivals": [
+"Oregon"
+]
+},
+{
+"id": "d1121",
+"name": "San Diego State",
+"city": "San Diego",
+"st": "CA",
+"lat": 32.78,
+"lon": -117.07,
+"rating": 54,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1122",
+"name": "Texas State",
+"city": "San Marcos",
+"st": "TX",
+"lat": 29.89,
+"lon": -97.94,
+"rating": 52,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "UTSA",
+"rivals": [
+"UTSA"
+]
+},
+{
+"id": "d1123",
+"name": "Utah State",
+"city": "Logan",
+"st": "UT",
+"lat": 41.74,
+"lon": -111.83,
+"rating": 48,
+"tier": "d1",
+"conf": "Western",
+"div": "Western B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1124",
+"name": "Washington State",
+"city": "Pullman",
+"st": "WA",
+"lat": 46.73,
+"lon": -117.16,
+"rating": 50,
+"tier": "d1",
+"conf": "Western",
+"div": "Western A",
+"rival": "Washington",
+"rivals": [
+"Washington"
+]
+},
+{
+"id": "d1125",
+"name": "Appalachian State",
+"city": "Boone",
+"st": "NC",
+"lat": 36.21,
+"lon": -81.68,
+"rating": 56,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Charlotte",
+"rivals": [
+"Charlotte"
+]
+},
+{
+"id": "d1126",
+"name": "Arkansas State",
+"city": "Jonesboro",
+"st": "AR",
+"lat": 35.84,
+"lon": -90.68,
+"rating": 46,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Memphis",
+"rivals": [
+"Memphis"
+]
+},
+{
+"id": "d1127",
+"name": "Coastal Carolina",
+"city": "Conway",
+"st": "SC",
+"lat": 33.8,
+"lon": -79.01,
+"rating": 50,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1128",
+"name": "Georgia Southern",
+"city": "Statesboro",
+"st": "GA",
+"lat": 32.42,
+"lon": -81.78,
+"rating": 52,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1129",
+"name": "Georgia State",
+"city": "Atlanta",
+"st": "GA",
+"lat": 33.75,
+"lon": -84.39,
+"rating": 40,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Kennesaw State",
+"rivals": [
+"Kennesaw State"
+]
+},
+{
+"id": "d1130",
+"name": "James Madison",
+"city": "Harrisonburg",
+"st": "VA",
+"lat": 38.44,
+"lon": -78.87,
+"rating": 64,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Liberty",
+"rivals": [
+"Liberty"
+]
+},
+{
+"id": "d1131",
+"name": "Louisiana",
+"city": "Lafayette",
+"st": "LA",
+"lat": 30.21,
+"lon": -92.02,
+"rating": 58,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "UL Monroe",
+"rivals": [
+"UL Monroe"
+]
+},
+{
+"id": "d1132",
+"name": "UL Monroe",
+"city": "Monroe",
+"st": "LA",
+"lat": 32.53,
+"lon": -92.07,
+"rating": 32,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "Louisiana",
+"rivals": [
+"Louisiana"
+]
+},
+{
+"id": "d1133",
+"name": "Marshall",
+"city": "Huntington",
+"st": "WV",
+"lat": 38.42,
+"lon": -82.42,
+"rating": 54,
+"tier": "d1",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Ohio",
+"rivals": [
+"Ohio"
+]
+},
+{
+"id": "d1134",
+"name": "Old Dominion",
+"city": "Norfolk",
+"st": "VA",
+"lat": 36.89,
+"lon": -76.31,
+"rating": 46,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d1135",
+"name": "South Alabama",
+"city": "Mobile",
+"st": "AL",
+"lat": 30.7,
+"lon": -88.18,
+"rating": 52,
+"tier": "d1",
+"conf": "Central",
+"div": "Central B",
+"rival": "West Florida",
+"rivals": [
+"West Florida"
+]
+},
+{
+"id": "d1136",
+"name": "Southern Miss",
+"city": "Hattiesburg",
+"st": "MS",
+"lat": 31.33,
+"lon": -89.33,
+"rating": 44,
+"tier": "d1",
+"conf": "Central",
+"div": "Central A",
+"rival": "Louisiana Tech",
+"rivals": [
+"Louisiana Tech"
+]
+},
+{
+"id": "d1137",
+"name": "Troy",
+"city": "Troy",
+"st": "AL",
+"lat": 31.8,
+"lon": -85.95,
+"rating": 52,
+"tier": "d1",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": null,
+"rivals": []
+}
+],
+"d2": [
+{
+"id": "d20",
+"name": "Cal Poly",
+"city": "San Luis Obispo",
+"st": "CA",
+"lat": 35.3,
+"lon": -120.66,
+"rating": 12,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "UC Davis",
+"rivals": [
+"UC Davis"
+]
+},
+{
+"id": "d21",
+"name": "Eastern Washington",
+"city": "Cheney",
+"st": "WA",
+"lat": 47.49,
+"lon": -117.58,
+"rating": 30,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Idaho",
+"rivals": [
+"Idaho"
+]
+},
+{
+"id": "d22",
+"name": "Idaho",
+"city": "Moscow",
+"st": "ID",
+"lat": 46.73,
+"lon": -117.01,
+"rating": 36,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Eastern Washington",
+"rivals": [
+"Eastern Washington"
+]
+},
+{
+"id": "d23",
+"name": "Idaho State",
+"city": "Pocatello",
+"st": "ID",
+"lat": 42.86,
+"lon": -112.43,
+"rating": 16,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Weber State",
+"rivals": [
+"Weber State"
+]
+},
+{
+"id": "d24",
+"name": "Montana",
+"city": "Missoula",
+"st": "MT",
+"lat": 46.86,
+"lon": -113.98,
+"rating": 46,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Montana State",
+"rivals": [
+"Montana State"
+]
+},
+{
+"id": "d25",
+"name": "Montana State",
+"city": "Bozeman",
+"st": "MT",
+"lat": 45.67,
+"lon": -111.05,
+"rating": 50,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Montana",
+"rivals": [
+"Montana"
+]
+},
+{
+"id": "d26",
+"name": "Northern Arizona",
+"city": "Flagstaff",
+"st": "AZ",
+"lat": 35.18,
+"lon": -111.65,
+"rating": 22,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Northern Colorado",
+"rivals": [
+"Northern Colorado"
+]
+},
+{
+"id": "d27",
+"name": "Northern Colorado",
+"city": "Greeley",
+"st": "CO",
+"lat": 40.4,
+"lon": -104.7,
+"rating": 16,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Northern Arizona",
+"rivals": [
+"Northern Arizona"
+]
+},
+{
+"id": "d28",
+"name": "Portland State",
+"city": "Portland",
+"st": "OR",
+"lat": 45.51,
+"lon": -122.68,
+"rating": 14,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d29",
+"name": "UC Davis",
+"city": "Davis",
+"st": "CA",
+"lat": 38.54,
+"lon": -121.75,
+"rating": 34,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Cal Poly",
+"rivals": [
+"Cal Poly"
+]
+},
+{
+"id": "d210",
+"name": "Weber State",
+"city": "Ogden",
+"st": "UT",
+"lat": 41.19,
+"lon": -111.94,
+"rating": 26,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Idaho State",
+"rivals": [
+"Idaho State"
+]
+},
+{
+"id": "d211",
+"name": "Southern Utah",
+"city": "Cedar City",
+"st": "UT",
+"lat": 37.68,
+"lon": -113.07,
+"rating": 18,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Utah Tech",
+"rivals": [
+"Utah Tech"
+]
+},
+{
+"id": "d212",
+"name": "Utah Tech",
+"city": "St. George",
+"st": "UT",
+"lat": 37.1,
+"lon": -113.57,
+"rating": 14,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Southern Utah",
+"rivals": [
+"Southern Utah"
+]
+},
+{
+"id": "d213",
+"name": "Eastern Illinois",
+"city": "Charleston",
+"st": "IL",
+"lat": 39.48,
+"lon": -88.18,
+"rating": 14,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Southeast Missouri",
+"rivals": [
+"Southeast Missouri"
+]
+},
+{
+"id": "d214",
+"name": "Lindenwood",
+"city": "St. Charles",
+"st": "MO",
+"lat": 38.79,
+"lon": -90.51,
+"rating": 10,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Western Illinois",
+"rivals": [
+"Western Illinois"
+]
+},
+{
+"id": "d215",
+"name": "Southeast Missouri",
+"city": "Cape Girardeau",
+"st": "MO",
+"lat": 37.31,
+"lon": -89.52,
+"rating": 22,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Eastern Illinois",
+"rivals": [
+"Eastern Illinois"
+]
+},
+{
+"id": "d216",
+"name": "Tennessee State",
+"city": "Nashville",
+"st": "TN",
+"lat": 36.17,
+"lon": -86.83,
+"rating": 24,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Austin Peay",
+"rivals": [
+"Austin Peay"
+]
+},
+{
+"id": "d217",
+"name": "UT Martin",
+"city": "Martin",
+"st": "TN",
+"lat": 36.34,
+"lon": -88.85,
+"rating": 26,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Murray State",
+"rivals": [
+"Murray State"
+]
+},
+{
+"id": "d218",
+"name": "Western Illinois",
+"city": "Macomb",
+"st": "IL",
+"lat": 40.47,
+"lon": -90.68,
+"rating": 8,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Lindenwood",
+"rivals": [
+"Lindenwood"
+]
+},
+{
+"id": "d219",
+"name": "Charleston Southern",
+"city": "Charleston",
+"st": "SC",
+"lat": 32.96,
+"lon": -80.07,
+"rating": 12,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Gardner-Webb",
+"rivals": [
+"Gardner-Webb"
+]
+},
+{
+"id": "d220",
+"name": "Gardner-Webb",
+"city": "Boiling Springs",
+"st": "NC",
+"lat": 35.25,
+"lon": -81.67,
+"rating": 12,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Charleston Southern",
+"rivals": [
+"Charleston Southern"
+]
+},
+{
+"id": "d221",
+"name": "Albany",
+"city": "Albany",
+"st": "NY",
+"lat": 42.69,
+"lon": -73.82,
+"rating": 24,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Stony Brook",
+"rivals": [
+"Stony Brook"
+]
+},
+{
+"id": "d222",
+"name": "Bryant",
+"city": "Smithfield",
+"st": "RI",
+"lat": 41.92,
+"lon": -71.55,
+"rating": 20,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Sacred Heart",
+"rivals": [
+"Sacred Heart"
+]
+},
+{
+"id": "d223",
+"name": "Campbell",
+"city": "Buies Creek",
+"st": "NC",
+"lat": 35.41,
+"lon": -78.74,
+"rating": 14,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Elon",
+"rivals": [
+"Elon"
+]
+},
+{
+"id": "d224",
+"name": "Elon",
+"city": "Elon",
+"st": "NC",
+"lat": 36.1,
+"lon": -79.5,
+"rating": 24,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Campbell",
+"rivals": [
+"Campbell"
+]
+},
+{
+"id": "d225",
+"name": "Hampton",
+"city": "Hampton",
+"st": "VA",
+"lat": 37.02,
+"lon": -76.34,
+"rating": 14,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Norfolk State",
+"rivals": [
+"Norfolk State"
+]
+},
+{
+"id": "d226",
+"name": "Maine",
+"city": "Orono",
+"st": "ME",
+"lat": 44.9,
+"lon": -68.67,
+"rating": 22,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "New Hampshire",
+"rivals": [
+"New Hampshire"
+]
+},
+{
+"id": "d227",
+"name": "Monmouth",
+"city": "West Long Branch",
+"st": "NJ",
+"lat": 40.28,
+"lon": -74.01,
+"rating": 26,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Rhode Island",
+"rivals": [
+"Rhode Island"
+]
+},
+{
+"id": "d228",
+"name": "New Hampshire",
+"city": "Durham",
+"st": "NH",
+"lat": 43.14,
+"lon": -70.93,
+"rating": 26,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Maine",
+"rivals": [
+"Maine"
+]
+},
+{
+"id": "d229",
+"name": "North Carolina A&T",
+"city": "Greensboro",
+"st": "NC",
+"lat": 36.07,
+"lon": -79.77,
+"rating": 18,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "North Carolina Central",
+"rivals": [
+"North Carolina Central"
+]
+},
+{
+"id": "d230",
+"name": "Rhode Island",
+"city": "Kingston",
+"st": "RI",
+"lat": 41.48,
+"lon": -71.53,
+"rating": 30,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Monmouth",
+"rivals": [
+"Monmouth"
+]
+},
+{
+"id": "d231",
+"name": "Richmond",
+"city": "Richmond",
+"st": "VA",
+"lat": 37.58,
+"lon": -77.54,
+"rating": 34,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "William & Mary",
+"rivals": [
+"William & Mary"
+]
+},
+{
+"id": "d232",
+"name": "Sacred Heart",
+"city": "Fairfield",
+"st": "CT",
+"lat": 41.22,
+"lon": -73.25,
+"rating": 14,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Bryant",
+"rivals": [
+"Bryant"
+]
+},
+{
+"id": "d233",
+"name": "Stony Brook",
+"city": "Stony Brook",
+"st": "NY",
+"lat": 40.91,
+"lon": -73.12,
+"rating": 24,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Albany",
+"rivals": [
+"Albany"
+]
+},
+{
+"id": "d234",
+"name": "Towson",
+"city": "Towson",
+"st": "MD",
+"lat": 39.39,
+"lon": -76.61,
+"rating": 26,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Howard",
+"rivals": [
+"Howard"
+]
+},
+{
+"id": "d235",
+"name": "Brown",
+"city": "Providence",
+"st": "RI",
+"lat": 41.83,
+"lon": -71.4,
+"rating": 12,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Dartmouth",
+"rivals": [
+"Dartmouth"
+]
+},
+{
+"id": "d236",
+"name": "Columbia",
+"city": "New York",
+"st": "NY",
+"lat": 40.81,
+"lon": -73.96,
+"rating": 12,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Cornell",
+"rivals": [
+"Cornell"
+]
+},
+{
+"id": "d237",
+"name": "Cornell",
+"city": "Ithaca",
+"st": "NY",
+"lat": 42.45,
+"lon": -76.48,
+"rating": 14,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Columbia",
+"rivals": [
+"Columbia"
+]
+},
+{
+"id": "d238",
+"name": "Dartmouth",
+"city": "Hanover",
+"st": "NH",
+"lat": 43.7,
+"lon": -72.29,
+"rating": 22,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Brown",
+"rivals": [
+"Brown"
+]
+},
+{
+"id": "d239",
+"name": "Harvard",
+"city": "Cambridge",
+"st": "MA",
+"lat": 42.37,
+"lon": -71.12,
+"rating": 24,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Yale",
+"rivals": [
+"Yale"
+]
+},
+{
+"id": "d240",
+"name": "Penn",
+"city": "Philadelphia",
+"st": "PA",
+"lat": 39.95,
+"lon": -75.19,
+"rating": 20,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Princeton",
+"rivals": [
+"Princeton"
+]
+},
+{
+"id": "d241",
+"name": "Princeton",
+"city": "Princeton",
+"st": "NJ",
+"lat": 40.35,
+"lon": -74.66,
+"rating": 22,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Penn",
+"rivals": [
+"Penn"
+]
+},
+{
+"id": "d242",
+"name": "Yale",
+"city": "New Haven",
+"st": "CT",
+"lat": 41.31,
+"lon": -72.93,
+"rating": 16,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Harvard",
+"rivals": [
+"Harvard"
+]
+},
+{
+"id": "d243",
+"name": "Delaware State",
+"city": "Dover",
+"st": "DE",
+"lat": 39.19,
+"lon": -75.54,
+"rating": 10,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Morgan State",
+"rivals": [
+"Morgan State"
+]
+},
+{
+"id": "d244",
+"name": "Howard",
+"city": "Washington",
+"st": "DC",
+"lat": 38.92,
+"lon": -77.02,
+"rating": 18,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Towson",
+"rivals": [
+"Towson"
+]
+},
+{
+"id": "d245",
+"name": "Morgan State",
+"city": "Baltimore",
+"st": "MD",
+"lat": 39.34,
+"lon": -76.58,
+"rating": 12,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Delaware State",
+"rivals": [
+"Delaware State"
+]
+},
+{
+"id": "d246",
+"name": "Norfolk State",
+"city": "Norfolk",
+"st": "VA",
+"lat": 36.85,
+"lon": -76.26,
+"rating": 16,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Hampton",
+"rivals": [
+"Hampton"
+]
+},
+{
+"id": "d247",
+"name": "North Carolina Central",
+"city": "Durham",
+"st": "NC",
+"lat": 36.0,
+"lon": -78.9,
+"rating": 20,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "North Carolina A&T",
+"rivals": [
+"North Carolina A&T"
+]
+},
+{
+"id": "d248",
+"name": "South Carolina State",
+"city": "Orangeburg",
+"st": "SC",
+"lat": 33.5,
+"lon": -80.86,
+"rating": 18,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d249",
+"name": "Illinois State",
+"city": "Normal",
+"st": "IL",
+"lat": 40.51,
+"lon": -88.99,
+"rating": 34,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Northern Iowa",
+"rivals": [
+"Northern Iowa"
+]
+},
+{
+"id": "d250",
+"name": "Indiana State",
+"city": "Terre Haute",
+"st": "IN",
+"lat": 39.47,
+"lon": -87.41,
+"rating": 10,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Southern Illinois",
+"rivals": [
+"Southern Illinois"
+]
+},
+{
+"id": "d251",
+"name": "Murray State",
+"city": "Murray",
+"st": "KY",
+"lat": 36.61,
+"lon": -88.32,
+"rating": 12,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "UT Martin",
+"rivals": [
+"UT Martin"
+]
+},
+{
+"id": "d252",
+"name": "North Dakota",
+"city": "Grand Forks",
+"st": "ND",
+"lat": 47.92,
+"lon": -97.07,
+"rating": 30,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "South Dakota",
+"rivals": [
+"South Dakota"
+]
+},
+{
+"id": "d253",
+"name": "Northern Iowa",
+"city": "Cedar Falls",
+"st": "IA",
+"lat": 42.52,
+"lon": -92.46,
+"rating": 42,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Illinois State",
+"rivals": [
+"Illinois State"
+]
+},
+{
+"id": "d254",
+"name": "South Dakota",
+"city": "Vermillion",
+"st": "SD",
+"lat": 42.78,
+"lon": -96.93,
+"rating": 44,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "North Dakota",
+"rivals": [
+"North Dakota"
+]
+},
+{
+"id": "d255",
+"name": "South Dakota State",
+"city": "Brookings",
+"st": "SD",
+"lat": 44.31,
+"lon": -96.79,
+"rating": 52,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "North Dakota State",
+"rivals": [
+"North Dakota State"
+]
+},
+{
+"id": "d256",
+"name": "Southern Illinois",
+"city": "Carbondale",
+"st": "IL",
+"lat": 37.71,
+"lon": -89.22,
+"rating": 32,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Indiana State",
+"rivals": [
+"Indiana State"
+]
+},
+{
+"id": "d257",
+"name": "Youngstown State",
+"city": "Youngstown",
+"st": "OH",
+"lat": 41.1,
+"lon": -80.65,
+"rating": 34,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Mercyhurst",
+"rivals": [
+"Mercyhurst"
+]
+},
+{
+"id": "d258",
+"name": "Central Connecticut",
+"city": "New Britain",
+"st": "CT",
+"lat": 41.69,
+"lon": -72.77,
+"rating": 14,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "New Haven",
+"rivals": [
+"New Haven"
+]
+},
+{
+"id": "d259",
+"name": "Duquesne",
+"city": "Pittsburgh",
+"st": "PA",
+"lat": 40.44,
+"lon": -79.99,
+"rating": 18,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Robert Morris",
+"rivals": [
+"Robert Morris"
+]
+},
+{
+"id": "d260",
+"name": "LIU",
+"city": "Brookville",
+"st": "NY",
+"lat": 40.81,
+"lon": -73.6,
+"rating": 6,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Wagner",
+"rivals": [
+"Wagner"
+]
+},
+{
+"id": "d261",
+"name": "Mercyhurst",
+"city": "Erie",
+"st": "PA",
+"lat": 42.09,
+"lon": -80.07,
+"rating": 8,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Youngstown State",
+"rivals": [
+"Youngstown State"
+]
+},
+{
+"id": "d262",
+"name": "Merrimack",
+"city": "North Andover",
+"st": "MA",
+"lat": 42.67,
+"lon": -71.13,
+"rating": 12,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Stonehill",
+"rivals": [
+"Stonehill"
+]
+},
+{
+"id": "d263",
+"name": "New Haven",
+"city": "West Haven",
+"st": "CT",
+"lat": 41.29,
+"lon": -72.96,
+"rating": 8,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Central Connecticut",
+"rivals": [
+"Central Connecticut"
+]
+},
+{
+"id": "d264",
+"name": "Robert Morris",
+"city": "Moon Township",
+"st": "PA",
+"lat": 40.51,
+"lon": -80.21,
+"rating": 12,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Duquesne",
+"rivals": [
+"Duquesne"
+]
+},
+{
+"id": "d265",
+"name": "Stonehill",
+"city": "Easton",
+"st": "MA",
+"lat": 42.05,
+"lon": -71.09,
+"rating": 6,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Merrimack",
+"rivals": [
+"Merrimack"
+]
+},
+{
+"id": "d266",
+"name": "Wagner",
+"city": "Staten Island",
+"st": "NY",
+"lat": 40.61,
+"lon": -74.09,
+"rating": 6,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "LIU",
+"rivals": [
+"LIU"
+]
+},
+{
+"id": "d267",
+"name": "Bucknell",
+"city": "Lewisburg",
+"st": "PA",
+"lat": 40.95,
+"lon": -76.88,
+"rating": 10,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Fordham",
+"rivals": [
+"Fordham"
+]
+},
+{
+"id": "d268",
+"name": "Colgate",
+"city": "Hamilton",
+"st": "NY",
+"lat": 42.82,
+"lon": -75.54,
+"rating": 12,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Holy Cross",
+"rivals": [
+"Holy Cross"
+]
+},
+{
+"id": "d269",
+"name": "Fordham",
+"city": "Bronx",
+"st": "NY",
+"lat": 40.86,
+"lon": -73.89,
+"rating": 16,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Bucknell",
+"rivals": [
+"Bucknell"
+]
+},
+{
+"id": "d270",
+"name": "Georgetown",
+"city": "Washington",
+"st": "DC",
+"lat": 38.91,
+"lon": -77.07,
+"rating": 12,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d271",
+"name": "Holy Cross",
+"city": "Worcester",
+"st": "MA",
+"lat": 42.24,
+"lon": -71.81,
+"rating": 26,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Colgate",
+"rivals": [
+"Colgate"
+]
+},
+{
+"id": "d272",
+"name": "Lafayette",
+"city": "Easton",
+"st": "PA",
+"lat": 40.7,
+"lon": -75.21,
+"rating": 16,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "Lehigh",
+"rivals": [
+"Lehigh"
+]
+},
+{
+"id": "d273",
+"name": "Lehigh",
+"city": "Bethlehem",
+"st": "PA",
+"lat": 40.61,
+"lon": -75.38,
+"rating": 20,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": "Lafayette",
+"rivals": [
+"Lafayette"
+]
+},
+{
+"id": "d274",
+"name": "Villanova",
+"city": "Villanova",
+"st": "PA",
+"lat": 40.04,
+"lon": -75.34,
+"rating": 38,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d275",
+"name": "William & Mary",
+"city": "Williamsburg",
+"st": "VA",
+"lat": 37.27,
+"lon": -76.71,
+"rating": 34,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Richmond",
+"rivals": [
+"Richmond"
+]
+},
+{
+"id": "d276",
+"name": "Butler",
+"city": "Indianapolis",
+"st": "IN",
+"lat": 39.84,
+"lon": -86.17,
+"rating": 8,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Valparaiso",
+"rivals": [
+"Valparaiso"
+]
+},
+{
+"id": "d277",
+"name": "Davidson",
+"city": "Davidson",
+"st": "NC",
+"lat": 35.5,
+"lon": -80.85,
+"rating": 14,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Presbyterian",
+"rivals": [
+"Presbyterian"
+]
+},
+{
+"id": "d278",
+"name": "Dayton",
+"city": "Dayton",
+"st": "OH",
+"lat": 39.74,
+"lon": -84.18,
+"rating": 16,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Drake",
+"rivals": [
+"Drake"
+]
+},
+{
+"id": "d279",
+"name": "Drake",
+"city": "Des Moines",
+"st": "IA",
+"lat": 41.6,
+"lon": -93.65,
+"rating": 10,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Dayton",
+"rivals": [
+"Dayton"
+]
+},
+{
+"id": "d280",
+"name": "Marist",
+"city": "Poughkeepsie",
+"st": "NY",
+"lat": 41.72,
+"lon": -73.93,
+"rating": 8,
+"tier": "d2",
+"conf": "Northeast",
+"div": "Northeast A",
+"rival": "St. Thomas",
+"rivals": [
+"St. Thomas"
+]
+},
+{
+"id": "d281",
+"name": "Morehead State",
+"city": "Morehead",
+"st": "KY",
+"lat": 38.19,
+"lon": -83.43,
+"rating": 8,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Eastern Kentucky",
+"rivals": [
+"Eastern Kentucky"
+]
+},
+{
+"id": "d282",
+"name": "Presbyterian",
+"city": "Clinton",
+"st": "SC",
+"lat": 34.47,
+"lon": -81.87,
+"rating": 10,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Davidson",
+"rivals": [
+"Davidson"
+]
+},
+{
+"id": "d283",
+"name": "San Diego",
+"city": "San Diego",
+"st": "CA",
+"lat": 32.77,
+"lon": -117.19,
+"rating": 18,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d284",
+"name": "St. Thomas",
+"city": "St. Paul",
+"st": "MN",
+"lat": 44.94,
+"lon": -93.19,
+"rating": 26,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Marist",
+"rivals": [
+"Marist"
+]
+},
+{
+"id": "d285",
+"name": "Stetson",
+"city": "DeLand",
+"st": "FL",
+"lat": 29.04,
+"lon": -81.3,
+"rating": 8,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d286",
+"name": "Valparaiso",
+"city": "Valparaiso",
+"st": "IN",
+"lat": 41.47,
+"lon": -87.04,
+"rating": 6,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Butler",
+"rivals": [
+"Butler"
+]
+},
+{
+"id": "d287",
+"name": "Chattanooga",
+"city": "Chattanooga",
+"st": "TN",
+"lat": 35.05,
+"lon": -85.29,
+"rating": 28,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "The Citadel",
+"rivals": [
+"The Citadel"
+]
+},
+{
+"id": "d288",
+"name": "The Citadel",
+"city": "Charleston",
+"st": "SC",
+"lat": 32.8,
+"lon": -79.96,
+"rating": 12,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Chattanooga",
+"rivals": [
+"Chattanooga"
+]
+},
+{
+"id": "d289",
+"name": "East Tennessee State",
+"city": "Johnson City",
+"st": "TN",
+"lat": 36.3,
+"lon": -82.37,
+"rating": 24,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Western Carolina",
+"rivals": [
+"Western Carolina"
+]
+},
+{
+"id": "d290",
+"name": "Furman",
+"city": "Greenville",
+"st": "SC",
+"lat": 34.92,
+"lon": -82.44,
+"rating": 32,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Wofford",
+"rivals": [
+"Wofford"
+]
+},
+{
+"id": "d291",
+"name": "Mercer",
+"city": "Macon",
+"st": "GA",
+"lat": 32.83,
+"lon": -83.65,
+"rating": 30,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Samford",
+"rivals": [
+"Samford"
+]
+},
+{
+"id": "d292",
+"name": "Samford",
+"city": "Birmingham",
+"st": "AL",
+"lat": 33.46,
+"lon": -86.79,
+"rating": 26,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Mercer",
+"rivals": [
+"Mercer"
+]
+},
+{
+"id": "d293",
+"name": "VMI",
+"city": "Lexington",
+"st": "VA",
+"lat": 37.79,
+"lon": -79.44,
+"rating": 10,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast B",
+"rival": "Tennessee Tech",
+"rivals": [
+"Tennessee Tech"
+]
+},
+{
+"id": "d294",
+"name": "Western Carolina",
+"city": "Cullowhee",
+"st": "NC",
+"lat": 35.31,
+"lon": -83.18,
+"rating": 16,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "East Tennessee State",
+"rivals": [
+"East Tennessee State"
+]
+},
+{
+"id": "d295",
+"name": "Wofford",
+"city": "Spartanburg",
+"st": "SC",
+"lat": 34.95,
+"lon": -81.93,
+"rating": 14,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Furman",
+"rivals": [
+"Furman"
+]
+},
+{
+"id": "d296",
+"name": "Tennessee Tech",
+"city": "Cookeville",
+"st": "TN",
+"lat": 36.17,
+"lon": -85.5,
+"rating": 14,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "VMI",
+"rivals": [
+"VMI"
+]
+},
+{
+"id": "d297",
+"name": "Houston Christian",
+"city": "Houston",
+"st": "TX",
+"lat": 29.69,
+"lon": -95.46,
+"rating": 10,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Incarnate Word",
+"rivals": [
+"Incarnate Word"
+]
+},
+{
+"id": "d298",
+"name": "Incarnate Word",
+"city": "San Antonio",
+"st": "TX",
+"lat": 29.47,
+"lon": -98.47,
+"rating": 34,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Houston Christian",
+"rivals": [
+"Houston Christian"
+]
+},
+{
+"id": "d299",
+"name": "Lamar",
+"city": "Beaumont",
+"st": "TX",
+"lat": 30.04,
+"lon": -94.07,
+"rating": 12,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "McNeese",
+"rivals": [
+"McNeese"
+]
+},
+{
+"id": "d2100",
+"name": "McNeese",
+"city": "Lake Charles",
+"st": "LA",
+"lat": 30.18,
+"lon": -93.21,
+"rating": 24,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Lamar",
+"rivals": [
+"Lamar"
+]
+},
+{
+"id": "d2101",
+"name": "Nicholls",
+"city": "Thibodaux",
+"st": "LA",
+"lat": 29.79,
+"lon": -90.81,
+"rating": 22,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Southeastern Louisiana",
+"rivals": [
+"Southeastern Louisiana"
+]
+},
+{
+"id": "d2102",
+"name": "Northwestern State",
+"city": "Natchitoches",
+"st": "LA",
+"lat": 31.75,
+"lon": -93.08,
+"rating": 10,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Stephen F. Austin",
+"rivals": [
+"Stephen F. Austin"
+]
+},
+{
+"id": "d2103",
+"name": "Southeastern Louisiana",
+"city": "Hammond",
+"st": "LA",
+"lat": 30.51,
+"lon": -90.47,
+"rating": 28,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Nicholls",
+"rivals": [
+"Nicholls"
+]
+},
+{
+"id": "d2104",
+"name": "Stephen F. Austin",
+"city": "Nacogdoches",
+"st": "TX",
+"lat": 31.61,
+"lon": -94.65,
+"rating": 16,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Northwestern State",
+"rivals": [
+"Northwestern State"
+]
+},
+{
+"id": "d2105",
+"name": "Texas A&M-Commerce",
+"city": "Commerce",
+"st": "TX",
+"lat": 33.24,
+"lon": -95.9,
+"rating": 10,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "UTRGV",
+"rivals": [
+"UTRGV"
+]
+},
+{
+"id": "d2106",
+"name": "UTRGV",
+"city": "Edinburg",
+"st": "TX",
+"lat": 26.31,
+"lon": -98.17,
+"rating": 8,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Texas A&M-Commerce",
+"rivals": [
+"Texas A&M-Commerce"
+]
+},
+{
+"id": "d2107",
+"name": "Alabama A&M",
+"city": "Huntsville",
+"st": "AL",
+"lat": 34.78,
+"lon": -86.57,
+"rating": 18,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Alabama State",
+"rivals": [
+"Alabama State"
+]
+},
+{
+"id": "d2108",
+"name": "Alabama State",
+"city": "Montgomery",
+"st": "AL",
+"lat": 32.36,
+"lon": -86.29,
+"rating": 20,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Alabama A&M",
+"rivals": [
+"Alabama A&M"
+]
+},
+{
+"id": "d2109",
+"name": "Alcorn State",
+"city": "Lorman",
+"st": "MS",
+"lat": 31.87,
+"lon": -91.13,
+"rating": 12,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Jackson State",
+"rivals": [
+"Jackson State"
+]
+},
+{
+"id": "d2110",
+"name": "Arkansas-Pine Bluff",
+"city": "Pine Bluff",
+"st": "AR",
+"lat": 34.24,
+"lon": -92.02,
+"rating": 8,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Central Arkansas",
+"rivals": [
+"Central Arkansas"
+]
+},
+{
+"id": "d2111",
+"name": "Bethune-Cookman",
+"city": "Daytona Beach",
+"st": "FL",
+"lat": 29.2,
+"lon": -81.05,
+"rating": 12,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Florida A&M",
+"rivals": [
+"Florida A&M"
+]
+},
+{
+"id": "d2112",
+"name": "Florida A&M",
+"city": "Tallahassee",
+"st": "FL",
+"lat": 30.42,
+"lon": -84.29,
+"rating": 26,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Bethune-Cookman",
+"rivals": [
+"Bethune-Cookman"
+]
+},
+{
+"id": "d2113",
+"name": "Grambling",
+"city": "Grambling",
+"st": "LA",
+"lat": 32.53,
+"lon": -92.71,
+"rating": 16,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Southern",
+"rivals": [
+"Southern"
+]
+},
+{
+"id": "d2114",
+"name": "Jackson State",
+"city": "Jackson",
+"st": "MS",
+"lat": 32.3,
+"lon": -90.21,
+"rating": 26,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Alcorn State",
+"rivals": [
+"Alcorn State"
+]
+},
+{
+"id": "d2115",
+"name": "Mississippi Valley State",
+"city": "Itta Bena",
+"st": "MS",
+"lat": 33.5,
+"lon": -90.33,
+"rating": 4,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": null,
+"rivals": []
+},
+{
+"id": "d2116",
+"name": "Prairie View A&M",
+"city": "Prairie View",
+"st": "TX",
+"lat": 30.09,
+"lon": -95.99,
+"rating": 18,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Texas Southern",
+"rivals": [
+"Texas Southern"
+]
+},
+{
+"id": "d2117",
+"name": "Southern",
+"city": "Baton Rouge",
+"st": "LA",
+"lat": 30.52,
+"lon": -91.19,
+"rating": 22,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Grambling",
+"rivals": [
+"Grambling"
+]
+},
+{
+"id": "d2118",
+"name": "Texas Southern",
+"city": "Houston",
+"st": "TX",
+"lat": 29.72,
+"lon": -95.36,
+"rating": 10,
+"tier": "d2",
+"conf": "Western",
+"div": "Western B",
+"rival": "Prairie View A&M",
+"rivals": [
+"Prairie View A&M"
+]
+},
+{
+"id": "d2119",
+"name": "Abilene Christian",
+"city": "Abilene",
+"st": "TX",
+"lat": 32.47,
+"lon": -99.71,
+"rating": 20,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Tarleton State",
+"rivals": [
+"Tarleton State"
+]
+},
+{
+"id": "d2120",
+"name": "Austin Peay",
+"city": "Clarksville",
+"st": "TN",
+"lat": 36.53,
+"lon": -87.35,
+"rating": 18,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "Tennessee State",
+"rivals": [
+"Tennessee State"
+]
+},
+{
+"id": "d2121",
+"name": "Central Arkansas",
+"city": "Conway",
+"st": "AR",
+"lat": 35.08,
+"lon": -92.46,
+"rating": 22,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "Arkansas-Pine Bluff",
+"rivals": [
+"Arkansas-Pine Bluff"
+]
+},
+{
+"id": "d2122",
+"name": "Eastern Kentucky",
+"city": "Richmond",
+"st": "KY",
+"lat": 37.74,
+"lon": -84.3,
+"rating": 20,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": "Morehead State",
+"rivals": [
+"Morehead State"
+]
+},
+{
+"id": "d2123",
+"name": "North Alabama",
+"city": "Florence",
+"st": "AL",
+"lat": 34.81,
+"lon": -87.68,
+"rating": 22,
+"tier": "d2",
+"conf": "Central",
+"div": "Central B",
+"rival": "West Georgia",
+"rivals": [
+"West Georgia"
+]
+},
+{
+"id": "d2124",
+"name": "Tarleton State",
+"city": "Stephenville",
+"st": "TX",
+"lat": 32.22,
+"lon": -98.21,
+"rating": 30,
+"tier": "d2",
+"conf": "Western",
+"div": "Western A",
+"rival": "Abilene Christian",
+"rivals": [
+"Abilene Christian"
+]
+},
+{
+"id": "d2125",
+"name": "West Georgia",
+"city": "Carrollton",
+"st": "GA",
+"lat": 33.57,
+"lon": -85.1,
+"rating": 12,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "North Alabama",
+"rivals": [
+"North Alabama"
+]
+},
+{
+"id": "d2126",
+"name": "West Florida",
+"city": "Pensacola",
+"st": "FL",
+"lat": 30.55,
+"lon": -87.22,
+"rating": 20,
+"tier": "d2",
+"conf": "Central",
+"div": "Central A",
+"rival": "South Alabama",
+"rivals": [
+"South Alabama"
+]
+},
+{
+"id": "d2127",
+"name": "Chicago State",
+"city": "Chicago",
+"st": "IL",
+"lat": 41.72,
+"lon": -87.61,
+"rating": 2,
+"tier": "d2",
+"conf": "Southeast",
+"div": "Southeast A",
+"rival": null,
+"rivals": []
+}
+],
+"divs": [
+"Northeast A",
+"Northeast B",
+"Southeast A",
+"Southeast B",
+"Central A",
+"Central B",
+"Western A",
+"Western B"
+],
+"confs": [
+"Northeast",
+"Southeast",
+"Central",
+"Western"
+]
+}
