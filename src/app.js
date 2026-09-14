@@ -817,19 +817,26 @@ function renderMapFocus(sn){
   let s='<svg class="map" viewBox="0 0 '+M.W+' '+M.H+'" role="img" aria-label="Season map for '+esc(me.name)+'">';
   for(const k in DATA.map.paths) s+='<path class="st" d="'+DATA.map.paths[k]+'"/>';
   s+='<rect class="inset" x="30" y="486" width="86" height="52" rx="6"/><text class="insetlbl" x="36" y="500">Hawaii</text>';
-  const c0=screenXY(me), mx=c0[0].toFixed(1), my=c0[1].toFixed(1);
-  games.forEach(g=>{
-    const o=periodTeam(sn,g.o); if(!o) return;
-    const p=screenXY(o), win=g.f>g.a;
-    s+='<line x1="'+mx+'" y1="'+my+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="'+
+  const c0=screenXY(me);
+  const raw=[{i:-1,x:c0[0],y:c0[1]}];
+  games.forEach((g,i)=>{ const o=periodTeam(sn,g.o); if(o){ const p=screenXY(o); raw.push({i,x:p[0],y:p[1]}); } });
+  const byIdx=Object.fromEntries(declutter(raw,9).map(p=>[p.i,p]));
+  const mp=byIdx[-1], mx=mp.x.toFixed(1), my=mp.y.toFixed(1);
+  const stem=p=> p.ox!=null ? '<line x1="'+p.ox.toFixed(1)+'" y1="'+p.oy.toFixed(1)+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+
+    '" stroke="var(--muted)" stroke-width="1" stroke-opacity=".6"/>' : '';
+  s+=stem(mp);
+  games.forEach((g,i)=>{
+    const p=byIdx[i]; if(!p) return;
+    const win=g.f>g.a;
+    s+='<line x1="'+mx+'" y1="'+my+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+'" stroke="'+
        (win?WIN:LOSS)+'" stroke-width="1.3" stroke-opacity=".42"'+(g.ps?' stroke-dasharray="4 3"':'')+'/>';
   });
   games.forEach((g,i)=>{
-    const o=periodTeam(sn,g.o); if(!o) return;
-    const p=screenXY(o), win=g.f>g.a;
+    const o=periodTeam(sn,g.o), p=byIdx[i]; if(!o||!p) return;
+    const win=g.f>g.a;
     const shape = g.ps?'diamond':(g.home?'circle':'square');
-    s+='<g class="dot" data-id="'+o.id+'" data-g="'+i+'">'+
-       markerSVG(+p[0].toFixed(1),+p[1].toFixed(1),shape,dcol(o.div),win?WIN:LOSS)+'</g>';
+    s+=stem(p)+'<g class="dot" data-id="'+o.id+'" data-g="'+i+'">'+
+       markerSVG(+p.x.toFixed(1),+p.y.toFixed(1),shape,dcol(o.div),win?WIN:LOSS)+'</g>';
   });
   s+='<g class="dot" data-id="'+me.id+'" data-g="-1"><circle cx="'+mx+'" cy="'+my+'" r="9.5" fill="none" stroke="#eef4ec" stroke-width="1.6" stroke-opacity=".8"/>'+
      '<circle cx="'+mx+'" cy="'+my+'" r="5.5" fill="'+dcol(me.div)+'" stroke="#eef4ec" stroke-width="1.8"/></g>';
@@ -863,6 +870,38 @@ function renderMapFocus(sn){
     });
   });
 }
+// When two or more markers would land within minDist px of each other, fan
+// them out around their shared spot and hand back the true (ox,oy) each came
+// from, so the caller can draw a thin stem back to where it actually sits.
+// Runs a few relaxation passes since spreading one cluster can nudge a
+// marker into a new collision with an unrelated point nearby.
+function declutter(points,minDist){
+  let pts=points.map(p=>Object.assign({},p,{ox:null,oy:null}));
+  for(let iter=0;iter<12;iter++){
+    const used=new Array(pts.length).fill(false), next=new Array(pts.length);
+    let moved=false;
+    for(let i=0;i<pts.length;i++){
+      if(used[i]) continue;
+      const group=[i]; used[i]=true;
+      for(let j=i+1;j<pts.length;j++){
+        if(used[j]) continue;
+        if(Math.hypot(pts[j].x-pts[i].x,pts[j].y-pts[i].y)<minDist){ group.push(j); used[j]=true; }
+      }
+      if(group.length===1){ next[i]=pts[i]; continue; }
+      moved=true;
+      let cx=0,cy=0; for(const k of group){cx+=pts[k].x;cy+=pts[k].y;} cx/=group.length; cy/=group.length;
+      const R=8+Math.min(group.length,5)*2.2;
+      group.forEach((k,i2)=>{
+        const ang=-Math.PI/2+i2*(2*Math.PI/group.length);
+        next[k]=Object.assign({},pts[k],{x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang),
+          ox: pts[k].ox!=null?pts[k].ox:pts[k].x, oy: pts[k].oy!=null?pts[k].oy:pts[k].y});
+      });
+    }
+    pts=next;
+    if(!moved) break;
+  }
+  return pts;
+}
 function renderMap(){
   const sn=snap();
   $('#mapNote').textContent = sn.kind==='pre' ? sn.season+' preseason.' : sn.season+' results.';
@@ -881,9 +920,12 @@ function renderMap(){
   }
   const rank2=t=> champs.has(t.id)?3 : winners.has(t.id)?2 : (t.tier==='d2'?0:1);
   const ordered=[...show].sort((a,b)=>rank2(a)-rank2(b));
-  for(const t of ordered){
-    const xy=screenXY(t), c=dcol(t.div), X=+xy[0].toFixed(1), Y=+xy[1].toFixed(1);
+  const placed=declutter(ordered.map(t=>{const xy=screenXY(t); return {t,x:xy[0],y:xy[1]};}),9);
+  for(const pt of placed){
+    const t=pt.t, c=dcol(t.div), X=+pt.x.toFixed(1), Y=+pt.y.toFixed(1);
     const fill = t.tier==='d1' ? c : '#0c2318';
+    if(pt.ox!=null) s+='<line x1="'+pt.ox.toFixed(1)+'" y1="'+pt.oy.toFixed(1)+'" x2="'+X+'" y2="'+Y+
+      '" stroke="var(--muted)" stroke-width="1" stroke-opacity=".6"/>';
     s+='<g class="dot" data-id="'+t.id+'">';
     if(champs.has(t.id)){
       s+='<circle cx="'+X+'" cy="'+Y+'" r="10.5" fill="none" stroke="'+c+'" stroke-width="1.5" stroke-opacity=".85"/>'+
