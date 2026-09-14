@@ -1213,6 +1213,11 @@ let mapFocus=null;
 const groupKeys = () => mapGroup==='conf' ? CONFS : DIVS;
 const groupOf = t => mapGroup==='conf' ? t.conf : t.div;
 const groupCol = k => mapGroup==='conf' ? CC[k] : dcol(k);
+// A team's tier/division/conference/rating as of the season being viewed, not
+// wherever it's landed since — a reshuffle mutates the live team in place, so
+// without this a postseason map would show teams on the tier they're moving
+// to rather than the one they just finished playing in.
+const periodTeam = (sn,id) => { const p=sn.teams[id]; return p ? Object.assign({},byId()[id],p) : byId()[id]; };
 function renderChips(){
   const c=$('#mapChips'); c.innerHTML='';
   groupKeys().forEach(k=>{
@@ -1238,19 +1243,19 @@ function markerSVG(x,y,shape,fill,ring){
 }
 const WIN='#7ee787', LOSS='#ff7b72';
 function renderMapFocus(sn){
-  const ix=byId(), me=ix[mapFocus], games=sn.sched[mapFocus];
+  const me=periodTeam(sn,mapFocus), games=sn.sched[mapFocus];
   let s='<svg class="map" viewBox="0 0 '+M.W+' '+M.H+'" role="img" aria-label="Season map for '+esc(me.name)+'">';
   for(const k in DATA.map.paths) s+='<path class="st" d="'+DATA.map.paths[k]+'"/>';
   s+='<rect class="inset" x="30" y="486" width="86" height="52" rx="6"/><text class="insetlbl" x="36" y="500">Hawaii</text>';
   const c0=screenXY(me), mx=c0[0].toFixed(1), my=c0[1].toFixed(1);
   games.forEach(g=>{
-    const o=ix[g.o]; if(!o) return;
+    const o=periodTeam(sn,g.o); if(!o) return;
     const p=screenXY(o), win=g.f>g.a;
     s+='<line x1="'+mx+'" y1="'+my+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="'+
        (win?WIN:LOSS)+'" stroke-width="1.3" stroke-opacity=".42"'+(g.ps?' stroke-dasharray="4 3"':'')+'/>';
   });
   games.forEach((g,i)=>{
-    const o=ix[g.o]; if(!o) return;
+    const o=periodTeam(sn,g.o); if(!o) return;
     const p=screenXY(o), win=g.f>g.a;
     const shape = g.ps?'diamond':(g.home?'circle':'square');
     s+='<g class="dot" data-id="'+o.id+'" data-g="'+i+'">'+
@@ -1261,7 +1266,7 @@ function renderMapFocus(sn){
   $('#mapHost').innerHTML=s+'</svg>';
   const tip=$('#tip');
   $('#mapHost').querySelectorAll('.dot').forEach(el2=>{
-    const gi=+el2.dataset.g, t=ix[el2.dataset.id];
+    const gi=+el2.dataset.g, t=periodTeam(sn,el2.dataset.id);
     const showTip=e=>{
       const p=e.touches?e.touches[0]:e;
       let body;
@@ -1294,7 +1299,7 @@ function renderMap(){
   if(mapFocus && sn.sched[mapFocus]) return renderMapFocus(sn);
   mapFocus=null;
   const tier=$('#mapTier').value;
-  const show=S.teams.filter(t=>(tier==='all'||t.tier===tier)&&mapFilter.has(groupOf(t)));
+  const show=S.teams.map(t=>periodTeam(sn,t.id)).filter(t=>(tier==='all'||t.tier===tier)&&mapFilter.has(groupOf(t)));
   let s='<svg class="map" viewBox="0 0 '+M.W+' '+M.H+'" role="img" aria-label="Conference footprints">';
   for(const k in DATA.map.paths) s+='<path class="st" d="'+DATA.map.paths[k]+'"/>';
   s+='<rect class="inset" x="30" y="486" width="86" height="52" rx="6"/><text class="insetlbl" x="36" y="500">Hawaii</text>';
@@ -1323,7 +1328,7 @@ function renderMap(){
     s+='</g>';
   }
   $('#mapHost').innerHTML=s+'</svg>';
-  const tip=$('#tip'), ix=byId();
+  const tip=$('#tip'), ix=Object.fromEntries(ordered.map(t=>[t.id,t]));
   $('#mapHost').querySelectorAll('.dot').forEach(g=>{
     const t=ix[g.dataset.id];
     const showTip=e=>{
