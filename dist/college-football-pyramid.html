@@ -274,6 +274,7 @@ details p{font-size:13px;color:var(--muted)}
     </select>
     <button class="btn ghost" id="mapReset">Show everything</button>
   </div>
+  <p class="note" id="mapNote"></p>
   <div class="chips" id="mapChips"></div>
   <div class="mapbox"><div id="mapHost"></div></div>
   <p class="note">Filled markers are Tier I, hollow ones Tier II. Tap any marker for the team
@@ -1289,6 +1290,7 @@ function renderMapFocus(sn){
 }
 function renderMap(){
   const sn=snap();
+  $('#mapNote').textContent = sn.kind==='pre' ? sn.season+' preseason.' : sn.season+' results.';
   if(mapFocus && sn.sched[mapFocus]) return renderMapFocus(sn);
   mapFocus=null;
   const tier=$('#mapTier').value;

@@ -860,6 +860,7 @@ function renderMapFocus(sn){
 }
 function renderMap(){
   const sn=snap();
+  $('#mapNote').textContent = sn.kind==='pre' ? sn.season+' preseason.' : sn.season+' results.';
   if(mapFocus && sn.sched[mapFocus]) return renderMapFocus(sn);
   mapFocus=null;
   const tier=$('#mapTier').value;
