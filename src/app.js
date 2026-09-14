@@ -1075,6 +1075,10 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
 }
 
 /* ---------- playoff ---------- */
+function renderDivLegend(){
+  $('#divLegend').innerHTML = DIVS.map(d=>
+    '<span><i style="background:'+dcol(d)+'"></i>'+esc(d)+'</span>').join('');
+}
 function renderPlayoff(){
   const host=$('#playoffOut'), tr=$('#poTier').value, sn=snap();
   if(sn.kind==='pre'){host.innerHTML='<div class="empty">No bracket for the '+sn.season+
@@ -1089,10 +1093,10 @@ function renderPlayoff(){
   chBox.style.background='color-mix(in srgb, '+CC[ch.conf]+' 10%, transparent)';
   host.appendChild(chBox);
   const side=(id,cls,score)=>{
-    const c=CC[T[id].conf];
+    const d=T[id].div, c=dcol(d);
     const sd='<span class="sd">'+(seedOf[id]?seedOf[id]:'#'+R[id])+'</span>';
     return '<div class="'+cls+'" style="border-left:3px solid '+c+'">'+
-      '<span><span class="cdot" style="background:'+c+'"></span>'+sd+esc(T[id].name)+'</span>'+
+      '<span><span class="cdot" style="background:'+c+'" data-div="'+esc(d)+'"></span>'+sd+esc(T[id].name)+'</span>'+
       '<span>'+score+'</span></div>';
   };
   const line=g=>{
@@ -1279,7 +1283,26 @@ $('#infoWrap').addEventListener('click',e=>{ if(e.target===$('#infoWrap')) close
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#infoWrap').hidden) closeInfo(); });
 
 /* ---------- wiring ---------- */
-buildTabs(); renderChips();
+buildTabs(); renderChips(); renderDivLegend();
+(()=>{
+  const host=$('#playoffOut'), tip=$('#tip');
+  const showDotTip=e=>{
+    const dot=e.target.closest('.cdot[data-div]');
+    if(!dot){ tip.style.opacity=0; return; }
+    const p=e.touches?e.touches[0]:e;
+    tip.innerHTML='<b>'+esc(dot.dataset.div)+'</b>';
+    tip.style.opacity=1;
+    tip.style.left=Math.min(innerWidth-232,p.clientX+12)+'px';
+    tip.style.top=Math.max(8,p.clientY-56)+'px';
+  };
+  host.addEventListener('mousemove',showDotTip);
+  host.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
+  host.addEventListener('click',e=>{
+    if(!e.target.closest('.cdot[data-div]')) return;
+    showDotTip(e);
+    setTimeout(()=>{tip.style.opacity=0;},1800);
+  });
+})();
 $('#mapTier').onchange=()=>{mapFocus=null;renderMap();};
 $('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys());mapFocus=null;
   renderChips();renderMap();$('#mapPick').innerHTML='';};
