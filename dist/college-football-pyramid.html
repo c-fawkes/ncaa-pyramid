@@ -1253,7 +1253,7 @@ function renderMapFocus(sn){
   games.forEach((g,i)=>{ const o=periodTeam(sn,g.o); if(o){ const p=screenXY(o); raw.push({i,x:p[0],y:p[1]}); } });
   const byIdx=Object.fromEntries(declutter(raw,9).map(p=>[p.i,p]));
   const mp=byIdx[-1], mx=mp.x.toFixed(1), my=mp.y.toFixed(1);
-  const stem=p=> p.ox!=null ? '<line x1="'+p.ox.toFixed(1)+'" y1="'+p.oy.toFixed(1)+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+
+  const stem=p=> (p.x!==p.ox||p.y!==p.oy) ? '<line x1="'+p.ox.toFixed(1)+'" y1="'+p.oy.toFixed(1)+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+
     '" stroke="var(--muted)" stroke-width="1" stroke-opacity=".6"/>' : '';
   s+=stem(mp);
   games.forEach((g,i)=>{
@@ -1307,7 +1307,12 @@ function renderMapFocus(sn){
 // Runs a few relaxation passes since spreading one cluster can nudge a
 // marker into a new collision with an unrelated point nearby.
 function declutter(points,minDist){
-  let pts=points.map(p=>Object.assign({},p,{ox:null,oy:null}));
+  // ox/oy are each point's true, unmoved spot — fixed for good up front, never
+  // recomputed from an already-nudged position. Ordering and the centroid are
+  // always taken from these, so a cluster's fan keeps a single stable layout
+  // across relaxation passes instead of re-rotating (and crossing its own
+  // stems) as clusters are re-evaluated iteration to iteration.
+  let pts=points.map(p=>Object.assign({},p,{ox:p.x,oy:p.y}));
   for(let iter=0;iter<12;iter++){
     const used=new Array(pts.length).fill(false), next=new Array(pts.length);
     let moved=false;
@@ -1320,12 +1325,22 @@ function declutter(points,minDist){
       }
       if(group.length===1){ next[i]=pts[i]; continue; }
       moved=true;
+      // The centroid tracks each point's CURRENT (possibly already-nudged)
+      // position, same as before — that's what makes the relaxation converge.
+      // Only the slot ORDER is taken from each point's fixed true origin, so
+      // it stays stable pass to pass and the fan doesn't re-rotate and cross
+      // its own stems as clusters get re-evaluated.
       let cx=0,cy=0; for(const k of group){cx+=pts[k].x;cy+=pts[k].y;} cx/=group.length; cy/=group.length;
-      const R=8+Math.min(group.length,5)*2.2;
-      group.forEach((k,i2)=>{
-        const ang=-Math.PI/2+i2*(2*Math.PI/group.length);
-        next[k]=Object.assign({},pts[k],{x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang),
-          ox: pts[k].ox!=null?pts[k].ox:pts[k].x, oy: pts[k].oy!=null?pts[k].oy:pts[k].y});
+      const n=group.length, R=12+n*3.6;
+      const order=[...group].sort((k1,k2)=>{
+        const d1x=pts[k1].ox-cx, d1y=pts[k1].oy-cy, d2x=pts[k2].ox-cx, d2y=pts[k2].oy-cy;
+        const a1=(Math.abs(d1x)<1e-6&&Math.abs(d1y)<1e-6)?Infinity:Math.atan2(d1y,d1x);
+        const a2=(Math.abs(d2x)<1e-6&&Math.abs(d2y)<1e-6)?Infinity:Math.atan2(d2y,d2x);
+        return a1-a2;
+      });
+      order.forEach((k,slot)=>{
+        const ang=-Math.PI/2+slot*(2*Math.PI/n);
+        next[k]=Object.assign({},pts[k],{x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang)});
       });
     }
     pts=next;
@@ -1355,7 +1370,7 @@ function renderMap(){
   for(const pt of placed){
     const t=pt.t, c=dcol(t.div), X=+pt.x.toFixed(1), Y=+pt.y.toFixed(1);
     const fill = t.tier==='d1' ? c : '#0c2318';
-    if(pt.ox!=null) s+='<line x1="'+pt.ox.toFixed(1)+'" y1="'+pt.oy.toFixed(1)+'" x2="'+X+'" y2="'+Y+
+    if(pt.x!==pt.ox||pt.y!==pt.oy) s+='<line x1="'+pt.ox.toFixed(1)+'" y1="'+pt.oy.toFixed(1)+'" x2="'+X+'" y2="'+Y+
       '" stroke="var(--muted)" stroke-width="1" stroke-opacity=".6"/>';
     s+='<g class="dot" data-id="'+t.id+'">';
     if(champs.has(t.id)){
