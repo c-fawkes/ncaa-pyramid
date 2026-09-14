@@ -1297,4 +1297,7 @@ $('#play2Btn').onclick=()=>{
   settle(); $('#tabs').children[3].click();
 };
 $('#settleBtn').onclick=settle;
+$('#resetBtn').onclick=()=>{
+  if(confirm('Start over from the 2027 preseason? This clears everything you’ve played so far.')) location.reload();
+};
 renderAll();

@@ -229,6 +229,7 @@ details p{font-size:13px;color:var(--muted)}
     <button class="btn ghost" id="play2Btn">Play through the reshuffle</button>
     <button class="btn go" id="settleBtn" hidden>Send them up and down</button>
     <span class="grow"></span>
+    <button class="btn ghost" id="resetBtn" title="Start over from the 2027 preseason">Reset league</button>
   </div>
 </header>
 
@@ -1720,6 +1721,9 @@ $('#play2Btn').onclick=()=>{
   settle(); $('#tabs').children[3].click();
 };
 $('#settleBtn').onclick=settle;
+$('#resetBtn').onclick=()=>{
+  if(confirm('Start over from the 2027 preseason? This clears everything you’ve played so far.')) location.reload();
+};
 renderAll();
 
 </script>
