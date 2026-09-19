@@ -1,10 +1,43 @@
 # The Pyramid
 
 College football restructured as a two-tier league with promotion and relegation, plus a
-simulator for it. Single-file HTML output, no runtime dependencies, no build step for the
-end user — open `dist/college-football-pyramid.html` in a browser.
+simulator for it.
 
-Real 2026 membership: 138 FBS teams in Tier I, 128 FCS teams in Tier II.
+Real 2026 membership: **138 FBS teams in Tier I, 128 FCS teams in Tier II**. Four
+geography-drawn conferences, two strength-balanced divisions apiece, a twelve-game schedule
+with rivalries preserved, a twenty-four-team playoff over the real bowl slate, and a table
+that settles every second season to send teams up and down.
+
+The whole thing builds to one self-contained HTML file — no runtime dependencies, no server,
+no build step for whoever you hand it to.
+
+## Quick start
+
+```sh
+git clone https://github.com/c-fawkes/ncaa-pyramid.git
+cd ncaa-pyramid
+python3 build.py                                  # writes dist/college-football-pyramid.html
+open dist/college-football-pyramid.html           # any browser
+```
+
+The committed `dist/college-football-pyramid.html` is current, so you can skip the build and
+just open it. Pushes to `main` also publish it to GitHub Pages at
+**https://c-fawkes.github.io/ncaa-pyramid/**.
+
+## Using the simulator
+
+Play a season, or run straight through to the next reshuffle, from the buttons at the top.
+Five tabs:
+
+| Tab | What's in it |
+|---|---|
+| **League** | Standings by division or as one list, either tier or both, ordered by standing, rating or name |
+| **Map** | Every campus on a projected US map — filled markers Tier I, hollow Tier II, two shades per conference for its A and B halves. Tap a marker for a team and its schedule; stars mark division winners, the circled star the national champion |
+| **Playoff** | The twenty-four-team bracket for either tier, with the bowl hosting each round |
+| **Up & down** | Who is relegated, who is promoted, and the numbers behind each call |
+| **Ratings** | Search and hand-edit any team's rating; turn season-to-season drift off |
+
+`Reset league` puts you back at the 2027 preseason.
 
 ## The structure
 
@@ -81,6 +114,9 @@ build.py           injects data and app into the shell -> dist/
 test/smoke.js      headless checks on schedules, cycles, brackets and rendering
 ```
 
+`build.py` is a text substitution: the slimmed team data goes into `app.js` at `__DATA__`, and
+the result goes into `shell.html` at `__APP__`. That is the entire pipeline.
+
 ## Build
 
 ```sh
@@ -91,7 +127,8 @@ python3 build.py           # always — writes dist/college-football-pyramid.htm
 ```
 
 `align.py` and `mkmap.py` write JSON into `data/`, which is committed, so a plain `build.py`
-is enough for most changes.
+is enough for most changes. numpy and scipy are only needed for those two scripts, never at
+runtime.
 
 ## Test
 
