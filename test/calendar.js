@@ -1,5 +1,5 @@
 /* The calendar must always close inside WEEKS. Games are edges and weeks are
-   colours: with 12 games a team, a pairing met at most twice and 14 weeks,
+   colors: with 12 games a team, a pairing met at most twice and 14 weeks,
    Vizing's bound for multigraphs (max degree + multiplicity = 14) says a valid
    calendar always exists, so an overflow week is a scheduler bug, never bad luck.
    Seeded so a regression reproduces exactly. Run: node test/calendar.js */

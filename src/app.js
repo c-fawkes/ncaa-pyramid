@@ -236,7 +236,7 @@ function assignWeeks(games, teams){
   }
   const freeList=id=>{ const f=[]; for(let wk=1;wk<=WEEKS;wk++) if(!busy[id].has(wk)) f.push(wk); return f; };
   // Last resort for a game whose two teams share no open Saturday. Weeks are
-  // colours on a graph of games: pick a week a that u has open and a week b that
+  // colors on a graph of games: pick a week a that u has open and a week b that
   // v has open, then walk the chain of games out of v that alternates a, b, a...
   // No team owns more than one game a week, so that chain is a simple path and
   // swapping a for b along the whole of it leaves every other team just as
@@ -741,7 +741,7 @@ function schedHTML(id){
     (me.tier==='d1'?'Tier I':'Tier II')+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
     ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+
     (reg.some(x=>T[x.o].conf!==me.conf||T[x.o].div!==me.div)
-      ?' A dot marks an opponent from outside the division \u2014 in the conference colour for a '+
+      ?' A dot marks an opponent from outside the division \u2014 in the conference color for a '+
        'non-conference game, in the other half\u2019s shade for a crossover.':'')+
     (me.rival?' Rival: '+esc(me.rival)+'.':'');
   if(post.length){
@@ -813,7 +813,7 @@ function stackTabs(){
 }
 // The strip scrolls sideways when the tabs outrun the screen, so a tab picked
 // at the edge gets pulled fully into view. The pad clears the overlap, or the
-// neighbour stacked over it would still cut the corner off.
+// neighbor stacked over it would still cut the corner off.
 function revealTab(b){
   const n=$('#tabs');
   if(!n.scrollBy || !n.getBoundingClientRect) return;
@@ -1027,7 +1027,7 @@ function renderChips(){
     b.onclick=()=>{mapFilter.has(k)?mapFilter.delete(k):mapFilter.add(k);renderChips();renderMap();};
     c.appendChild(b);
   });
-  // always there so the row does not reflow, but greyed out with nothing to undo
+  // always there so the row does not reflow, but grayed out with nothing to undo
   const r=el('button','chip showall','Show all');
   r.disabled=showingAll();
   r.title=r.disabled ? 'Everything is already showing'
@@ -1167,11 +1167,11 @@ function declutter(points,minDist){
         const mine=byDist.slice(at,at+ring.take); at+=ring.take;
         const step=2*Math.PI/mine.length;
         // Each marker takes its own slice, so no two in a ring set off the same
-        // way, and each leaves radially from the shared centre, which is what
+        // way, and each leaves radially from the shared center, which is what
         // keeps the stems from crossing. The ring is then turned to best fit
         // where the markers truly lie — a circular mean of what each one's own
         // bearing implies — so a marker heads out roughly the way it already
-        // sits and neighbouring clumps do not all fan alike. Rings are offset
+        // sits and neighboring clumps do not all fan alike. Rings are offset
         // from each other so an inner and an outer marker never line up.
         const order=[...mine].sort((a,b)=>{
           const A=bearing(a), B=bearing(b);

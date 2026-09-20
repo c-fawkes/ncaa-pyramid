@@ -47,7 +47,7 @@ size is enforced, which is what pushes Iowa and Illinois into Central and Minnes
 Nebraska into Western — the Southeast has about 41 teams competing for 35 seats.
 
 **Two divisions per conference, drawn on strength.** Each conference splits into an A and a B
-half built to match on centre *and* spread. A snake draft over adjacent rating pairs gives each
+half built to match on center *and* spread. A snake draft over adjacent rating pairs gives each
 half one team from every rung of the ladder; a local search then polishes against a cost that
 weights standard deviation, decile counts, quartile extremes and the mean. At the opening
 alignment the halves differ by at most 0.02 in standard deviation.
@@ -143,7 +143,7 @@ closes in fourteen weeks with no double-booking, that the bracket has the right 
 tier sizes hold at 128 and 138 across cycles.
 
 `test/calendar.js` runs the calendar alone across seeded leagues. Games are edges and weeks are
-colours: with twelve games a team, a pairing met at most twice and fourteen weeks, Vizing's
+colors: with twelve games a team, a pairing met at most twice and fourteen weeks, Vizing's
 bound for multigraphs says a valid calendar always exists, so a fifteenth week is a scheduler
 bug rather than bad luck. It builds 256 calendars and checks every one closes in fourteen weeks
 with nobody booked twice. The seeds it ships with are ones that used to overflow.

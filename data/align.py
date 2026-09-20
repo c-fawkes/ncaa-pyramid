@@ -133,7 +133,7 @@ refine_conf(fcs, rounds=5)
 import statistics as st
 
 def shape_cost(A,B):
-    """Match the halves on centre AND spread, not just the mean."""
+    """Match the halves on center AND spread, not just the mean."""
     ra=[t["rating"] for t in A]; rb=[t["rating"] for t in B]
     c  = 6.0*abs(st.mean(ra)-st.mean(rb))
     c += 9.0*abs(st.pstdev(ra)-st.pstdev(rb))
