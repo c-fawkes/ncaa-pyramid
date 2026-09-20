@@ -133,14 +133,20 @@ runtime.
 ## Test
 
 ```sh
-npm install jsdom
-node test/smoke.js
+npm install
+npm test
 ```
 
-Checks that every team plays exactly twelve games, that division allotments are equal within a
-division, that a cycle covers the full division round robin, that the calendar closes in
-fourteen weeks with no double-booking, that the bracket has the right shape, and that tier
-sizes hold at 128 and 138 across cycles.
+`test/smoke.js` checks that every team plays exactly twelve games, that division allotments are
+equal within a division, that a cycle covers the full division round robin, that the calendar
+closes in fourteen weeks with no double-booking, that the bracket has the right shape, and that
+tier sizes hold at 128 and 138 across cycles.
+
+`test/calendar.js` runs the calendar alone across seeded leagues. Games are edges and weeks are
+colours: with twelve games a team, a pairing met at most twice and fourteen weeks, Vizing's
+bound for multigraphs says a valid calendar always exists, so a fifteenth week is a scheduler
+bug rather than bad luck. It builds 256 calendars and checks every one closes in fourteen weeks
+with nobody booked twice. The seeds it ships with are ones that used to overflow.
 
 ## Notes
 

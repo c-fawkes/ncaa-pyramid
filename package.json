@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "build": "python3 build.py",
-    "test": "node test/smoke.js"
+    "test": "node test/smoke.js && node test/calendar.js"
   },
-  "devDependencies": { "jsdom": "^24.0.0" }
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
 }

@@ -215,6 +215,36 @@ function assignWeeks(games, teams){
     }
     rest=next;
   }
+  const freeList=id=>{ const f=[]; for(let wk=1;wk<=WEEKS;wk++) if(!busy[id].has(wk)) f.push(wk); return f; };
+  // Last resort for a game whose two teams share no open Saturday. Weeks are
+  // colours on a graph of games: pick a week a that u has open and a week b that
+  // v has open, then walk the chain of games out of v that alternates a, b, a...
+  // No team owns more than one game a week, so that chain is a simple path and
+  // swapping a for b along the whole of it leaves every other team just as
+  // legal as before — but frees week a at v. It fails only if the chain runs all
+  // the way to u, so try it from both ends and over every pair of open weeks.
+  // With twelve games a team, a pairing met at most twice and fourteen weeks,
+  // Vizing's bound says a valid calendar always exists; this is what finds it.
+  const kempe=g=>{
+    for(const [u,v] of [[g.h.id,g.v.id],[g.v.id,g.h.id]]){
+      for(const a of freeList(u)) for(const b of freeList(v)){
+        if(a===b){ place(g,a); return true; }
+        const chain=[]; let node=v, want=a, guard=0;
+        while(guard++<=WEEKS+1){
+          const e=busy[node].get(want);
+          if(!e) break;
+          chain.push({e, to: want===a?b:a});
+          node = e.h.id===node ? e.v.id : e.h.id;
+          want = want===a ? b : a;
+        }
+        if(node===u) continue;          // chain reaches the other team; try another pair
+        for(const c of chain) lift(c.e);
+        for(const c of chain) place(c.e,c.to);
+        place(g,a); return true;
+      }
+    }
+    return false;
+  };
   // anything still homeless: take a free week, or bump a game that has one
   const stuck=[];
   for(const g of rest){
@@ -232,6 +262,7 @@ function assignWeeks(games, teams){
         place(blocker,w);
       }
     }
+    if(!done && kempe(g)) done=true;
     if(!done) stuck.push(g);
   }
   let over=WEEKS;

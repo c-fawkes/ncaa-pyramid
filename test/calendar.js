@@ -1,0 +1,65 @@
+/* The calendar must always close inside WEEKS. Games are edges and weeks are
+   colours: with 12 games a team, a pairing met at most twice and 14 weeks,
+   Vizing's bound for multigraphs (max degree + multiplicity = 14) says a valid
+   calendar always exists, so an overflow week is a scheduler bug, never bad luck.
+   Seeded so a regression reproduces exactly. Run: node test/calendar.js */
+const { JSDOM } = require('jsdom');
+const fs = require('fs');
+const path = require('path');
+
+const FILE = path.join(__dirname, '..', 'dist', 'college-football-pyramid.html');
+const HTML = fs.readFileSync(FILE, 'utf8');
+// 5, 9, 10, 13, 18 and 19 each overflowed before the chain swap went in; 1 and
+// 2 are controls that always fit. Pass a comma-separated list to try others.
+const SEEDS = process.argv[2] ? process.argv[2].split(',').map(Number)
+                              : [5, 9, 10, 13, 18, 19, 1, 2];
+const STEPS = 40;
+
+function run(seed) {
+  const dom = new JSDOM(HTML, { runScripts: 'dangerously', pretendToBeVisual: true });
+  const w = dom.window, E = s => w.eval(s), $ = s => w.document.querySelector(s);
+  E(`Math.random = (function(a){ return function(){
+       a |= 0; a = a + 0x6D2B79F5 | 0;
+       var t = Math.imul(a ^ a >>> 15, 1 | a);
+       t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+       return ((t ^ t >>> 14) >>> 0) / 4294967296; }; })(${seed});`);
+  // assignWeeks returns the last week it used: WEEKS when everything fit. The
+  // chain swap rewrites weeks under other games, so re-check the whole calendar
+  // it hands back: one game a team a week, and every game actually placed.
+  E(`window.__weeks = []; window.__bad = [];
+     const _aw = assignWeeks;
+     assignWeeks = function(g, t){
+       const r = _aw(g, t);
+       const seen = {};
+       for(const x of g){
+         if(!x.week){ window.__bad.push('unplaced game'); continue; }
+         for(const id of [x.h.id, x.v.id]){
+           const k = id + '@' + x.week;
+           if(seen[k]) window.__bad.push(id + ' booked twice in week ' + x.week);
+           seen[k] = 1;
+         }
+       }
+       window.__weeks.push(r); return r;
+     };`);
+  for (let i = 0; i < STEPS; i++) $('#actBtn').click();
+  const weeks = JSON.parse(E('JSON.stringify(window.__weeks)'));
+  const bad = JSON.parse(E('JSON.stringify(window.__bad)'));
+  const cap = E('WEEKS');
+  dom.window.close();
+  return { runs: weeks.length, over: weeks.filter(x => x > cap), bad, cap };
+}
+
+let failed = 0, totalRuns = 0, totalOver = 0;
+for (const seed of SEEDS) {
+  const r = run(seed);
+  totalRuns += r.runs; totalOver += r.over.length;
+  const ok = r.over.length === 0 && r.bad.length === 0;
+  if (!ok) failed++;
+  console.log((ok ? '  ok   ' : '  FAIL ') + 'seed ' + seed +
+    '  — ' + r.runs + ' calendars, ' + r.over.length + ' past week ' + r.cap +
+    (r.over.length ? ' (weeks used: ' + r.over.join(', ') + ')' : '') +
+    (r.bad.length ? ' [' + r.bad.slice(0, 3).join('; ') + ']' : ''));
+}
+console.log('\n' + totalRuns + ' calendars built, ' + totalOver + ' overflowed');
+console.log(failed ? '\n' + failed + ' failing' : '\nall checks passed');
+process.exit(failed ? 1 : 0);
