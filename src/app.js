@@ -1446,33 +1446,42 @@ function renderPlayoff(){
   if(!po){host.innerHTML='<div class="empty">Not enough divisions to seed a bracket.</div>';return;}
   host.innerHTML='';
   host.appendChild(champBox(sn,tr));
-  const side=(id,cls,score)=>{
+  // In the first round nobody is seeded yet — the games are what decide it — so
+  // those lines lead with the team's ranking and carry the seed it went on to
+  // earn at the end. Later rounds just show the seed, which is by then its name.
+  const side=(id,cls,score,rankFirst)=>{
     const d=T[id].div, c=dcol(d);
-    const sd='<span class="sd">'+(seedOf[id]?seedOf[id]:'#'+R[id])+'</span>';
+    const lead=rankFirst||!seedOf[id] ? '#'+R[id] : seedOf[id];
+    const earned = rankFirst&&seedOf[id]
+      ? '<span class="tag sdtag">seed '+seedOf[id]+'</span>' : '';
     return '<div class="'+cls+'" style="border-left:3px solid '+c+'">'+
-      '<span><span class="cdot" style="background:'+c+'" data-div="'+esc(d)+'"></span>'+sd+
+      '<span><span class="cdot" style="background:'+c+'" data-div="'+esc(d)+'"></span>'+
+      '<span class="sd">'+lead+'</span>'+
       '<span class="tname">'+esc(T[id].name)+'</span>'+
-      '<span class="conftag" title="'+esc(d)+'">- '+esc(divAbbr(d))+'</span></span>'+
+      '<span class="conftag" title="'+esc(d)+'">- '+esc(divAbbr(d))+'</span>'+earned+'</span>'+
       '<span>'+score+'</span></div>';
   };
-  const line=g=>{
+  const line=(g,rankFirst)=>{
     const hw=g.hs>g.vs;
-    return '<div class="mt">'+side(g.h,hw?'w':'l',g.hs)+side(g.v,hw?'l':'w',g.vs)+'</div>';
+    return '<div class="mt">'+side(g.h,hw?'w':'l',g.hs,rankFirst)+
+           side(g.v,hw?'l':'w',g.vs,rankFirst)+'</div>';
   };
   const cap=g=>{
     const n=g.bowl||g.label, c=g.city?'<span class="venue">'+esc(g.city)+'</span>':'';
     return '<div class="bowl">'+esc(n)+c+'</div>';
   };
-  const sec=(title,note,games,bowls)=>{
+  const sec=(title,note,games,bowls,rankFirst)=>{
     const d=el('div','divblock');
-    const body=games.map(g=>(bowls?cap(g):'')+line(g)).join('');
+    const body=games.map(g=>(bowls?cap(g):'')+line(g,rankFirst)).join('');
     d.innerHTML='<div class="divhead" style="--c:var(--line)"><h3>'+title+'</h3><span>'+note+'</span></div>'+
       '<div class="divbody">'+body+'</div>';
     return d;
   };
-  const ccgBox=sec('Conference championships','host campus rotates yearly; winners take seeds 1\u20134',po.ccg,true);
+  const ccgBox=sec('Conference championships',
+    'host campus rotates yearly; winners take seeds 1\u20134, the teams they beat 5\u20138',
+    po.ccg,true,true);
   host.appendChild(ccgBox);
-  host.appendChild(sec('At-large play-in','eight winners take seeds 9\u201316',po.pin,true));
+  host.appendChild(sec('At-large play-in','eight winners take seeds 9\u201316',po.pin,true,true));
   const COLW=216, GAP=46, MH=72, SLOT=92;
   const pos=[];
   po.rounds.forEach((rd,r)=>{
