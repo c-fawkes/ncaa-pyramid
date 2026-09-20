@@ -961,8 +961,10 @@ function renderDeck(){
     o.value=String(i); sel.appendChild(o);
   });
   sel.value=String(S.view);
-  $('#cell-season').classList.toggle('archive',archive);
-  $('#seasonLbl').textContent = archive ? 'Archive \u00b7 now at '+nowAt : 'Viewing';
+  // the label rides beside the season it describes; where the league actually
+  // stands is the Back button's job, so it is not repeated here
+  document.querySelector('.seasonrow').classList.toggle('archive',archive);
+  $('#seasonLbl').textContent = archive ? 'Archive' : 'Viewing';
   // One button walks the league forward: play the season, advance to the next
   // preseason, and when two seasons are in the books, settle the table. Off in
   // the archive there is nothing to walk forward, so it becomes the way back.

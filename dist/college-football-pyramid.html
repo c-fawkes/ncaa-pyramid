@@ -67,9 +67,16 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 .cell span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
 #cell-season select{background:transparent;border:0;color:var(--chalk);font-size:17px;
   font-weight:750;letter-spacing:-.02em;padding:0;width:100%;font-family:inherit}
-#cell-season.archive{background:rgba(249,199,79,.14);box-shadow:inset 3px 0 0 var(--central)}
-#cell-season.archive select{color:var(--central)}
-#cell-season.archive span{color:var(--central)}
+/* Viewing / Archive stands in its own box to the left of the season it labels */
+.seasonlbl{flex:0 0 auto;align-self:stretch;display:inline-flex;align-items:center;
+  border:1px solid var(--line);border-radius:10px;background:var(--field2);
+  padding:0 12px;color:var(--muted);font-size:11px;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase}
+.seasonrow.archive .seasonlbl{background:rgba(249,199,79,.14);
+  border-color:rgba(249,199,79,.5);color:var(--central)}
+.seasonrow.archive #cell-season{background:rgba(249,199,79,.14);
+  box-shadow:inset 3px 0 0 var(--central)}
+.seasonrow.archive #cell-season select{color:var(--central)}
 .titlerow .grow{flex:1 1 auto}
 .iconbtn{background:rgba(255,123,114,.12);color:var(--down);border:1px solid rgba(255,123,114,.45);
   border-radius:999px;width:38px;height:38px;padding:0;cursor:pointer;flex:0 0 auto;
@@ -332,8 +339,8 @@ details p{font-size:13px;color:var(--muted)}
 
 <div class="stickybar">
   <div class="seasonrow">
-    <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select>
-      <span id="seasonLbl">Viewing</span></div>
+    <span class="seasonlbl" id="seasonLbl">Viewing</span>
+    <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select></div>
     <span class="grow"></span>
     <button class="btn" id="actBtn">Play season</button>
   </div>
@@ -1524,8 +1531,10 @@ function renderDeck(){
     o.value=String(i); sel.appendChild(o);
   });
   sel.value=String(S.view);
-  $('#cell-season').classList.toggle('archive',archive);
-  $('#seasonLbl').textContent = archive ? 'Archive \u00b7 now at '+nowAt : 'Viewing';
+  // the label rides beside the season it describes; where the league actually
+  // stands is the Back button's job, so it is not repeated here
+  document.querySelector('.seasonrow').classList.toggle('archive',archive);
+  $('#seasonLbl').textContent = archive ? 'Archive' : 'Viewing';
   // One button walks the league forward: play the season, advance to the next
   // preseason, and when two seasons are in the books, settle the table. Off in
   // the archive there is nothing to walk forward, so it becomes the way back.
