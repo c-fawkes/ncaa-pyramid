@@ -989,6 +989,11 @@ const groupCol = k => mapGroup==='conf' ? CC[k] : dcol(k);
 const periodTeam = (sn,id) => { const p=sn.teams[id]; return p ? Object.assign({},byId()[id],p) : byId()[id]; };
 // Northeast -> NEC, Northeast A -> NECA; the full name stays on hover
 const groupLabel = k => mapGroup==='conf' ? confAbbr(k) : divAbbr(k);
+const showingAll = () => mapFilter.size===groupKeys().length && !mapFocus && !mapZoomed();
+function mapShowAll(){
+  mapFilter=new Set(groupKeys()); mapFocus=null; mapResetZoom();
+  renderChips(); renderMap(); $('#mapPick').innerHTML='';
+}
 function renderChips(){
   const c=$('#mapChips'); c.innerHTML='';
   groupKeys().forEach(k=>{
@@ -999,6 +1004,12 @@ function renderChips(){
     b.onclick=()=>{mapFilter.has(k)?mapFilter.delete(k):mapFilter.add(k);renderChips();renderMap();};
     c.appendChild(b);
   });
+  // nothing to undo when the whole map is already on screen
+  if(showingAll()) return;
+  const r=el('button','chip showall','Show all');
+  r.title='Show every team, unfiltered and unzoomed';
+  r.onclick=mapShowAll;
+  c.appendChild(r);
 }
 function starPoints(cx,cy,R,r){
   const p=[];
@@ -1180,6 +1191,7 @@ function declutter(points,minDist){
   return pts;
 }
 function renderMap(){
+  renderChips();
   const sn=snap();
   $('#mapNote').textContent = sn.kind==='pre' ? sn.season+' preseason.' : sn.season+' results.';
   if(mapFocus && sn.sched[mapFocus]) return renderMapFocus(sn);
@@ -1668,8 +1680,6 @@ function measureSticky(){
 })();
 $('#mapTier').onchange=()=>{mapFocus=null;renderMap();};
 $('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys());mapFocus=null;
-  renderChips();renderMap();$('#mapPick').innerHTML='';};
-$('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;mapResetZoom();
   renderChips();renderMap();$('#mapPick').innerHTML='';};
 $('#zIn').onclick=()=>{mapZoomStep(1.6);mapRelayout();};
 $('#zOut').onclick=()=>{mapZoomStep(1/1.6);mapRelayout();};
