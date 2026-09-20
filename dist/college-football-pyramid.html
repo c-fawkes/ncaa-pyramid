@@ -1159,10 +1159,22 @@ function makePre(){
   for(const tr of ['d1','d2']){
     const games=buildSchedule(tr,yr,S.inCycle%2);
     sn.fixtures[tr]=games;
+    const opp={};
+    for(const t of tierTeams(tr)) opp[t.id]=[];
     for(const g of games){
       push(g.h.id,{o:g.v.id,home:true,t:g.type,wk:g.week});
       push(g.v.id,{o:g.h.id,home:false,t:g.type,wk:g.week});
+      opp[g.h.id].push(g.v.rating); opp[g.v.id].push(g.h.rating);
     }
+    // Strength of schedule before a ball is kicked: nobody has a result to go
+    // on, so it is what it always is — the average rating of the slate.
+    const list=tierTeams(tr);
+    for(const t of list){
+      const o=opp[t.id];
+      sn.teams[t.id].sos = Math.round(o.length ? o.reduce((a,b)=>a+b,0)/o.length : 50);
+    }
+    list.slice().sort((a,b)=>sn.teams[b.id].sos-sn.teams[a.id].sos)
+      .forEach((t,i)=>{ sn.teams[t.id].sosRank=i+1; });
   }
   return sn;
 }
@@ -1449,7 +1461,8 @@ function schedHTML(id){
     ? esc(me.name)+' opens '+sn.season+' in '+tierOf(me)+', ranked #'+R[id]+' by rating. '+
       reg.length+' games across '+(sn.weeks||WEEKS)+' weeks: '+mix.division+' in division, '+
       mix.crossover+' crossover, '+mix['non-conference']+' non-conference. Opponents average '+
-      'rank #'+avgRk+' and rating '+avgRt+'.'+rivalNote
+      'rank #'+avgRk+' and rating '+avgRt+', the '+ord(me.sosRank)+' hardest slate in the tier.'+
+      rivalNote
     : esc(me.name)+' finished '+w+'\u2013'+(reg.length-w)+', ranked #'+R[id]+' in '+
       tierOf(me)+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
       ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+twoYear+rivalNote;
@@ -2052,7 +2065,8 @@ function renderLeague(){
         '</span></div><div class="divbody"></div>';
       const tb=el('table');
       tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="n">Rtg</th>'+
-        (pre?'<th class="hidesm">Home</th>':'<th class="n">Div</th><th class="n">W-L</th><th class="n">SOS</th>')+
+        (pre?'<th class="hidesm">Home</th>':'<th class="n">Div</th><th class="n">W-L</th>')+
+        '<th class="n">SOS</th>'+
         '</tr></thead>';
       const body=el('tbody');
       for(const id of order){
@@ -2073,9 +2087,9 @@ function renderLeague(){
         row.innerHTML='<td class="n" style="color:var(--muted)">'+sn.rank[id]+'</td>'+
           '<td>'+teamCell(esc(t.name),moveTag(id)+crown+tag+sd)+'</td><td class="n">'+t.rating+'</td>'+
           (pre?'<td class="hidesm">'+esc(t.city)+', '+t.st+'</td>'
-             :'<td class="n">'+t.dw+'-'+t.dl+'</td><td class="n">'+t.w+'-'+t.l+'</td>'+
-              '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>');
-        expandable(row,id,pre?4:6);
+             :'<td class="n">'+t.dw+'-'+t.dl+'</td><td class="n">'+t.w+'-'+t.l+'</td>')+
+          '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>';
+        expandable(row,id,pre?5:6);
         body.appendChild(row);
       }
       tb.appendChild(body); box.querySelector('.divbody').appendChild(tb); host.appendChild(box);
@@ -2117,7 +2131,8 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
     }
     const tb=el('table');
     tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="hidesm">Division</th>'+
-      '<th class="n">Rtg</th>'+(pre?'':'<th class="n">W-L</th><th class="n">SOS</th>')+'</tr></thead>';
+      '<th class="n">Rtg</th>'+(pre?'':'<th class="n">W-L</th>')+
+      '<th class="n">SOS</th></tr></thead>';
     const body=el('tbody');
     for(const id of order){
       const t=get(id), row=el('tr');
@@ -2138,9 +2153,9 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
           '"></span>'+esc(t.name), moveTag(id)+crown+tag+sd)+
         '</td><td class="hidesm">'+esc(t.div)+'</td>'+
         '<td class="n">'+t.rating+'</td>'+
-        (pre?'':'<td class="n">'+t.w+'-'+t.l+'</td><td class="n">'+t.sos+
-          '<span class="sosrk">'+t.sosRank+'</span></td>');
-      expandable(row,id,pre?4:6);
+        (pre?'':'<td class="n">'+t.w+'-'+t.l+'</td>')+
+        '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>';
+      expandable(row,id,pre?5:6);
       body.appendChild(row);
     }
     tb.appendChild(body);
