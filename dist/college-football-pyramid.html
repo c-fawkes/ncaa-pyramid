@@ -100,13 +100,13 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 nav{display:flex;align-items:flex-end;overflow-x:auto;margin:0;padding:13px 2px 0;
   scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
-nav button{flex:0 0 auto;position:relative;z-index:1;margin-right:-11px;
+nav button{flex:0 0 auto;position:relative;margin-right:-11px;
   background:var(--field2);border:1px solid var(--line);border-bottom:0;color:var(--muted);
   padding:7px 20px;border-radius:11px 11px 0 0;font:inherit;font-size:13.5px;cursor:pointer}
 nav button:last-child{margin-right:0}
 nav button:hover{color:var(--chalk);background:var(--field3)}
 nav button[aria-selected="true"]{background:var(--chalk);color:#0c2318;font-weight:650;
-  border-color:var(--chalk);z-index:4;padding:9px 21px 8px;
+  border-color:var(--chalk);padding:9px 21px 8px;
   box-shadow:0 -1px 7px rgba(0,0,0,.35)}
 nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:focus-visible{
   outline:2px solid var(--western);outline-offset:2px}
@@ -137,7 +137,8 @@ input[type=search]{width:100%;max-width:340px}
   padding:5px 11px;font-size:12.5px;cursor:pointer}
 .chip[data-on="1"]{color:var(--chalk);border-color:currentColor}
 .chip.showall{color:var(--chalk);border-color:var(--chalk);font-weight:650}
-.chip.showall:hover{background:var(--field3)}
+.chip.showall:hover:not(:disabled){background:var(--field3)}
+.chip.showall:disabled{color:var(--muted);border-color:var(--line);opacity:.55;cursor:not-allowed}
 .chip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;
   background:currentColor;vertical-align:1px}
 
@@ -1357,6 +1358,13 @@ function expandable(row,id,cols){
 
 /* ---------- chrome ---------- */
 const TABS=[['league','League'],['map','Map'],['playoff','Playoff'],['move','Up & down'],['ratings','Ratings']];
+// The selected tab is in front and the rest fall away from it on both sides, so
+// the two ends of the strip are the furthest back whichever tab is open.
+function stackTabs(){
+  const bs=[...$('#tabs').children];
+  const sel=bs.findIndex(b=>b.getAttribute('aria-selected')==='true');
+  bs.forEach((b,i)=>{ b.style.zIndex=String(bs.length-Math.abs(i-sel)); });
+}
 function buildTabs(){
   const n=$('#tabs');
   TABS.forEach(function(pair,i){
@@ -1365,11 +1373,13 @@ function buildTabs(){
     b.onclick=()=>{
       n.querySelectorAll('button').forEach(x=>x.setAttribute('aria-selected','false'));
       b.setAttribute('aria-selected','true');
+      stackTabs();
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
       $('#p-'+pair[0]).classList.add('on');
     };
     n.appendChild(b);
   });
+  stackTabs();
 }
 function renderDeck(){
   $('#s-d1').textContent=sizeOf('d1');
@@ -1559,10 +1569,11 @@ function renderChips(){
     b.onclick=()=>{mapFilter.has(k)?mapFilter.delete(k):mapFilter.add(k);renderChips();renderMap();};
     c.appendChild(b);
   });
-  // nothing to undo when the whole map is already on screen
-  if(showingAll()) return;
+  // always there so the row does not reflow, but greyed out with nothing to undo
   const r=el('button','chip showall','Show all');
-  r.title='Show every team, unfiltered and unzoomed';
+  r.disabled=showingAll();
+  r.title=r.disabled ? 'Everything is already showing'
+                     : 'Show every team, unfiltered and unzoomed';
   r.onclick=mapShowAll;
   c.appendChild(r);
 }

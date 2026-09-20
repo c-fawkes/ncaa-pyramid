@@ -802,6 +802,13 @@ function expandable(row,id,cols){
 
 /* ---------- chrome ---------- */
 const TABS=[['league','League'],['map','Map'],['playoff','Playoff'],['move','Up & down'],['ratings','Ratings']];
+// The selected tab is in front and the rest fall away from it on both sides, so
+// the two ends of the strip are the furthest back whichever tab is open.
+function stackTabs(){
+  const bs=[...$('#tabs').children];
+  const sel=bs.findIndex(b=>b.getAttribute('aria-selected')==='true');
+  bs.forEach((b,i)=>{ b.style.zIndex=String(bs.length-Math.abs(i-sel)); });
+}
 function buildTabs(){
   const n=$('#tabs');
   TABS.forEach(function(pair,i){
@@ -810,11 +817,13 @@ function buildTabs(){
     b.onclick=()=>{
       n.querySelectorAll('button').forEach(x=>x.setAttribute('aria-selected','false'));
       b.setAttribute('aria-selected','true');
+      stackTabs();
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
       $('#p-'+pair[0]).classList.add('on');
     };
     n.appendChild(b);
   });
+  stackTabs();
 }
 function renderDeck(){
   $('#s-d1').textContent=sizeOf('d1');
@@ -1004,10 +1013,11 @@ function renderChips(){
     b.onclick=()=>{mapFilter.has(k)?mapFilter.delete(k):mapFilter.add(k);renderChips();renderMap();};
     c.appendChild(b);
   });
-  // nothing to undo when the whole map is already on screen
-  if(showingAll()) return;
+  // always there so the row does not reflow, but greyed out with nothing to undo
   const r=el('button','chip showall','Show all');
-  r.title='Show every team, unfiltered and unzoomed';
+  r.disabled=showingAll();
+  r.title=r.disabled ? 'Everything is already showing'
+                     : 'Show every team, unfiltered and unzoomed';
   r.onclick=mapShowAll;
   c.appendChild(r);
 }
