@@ -756,16 +756,21 @@ function renderDeck(){
   $('#s-d2').textContent=sizeOf('d2');
   $('#s-cycle').textContent = S.inCycle>=2 ? 'Ready now' : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s');
   const pending = S.phase==='done' && S.inCycle>=2;
-  $('#settleBtn').hidden = !pending;
-  const btn=$('#playBtn');
-  if(S.phase==='pre'){
+  // One button walks the league forward: play the season, advance to the next
+  // preseason, and when two seasons are in the books, settle the table.
+  const btn=$('#actBtn');
+  btn.disabled=false;
+  if(pending){
+    btn.textContent='Send them up and down';
+    btn.className='btn go';
+    btn.onclick=settle;
+  }else if(S.phase==='pre'){
     btn.textContent='Play the '+S.season+' season';
-    btn.disabled=false; btn.className='btn';
+    btn.className='btn';
     btn.onclick=()=>{playSeason();renderAll();};
   }else{
     btn.textContent='Advance to '+(S.season+1)+' preseason';
     btn.className='btn ghost';
-    btn.disabled=pending;
     btn.onclick=()=>{advance();renderAll();};
   }
   $('#deckHint').textContent = pending
@@ -1397,9 +1402,8 @@ $('#play2Btn').onclick=()=>{
   while(guard++<12 && !(S.phase==='done'&&S.inCycle>=2)){
     if(S.phase==='pre') playSeason(); else advance();
   }
-  settle(); $('#tabs').children[3].click();
+  settle();
 };
-$('#settleBtn').onclick=settle;
 $('#backBtn').onclick=()=>{S.view=S.snaps.length-1;renderViews();renderDeck();};
 $('#resetBtn').onclick=()=>{
   if(confirm('Start over from the 2027 preseason? This clears everything you’ve played so far.')) location.reload();

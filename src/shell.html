@@ -57,7 +57,7 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 .sheetbody ul,.sheetbody ol{margin:0 0 9px;padding-left:20px;font-size:13.5px;opacity:.9}
 .sheetbody li{margin-bottom:3px}
 .sheetbody b{opacity:1}
-.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
   border:1px solid var(--line);border-radius:10px 10px 0 0;overflow:hidden}
 .cell{background:var(--field2);padding:9px 10px}
 .cell b{display:block;font-size:19px;font-weight:750;letter-spacing:-.02em}
@@ -70,13 +70,23 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 .deck{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--field3);
   padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .deck .grow{flex:1 1 auto}
+.deck .note{margin:0}
 .deck label{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:5px}
-.deckfoot{flex:1 1 100%;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
-  margin-top:2px;padding-top:9px;border-top:1px solid var(--line)}
-.deckfoot .note{margin:0}
-.deckfoot .grow{flex:1 1 auto}
 
-nav{display:flex;gap:4px;overflow-x:auto;margin:14px 0 16px;padding-bottom:4px;scrollbar-width:none}
+/* The season row and the tabs ride along at the top of the viewport. One sticky
+   wrapper rather than two stacked ones, so the tabs need no magic offset. */
+.stickybar{position:sticky;top:0;z-index:30;background:var(--field);
+  margin:14px -14px 16px;padding:0 14px;border-bottom:1px solid var(--line)}
+.seasonrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0 0}
+.seasonrow #cell-season{border:1px solid var(--line);border-radius:10px;flex:0 1 auto;min-width:168px}
+.seasonrow .grow{flex:1 1 auto}
+@media (max-width:560px){
+  .seasonrow #cell-season{flex:1 1 100%}
+  .seasonrow .grow{display:none}
+  .seasonrow .btn{flex:1 1 auto}
+}
+
+nav{display:flex;gap:4px;overflow-x:auto;margin:0;padding:10px 0;scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
 nav button{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--muted);
   padding:7px 13px;border-radius:999px;font:inherit;font-size:13.5px;cursor:pointer}
@@ -216,6 +226,7 @@ summary{cursor:pointer;font-weight:600}
 details p{font-size:13px;color:var(--muted)}
 @media (max-width:560px){
   .strip{grid-template-columns:repeat(2,1fr)}
+  .strip .cell:last-child{grid-column:1/-1}
   th,td{padding:5px 4px;font-size:12.5px}
   .hidesm{display:none}
   th,td{padding:5px 3px}
@@ -233,26 +244,27 @@ details p{font-size:13px;color:var(--muted)}
       <span aria-hidden="true">i</span> How this works</button>
   </div>
   <div class="strip">
-    <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select>
-      <span id="seasonLbl">Viewing</span></div>
     <div class="cell"><b id="s-d1">—</b><span>Tier I teams</span></div>
     <div class="cell"><b id="s-d2">—</b><span>Tier II teams</span></div>
     <div class="cell"><b id="s-cycle">—</b><span>Next reshuffle</span></div>
   </div>
   <div class="deck">
-    <button class="btn" id="playBtn">Play season</button>
-    <button class="btn ghost" id="play2Btn">Play through the reshuffle</button>
-    <button class="btn go" id="settleBtn" hidden>Send them up and down</button>
-    <button class="btn" id="backBtn" hidden>Back to now</button>
-    <div class="deckfoot">
-      <span class="note" id="deckHint"></span>
-      <span class="grow"></span>
-      <button class="btn danger" id="resetBtn" title="Start over from the 2027 preseason">Reset league</button>
-    </div>
+    <span class="note" id="deckHint"></span>
+    <span class="grow"></span>
+    <button class="btn danger" id="resetBtn" title="Start over from the 2027 preseason">Reset league</button>
   </div>
 </header>
 
-<nav id="tabs" role="tablist"></nav>
+<div class="stickybar">
+  <div class="seasonrow">
+    <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select>
+      <span id="seasonLbl">Viewing</span></div>
+    <span class="grow"></span>
+    <button class="btn ghost" id="backBtn" hidden>Back to now</button>
+    <button class="btn" id="actBtn">Play season</button>
+  </div>
+  <nav id="tabs" role="tablist"></nav>
+</div>
 
 <section class="panel on" id="p-league">
   <div class="row">
@@ -304,7 +316,10 @@ details p{font-size:13px;color:var(--muted)}
   <div id="playoffOut"></div>
 </section>
 
-<section class="panel" id="p-move"><div id="moveOut"></div></section>
+<section class="panel" id="p-move">
+  <div class="row"><button class="btn ghost" id="play2Btn">Play through the reshuffle</button></div>
+  <div id="moveOut"></div>
+</section>
 
 <section class="panel" id="p-ratings">
   <div class="row">

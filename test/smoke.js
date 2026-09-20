@@ -18,9 +18,11 @@ function section(t) { console.log('\n' + t); }
 
 const snap = i => JSON.parse(E(`JSON.stringify(S.snaps[${i}])`));
 const latest = () => E('S.snaps.length-1');
+const pending = () => E("S.phase") === 'done' && E('S.inCycle') >= 2;
+const step = () => $('#actBtn').click();   // play -> advance -> settle, in turn
 function playCycle() {
-  while (!(E("S.phase") === 'done' && E('S.inCycle') >= 2)) $('#playBtn').click();
-  $('#settleBtn').click();
+  while (!pending()) step();
+  step();
 }
 
 section('alignment');
@@ -42,7 +44,7 @@ check('eight divisions', JSON.parse(E('JSON.stringify(DIVS)')).length === 8);
 }
 
 section('season one');
-$('#playBtn').click();
+step();
 {
   const sn = snap(latest());
   const games = id => sn.sched[id].filter(x => !x.ps);
@@ -77,7 +79,7 @@ $('#playBtn').click();
 section('a full cycle');
 {
   const before = snap(latest());
-  $('#playBtn').click(); $('#playBtn').click();
+  step(); step();
   const after = snap(latest());
   const T = after.teams;
   let full = 0, total = 0;
@@ -92,7 +94,7 @@ section('a full cycle');
 }
 
 section('promotion and relegation');
-$('#settleBtn').click();
+playCycle();
 check('Tier I trims to 128', E('S.teams.filter(t=>t.tier==="d1").length') === 128);
 check('Tier II absorbs them', E('S.teams.filter(t=>t.tier==="d2").length') === 138);
 check('every division at 16', JSON.parse(E('JSON.stringify(DIVS)'))
