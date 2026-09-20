@@ -779,6 +779,11 @@ function schedHTML(id){
     (extraB.length?'<tr class="pshead"><td colspan="4">Bowl</td></tr>'+extraB.map(x=>line(x,stage(x))).join(''):'')+
     '</table></div>';
 }
+// Name and badges sit side by side while they fit; when they don't, the badges
+// drop as a block to a second line under the name rather than squeezing the
+// numbers out of the row.
+const teamCell = (name,tags) => '<div class="lgteam"><span class="nm">'+name+'</span>'+
+  (tags ? '<span class="tags">'+tags+'</span>' : '')+'</div>';
 function expandable(row,id,cols){
   row.classList.add('clickrow'); row.tabIndex=0;
   const go=()=>{
@@ -1312,7 +1317,7 @@ function renderLeague(){
                   : (atl.has(id)?'<span class="tag atltag">at-large</span>':'')) : '';
         const sd = seedOf[id]?'<span class="tag sdtag">seed '+seedOf[id]+'</span>':'';
         row.innerHTML='<td class="n" style="color:var(--muted)">'+sn.rank[id]+'</td>'+
-          '<td>'+esc(t.name)+moveTag(id)+crown+tag+sd+'</td><td class="n">'+t.rating+'</td>'+
+          '<td>'+teamCell(esc(t.name),moveTag(id)+crown+tag+sd)+'</td><td class="n">'+t.rating+'</td>'+
           (pre?'<td class="hidesm">'+esc(t.city)+', '+t.st+'</td>'
              :'<td class="n">'+t.dw+'-'+t.dl+'</td><td class="n">'+t.w+'-'+t.l+'</td>'+
               '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>');
@@ -1374,8 +1379,9 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
                 : (!pre&&atl.has(id))?'<span class="tag atltag">at-large</span>':'';
       const sd = seedOf[id]?'<span class="tag sdtag">seed '+seedOf[id]+'</span>':'';
       row.innerHTML='<td class="n" style="color:var(--muted)">'+sn.rank[id]+'</td>'+
-        '<td><span class="tdot" style="background:'+dcol(t.div)+'" title="'+esc(t.div)+'"></span>'+
-        esc(t.name)+moveTag(id)+crown+tag+sd+'</td><td class="hidesm">'+esc(t.div)+'</td>'+
+        '<td>'+teamCell('<span class="tdot" style="background:'+dcol(t.div)+'" title="'+esc(t.div)+
+          '"></span>'+esc(t.name), moveTag(id)+crown+tag+sd)+
+        '</td><td class="hidesm">'+esc(t.div)+'</td>'+
         '<td class="n">'+t.rating+'</td>'+
         (pre?'':'<td class="n">'+t.w+'-'+t.l+'</td><td class="n">'+t.sos+
           '<span class="sosrk">'+t.sosRank+'</span></td>');

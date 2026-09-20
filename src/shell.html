@@ -158,7 +158,13 @@ svg.map line,svg.map .st,svg.map .inset{vector-effect:non-scaling-stroke}
 table{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
 th,td{padding:6px 7px;text-align:left;border-bottom:1px solid rgba(35,84,58,.55)}
 th{color:var(--muted);font-weight:500;font-size:11.5px}
-td.n,th.n{text-align:right}
+td.n,th.n{text-align:right;white-space:nowrap}
+/* The badges are one wrapping block, so they move under the name together
+   instead of trailing off one at a time and stretching the column. */
+.lgteam{display:flex;flex-wrap:wrap;align-items:center;gap:3px 6px;min-width:0}
+.lgteam .nm{min-width:0}
+.lgteam .tags{display:flex;flex-wrap:wrap;align-items:center;gap:3px 5px;min-width:0}
+.lgteam .tags .tag{margin-left:0}
 tr.dw td{background:rgba(126,231,135,.07)}
 tr.atl td{background:rgba(76,201,240,.07)}
 tr.ch td{background:rgba(249,199,79,.14)}
