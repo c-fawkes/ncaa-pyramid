@@ -144,7 +144,10 @@ svg.map line,svg.map .st,svg.map .inset{vector-effect:non-scaling-stroke}
 .zoomctl button:disabled{opacity:.35;cursor:not-allowed}
 .st{fill:#0f2b1d;stroke:#1d4631;stroke-width:.8}
 .dot{cursor:pointer}
-.dot:hover circle{stroke:var(--chalk);stroke-width:1.6}
+/* transparent, not fill:none, so it still takes the hit; excluded from the
+   hover ring below or it would light up as a big circle */
+.dot .hit{fill:transparent;pointer-events:all}
+.dot:hover circle:not(.hit){stroke:var(--chalk);stroke-width:1.6}
 .inset{fill:none;stroke:#1d4631;stroke-width:.8}
 .insetlbl{fill:var(--muted);font-size:10px}
 .tip{position:fixed;pointer-events:none;z-index:50;background:#061309;border:1px solid var(--line);
@@ -534,6 +537,25 @@ const M = DATA.map.meta;
 const $ = s => document.querySelector(s);
 const el = (t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// Put the tooltip beside the thing it describes, never on top of it. Near the
+// right edge it flips to the left of the marker rather than being pushed back
+// over it; only when neither side fits does it go above or below instead.
+function placeTip(tip,x,y){
+  const pad=10, gap=14;
+  const w=tip.offsetWidth||230, h=tip.offsetHeight||60;
+  let left=null, top;
+  if(x+gap+w <= innerWidth-pad) left=x+gap;
+  else if(x-gap-w >= pad) left=x-gap-w;
+  if(left===null){                       // too narrow for either side
+    left=Math.max(pad, Math.min(innerWidth-pad-w, x-w/2));
+    top = (y-gap-h >= pad) ? y-gap-h : y+gap;
+  }else{
+    top = y-56;
+  }
+  tip.style.left=left+'px';
+  tip.style.top=Math.max(pad, Math.min(innerHeight-pad-h, top))+'px';
+  tip.style.opacity=1;
+}
 function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();
   return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
 function group(arr,k){const o={};for(const x of arr){(o[x[k]]=o[x[k]]||[]).push(x)}return o;}
@@ -1506,6 +1528,11 @@ function starPoints(cx,cy,R,r){
   }
   return p.join(' ');
 }
+// An invisible disc under every marker: the dots are small, so what you tap is
+// wider than what you see. It sits inside the marker's group, so it scales with
+// the marker and moves with it when a crowded clump fans out.
+const HITR=10;
+const hit=(x,y)=>'<circle class="hit" cx="'+x+'" cy="'+y+'" r="'+HITR+'"/>';
 function markerSVG(x,y,shape,fill,ring){
   if(shape==='square') return '<rect x="'+(x-5)+'" y="'+(y-5)+'" width="10" height="10" rx="1.5" fill="'+fill+'" stroke="'+ring+'" stroke-width="2"/>';
   if(shape==='diamond') return '<polygon points="'+x+','+(y-6.6)+' '+(x+6.6)+','+y+' '+x+','+(y+6.6)+' '+(x-6.6)+','+y+'" fill="'+fill+'" stroke="'+ring+'" stroke-width="2"/>';
@@ -1536,9 +1563,11 @@ function renderMapFocus(sn){
     const win=g.f>g.a;
     const shape = g.ps?'diamond':(g.home?'circle':'square');
     s+=stem(p)+'<g class="dot" data-id="'+o.id+'" data-g="'+i+'">'+
+       hit(+p.x.toFixed(1),+p.y.toFixed(1))+
        markerSVG(+p.x.toFixed(1),+p.y.toFixed(1),shape,dcol(o.div),win?WIN:LOSS)+'</g>';
   });
-  s+='<g class="dot" data-id="'+me.id+'" data-g="-1"><circle cx="'+mx+'" cy="'+my+'" r="9.5" fill="none" stroke="#eef4ec" stroke-width="1.6" stroke-opacity=".8"/>'+
+  s+='<g class="dot" data-id="'+me.id+'" data-g="-1">'+hit(mx,my)+
+     '<circle cx="'+mx+'" cy="'+my+'" r="9.5" fill="none" stroke="#eef4ec" stroke-width="1.6" stroke-opacity=".8"/>'+
      '<circle cx="'+mx+'" cy="'+my+'" r="5.5" fill="'+dcol(me.div)+'" stroke="#eef4ec" stroke-width="1.8"/></g>';
   $('#mapHost').innerHTML=s+'</svg>';
   attachMapZoom();
@@ -1557,9 +1586,7 @@ function renderMapFocus(sn){
              '<br><b style="color:'+(win?WIN:LOSS)+'">'+(win?'W':'L')+' '+g.f+'\u2013'+g.a+'</b></small>';
       }
       tip.innerHTML='<b>'+esc(t.name)+'</b>'+body;
-      tip.style.opacity=1;
-      tip.style.left=Math.min(innerWidth-232,p.clientX+12)+'px';
-      tip.style.top=Math.max(8,p.clientY-64)+'px';
+      placeTip(tip,p.clientX,p.clientY);
     };
     el2.addEventListener('mousemove',showTip);
     el2.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
@@ -1696,7 +1723,7 @@ function renderMap(){
     const fill = t.tier==='d1' ? c : '#0c2318';
     if(pt.x!==pt.ox||pt.y!==pt.oy) s+='<line x1="'+pt.ox.toFixed(1)+'" y1="'+pt.oy.toFixed(1)+'" x2="'+X+'" y2="'+Y+
       '" stroke="var(--muted)" stroke-width="1" stroke-opacity=".6"/>';
-    s+='<g class="dot" data-id="'+t.id+'">';
+    s+='<g class="dot" data-id="'+t.id+'">'+hit(X,Y);
     if(champs.has(t.id)){
       s+='<circle cx="'+X+'" cy="'+Y+'" r="10.5" fill="none" stroke="'+c+'" stroke-width="1.5" stroke-opacity=".85"/>'+
          '<polygon points="'+starPoints(X,Y,8,3.5)+'" fill="'+fill+'" stroke="'+c+'" stroke-width="1.6" stroke-linejoin="round"/>';
@@ -1721,9 +1748,7 @@ function renderMap(){
                   : winners.has(t.id)?'<br><b style="color:var(--central)">\u2605 division winner</b>':'';
       tip.innerHTML='<b>'+esc(t.name)+'</b><small>'+esc(t.city)+', '+t.st+' \u00b7 '+esc(t.div)+
         '<br>'+(t.tier==='d1'?'Tier I':'Tier II')+' \u00b7 rating '+Math.round(t.rating)+rk+crown+'</small>';
-      tip.style.opacity=1;
-      tip.style.left=Math.min(innerWidth-232,p.clientX+12)+'px';
-      tip.style.top=Math.max(8,p.clientY-56)+'px';
+      placeTip(tip,p.clientX,p.clientY);
     };
     g.addEventListener('mousemove',showTip);
     g.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
@@ -2150,9 +2175,7 @@ function measureSticky(){
     if(!dot){ tip.style.opacity=0; return; }
     const p=e.touches?e.touches[0]:e;
     tip.innerHTML='<b>'+esc(dot.dataset.div)+'</b>';
-    tip.style.opacity=1;
-    tip.style.left=Math.min(innerWidth-232,p.clientX+12)+'px';
-    tip.style.top=Math.max(8,p.clientY-56)+'px';
+    placeTip(tip,p.clientX,p.clientY);
   };
   host.addEventListener('mousemove',showDotTip);
   host.addEventListener('mouseleave',()=>{tip.style.opacity=0;});

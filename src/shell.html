@@ -144,7 +144,10 @@ svg.map line,svg.map .st,svg.map .inset{vector-effect:non-scaling-stroke}
 .zoomctl button:disabled{opacity:.35;cursor:not-allowed}
 .st{fill:#0f2b1d;stroke:#1d4631;stroke-width:.8}
 .dot{cursor:pointer}
-.dot:hover circle{stroke:var(--chalk);stroke-width:1.6}
+/* transparent, not fill:none, so it still takes the hit; excluded from the
+   hover ring below or it would light up as a big circle */
+.dot .hit{fill:transparent;pointer-events:all}
+.dot:hover circle:not(.hit){stroke:var(--chalk);stroke-width:1.6}
 .inset{fill:none;stroke:#1d4631;stroke-width:.8}
 .insetlbl{fill:var(--muted);font-size:10px}
 .tip{position:fixed;pointer-events:none;z-index:50;background:#061309;border:1px solid var(--line);
