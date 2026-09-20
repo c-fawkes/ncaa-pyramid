@@ -956,15 +956,17 @@ function renderDeck(){
   const nowAt = pending ? 'the '+S.season+' reshuffle'
               : S.season+(S.phase==='pre' ? ' preseason' : ' postseason');
   const sel=$('#yearSel'); sel.innerHTML='';
+  const live=S.snaps.length-1;
   S.snaps.forEach((sn,i)=>{
-    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason'));
+    // every season but the current one is an archive, and says so where it is read
+    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason')+
+      (i===live?'':' \u2014 archive'));
     o.value=String(i); sel.appendChild(o);
   });
   sel.value=String(S.view);
-  // the label rides beside the season it describes; where the league actually
-  // stands is the Back button's job, so it is not repeated here
+  // the label just says what the box is; whether it is an archive is written on
+  // the season itself, and where the league stands is the Back button's job
   document.querySelector('.seasonrow').classList.toggle('archive',archive);
-  $('#seasonLbl').textContent = archive ? 'Archive' : 'Viewing';
   // One button walks the league forward: play the season, advance to the next
   // preseason, and when two seasons are in the books, settle the table. Off in
   // the archive there is nothing to walk forward, so it becomes the way back.

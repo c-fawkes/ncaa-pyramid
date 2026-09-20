@@ -66,14 +66,13 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 .cell b{display:block;font-size:19px;font-weight:750;letter-spacing:-.02em}
 .cell span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
 #cell-season select{background:transparent;border:0;color:var(--chalk);font-size:17px;
-  font-weight:750;letter-spacing:-.02em;padding:0;width:100%;font-family:inherit}
-/* Viewing / Archive stands in its own box to the left of the season it labels */
+  font-weight:750;letter-spacing:-.02em;padding:0;width:100%;font-family:inherit;
+  text-align:center;text-align-last:center}
+/* Viewing stands in its own box, matching the height of the season beside it */
 .seasonlbl{flex:0 0 auto;align-self:stretch;display:inline-flex;align-items:center;
   border:1px solid var(--line);border-radius:10px;background:var(--field2);
-  padding:0 12px;color:var(--muted);font-size:11px;font-weight:700;
+  padding:0 14px;color:var(--muted);font-size:11px;font-weight:700;
   letter-spacing:.09em;text-transform:uppercase}
-.seasonrow.archive .seasonlbl{background:rgba(249,199,79,.14);
-  border-color:rgba(249,199,79,.5);color:var(--central)}
 .seasonrow.archive #cell-season{background:rgba(249,199,79,.14);
   box-shadow:inset 3px 0 0 var(--central)}
 .seasonrow.archive #cell-season select{color:var(--central)}
@@ -1526,15 +1525,17 @@ function renderDeck(){
   const nowAt = pending ? 'the '+S.season+' reshuffle'
               : S.season+(S.phase==='pre' ? ' preseason' : ' postseason');
   const sel=$('#yearSel'); sel.innerHTML='';
+  const live=S.snaps.length-1;
   S.snaps.forEach((sn,i)=>{
-    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason'));
+    // every season but the current one is an archive, and says so where it is read
+    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason')+
+      (i===live?'':' \u2014 archive'));
     o.value=String(i); sel.appendChild(o);
   });
   sel.value=String(S.view);
-  // the label rides beside the season it describes; where the league actually
-  // stands is the Back button's job, so it is not repeated here
+  // the label just says what the box is; whether it is an archive is written on
+  // the season itself, and where the league stands is the Back button's job
   document.querySelector('.seasonrow').classList.toggle('archive',archive);
-  $('#seasonLbl').textContent = archive ? 'Archive' : 'Viewing';
   // One button walks the league forward: play the season, advance to the next
   // preseason, and when two seasons are in the books, settle the table. Off in
   // the archive there is nothing to walk forward, so it becomes the way back.
