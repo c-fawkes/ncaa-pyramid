@@ -34,7 +34,7 @@ Five tabs:
 | **League** | Standings by division or as one list, either tier or both, ordered by standing, rating or name |
 | **Map** | Every campus on a projected US map — filled markers Tier I, hollow Tier II, two shades per conference for its A and B halves. Tap a marker for a team and its schedule; stars mark division winners, the circled star the national champion |
 | **Playoff** | The twenty-four-team bracket for either tier, with the bowl hosting each round |
-| **Up & down** | Who is relegated, who is promoted, and the numbers behind each call |
+| **Up & down** | Who is relegated, who is promoted, and the numbers behind each call, grouped by cycle or by conference |
 | **Ratings** | Search and hand-edit any team's rating; turn season-to-season drift off |
 
 `Reset league` puts you back at the 2027 preseason.

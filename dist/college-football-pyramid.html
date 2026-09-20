@@ -104,6 +104,7 @@ nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:foc
 .btn.danger:hover{background:rgba(255,123,114,.22);border-color:var(--down)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.row .grow{flex:1 1 auto}
 select,input[type=search]{background:var(--field2);color:var(--chalk);border:1px solid var(--line);
   border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px}
 input[type=search]{width:100%;max-width:340px}
@@ -167,9 +168,12 @@ tr.schedrow td{padding:4px 8px 10px;background:rgba(0,0,0,.22)}
 .reltag{color:var(--down);font-weight:650}
 .protag{color:var(--up);font-weight:650}
 .neartag{color:var(--central)}
-.divblock{border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden;background:var(--field2)}
+.divblock{border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:clip;background:var(--field2)}
+/* Section headers ride under the season bar until their own block scrolls away:
+   sticky is boxed by its containing block, so one header hands over to the next. */
 .divhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-  padding:10px 12px;border-left:4px solid var(--c)}
+  padding:10px 12px;border-left:4px solid var(--c);
+  position:sticky;top:var(--barh,0px);z-index:8;background:var(--field2)}
 .divhead h3{margin:0;font-size:16px;font-weight:700;letter-spacing:-.015em}
 .divhead span{color:var(--muted);font-size:12px}
 .divbody{padding:0 8px 6px}
@@ -317,7 +321,14 @@ details p{font-size:13px;color:var(--muted)}
 </section>
 
 <section class="panel" id="p-move">
-  <div class="row"><button class="btn ghost" id="play2Btn">Play through the reshuffle</button></div>
+  <div class="row">
+    <select id="moveSort">
+      <option value="cycle">Group by cycle</option>
+      <option value="conf">Group by conference</option>
+    </select>
+    <span class="grow"></span>
+    <button class="btn ghost" id="play2Btn">Play through the reshuffle</button>
+  </div>
   <div id="moveOut"></div>
 </section>
 
@@ -1133,6 +1144,12 @@ function rebalance(moves){
 }
 
 /* ---------- schedule detail ---------- */
+// Southeast A -> SECA: the conference initials, C for conference, then the division half.
+const CONFAB = {Northeast:'NEC', Southeast:'SEC', Central:'CC', Western:'WC'};
+const confAbbr = c => CONFAB[c] || c.slice(0,1).toUpperCase()+'C';
+const divAbbr = d => { const i=d.lastIndexOf(' ');
+  return confAbbr(d.slice(0,i))+d.slice(i+1); };
+
 function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
 function schedHTML(id){
   const sn=snap();
@@ -1153,14 +1170,16 @@ function schedHTML(id){
   const line=(x,lab)=>{
     const win=x.f>x.a, o=T[x.o];
     const rv = x.t==='rivalry' ? '<span class="rivtag">rivalry</span>' : '';
-    const me2=T[id];
+    const me2=T[id], outside = o.conf!==me2.conf || o.div!==me2.div;
     const out = o.conf!==me2.conf
       ? '<span class="cdot" style="background:'+CC[o.conf]+'" title="'+esc(o.conf)+'"></span>'
-      : (o.div!==me2.div
+      : (outside
         ? '<span class="cdot" style="background:'+dcol(o.div)+'" title="'+esc(o.div)+' \u00b7 crossover"></span>' : '');
+    const tag = outside ? '<span class="conftag" title="'+esc(o.div)+'">- '+esc(divAbbr(o.div))+'</span>' : '';
     return '<tr'+(x.ps?' class="ps"':'')+'><td class="n" style="color:var(--muted)">'+
       (x.ps?'<span class="stage">'+lab+'</span>':lab)+'</td>'+
-      '<td>'+out+'<span class="rk">#'+R[x.o]+'</span>'+(x.home===false?'at ':(x.ps?'vs ':''))+esc(o.name)+rv+'</td>'+
+      '<td>'+out+'<span class="rk">#'+R[x.o]+'</span>'+(x.home===false?'at ':(x.ps?'vs ':''))+
+        esc(o.name)+tag+rv+'</td>'+
       '<td class="hidesm" style="color:var(--muted)">'+
         esc(x.ps?((x.b||x.t)+(x.c?' \u00b7 '+x.c:'')):kind(x))+'</td>'+
       '<td class="n" style="color:'+(win?'var(--up)':'var(--down)')+'">'+(win?'W':'L')+' '+x.f+'\u2013'+x.a+'</td></tr>';
@@ -1641,12 +1660,6 @@ function renderDivLegend(){
   $('#divLegend').innerHTML = DIVS.map(d=>
     '<span><i style="background:'+dcol(d)+'"></i>'+esc(d)+'</span>').join('');
 }
-// Southeast A -> SECA: the conference initials, C for conference, then the division half.
-const CONFAB = {Northeast:'NEC', Southeast:'SEC', Central:'CC', Western:'WC'};
-const confAbbr = c => CONFAB[c] || c.slice(0,1).toUpperCase()+'C';
-const divAbbr = d => { const i=d.lastIndexOf(' ');
-  return confAbbr(d.slice(0,i))+d.slice(i+1); };
-
 function renderPlayoff(){
   const host=$('#playoffOut'), tr=$('#poTier').value, sn=snap();
   if(sn.kind==='pre'){host.innerHTML='<div class="empty">No bracket for the '+sn.season+
@@ -1666,7 +1679,7 @@ function renderPlayoff(){
     return '<div class="'+cls+'" style="border-left:3px solid '+c+'">'+
       '<span><span class="cdot" style="background:'+c+'" data-div="'+esc(d)+'"></span>'+sd+
       '<span class="tname">'+esc(T[id].name)+'</span>'+
-      '<span class="conftag" title="'+esc(d)+'">'+esc(divAbbr(d))+'</span></span>'+
+      '<span class="conftag" title="'+esc(d)+'">- '+esc(divAbbr(d))+'</span></span>'+
       '<span>'+score+'</span></div>';
   };
   const line=g=>{
@@ -1762,21 +1775,23 @@ function renderMove(){
     nearUp:  ['just missed','var(--central)','near'],
     swap: ['rebalanced','var(--muted)','']
   };
-  const table=(rows,cols)=>{
+  const table=(rows,cols,withCycle)=>{
     const tb=el('table');
-    tb.innerHTML='<thead><tr><th>Team</th><th>'+cols+'</th><th class="n">Two-year</th>'+
+    tb.innerHTML='<thead><tr><th>Team</th><th>'+cols+'</th>'+
+      (withCycle?'<th class="n">Cycle</th>':'')+'<th class="n">Two-year</th>'+
       '<th class="n">Outcome</th></tr></thead>';
     const body=el('tbody');
     rows.forEach(mv=>{
       const L=LABEL[mv.dir];
       const row=el('tr',L[2]);
       row.innerHTML='<td>'+esc(mv.name)+'</td><td>'+esc(mv.div)+'</td>'+
+        (withCycle?'<td class="n">'+mv.cycle+'</td>':'')+
         '<td class="n">'+esc(mv.rec)+'</td>'+
         '<td class="n" style="color:'+L[1]+'">'+L[0]+'</td>';
       body.appendChild(row);
       if(mv.why){
         const wr=el('tr','whyrow');
-        wr.innerHTML='<td colspan="4">'+esc(mv.why)+'</td>';
+        wr.innerHTML='<td colspan="'+(withCycle?5:4)+'">'+esc(mv.why)+'</td>';
         body.appendChild(wr);
       }
     });
@@ -1784,33 +1799,55 @@ function renderMove(){
     return tb;
   };
   const bySort=(x,y)=>x.div.localeCompare(y.div)||x.dir.localeCompare(y.dir);
-
-  S.moves.forEach((m,idx)=>{
-    const pick=k=>m.moves.filter(x=>k.indexOf(x.dir)>=0).sort(bySort);
-    const nMoved=pick(['down','up']).length, nNear=pick(['nearDown','nearUp']).length;
+  // one collapsible block, whichever way the moves are grouped
+  const block=(title,note,open,fill)=>{
     const box=el('details','divblock cyc');
-    box.open = idx===0;                       // newest cycle open, the rest folded
-    box.innerHTML='<summary class="divhead" style="--c:var(--chalk)"><h3>Cycle '+m.cycle+'</h3>'+
-      '<span>after '+m.season+' \u00b7 '+nMoved+' moved, '+nNear+' near misses</span></summary>'+
-      '<div class="divbody"></div>';
-    const bd=box.querySelector('.divbody');
-
+    box.open=open;
+    box.innerHTML='<summary class="divhead" style="--c:var(--chalk)"><h3>'+esc(title)+'</h3>'+
+      '<span>'+esc(note)+'</span></summary><div class="divbody"></div>';
+    fill(box.querySelector('.divbody'));
+    host.appendChild(box);
+  };
+  const groups=(bd,rows,withCycle)=>{
+    const pick=k=>rows.filter(x=>k.indexOf(x.dir)>=0).sort(bySort);
     const moved=pick(['down','up']);
     if(moved.length){
       bd.appendChild(el('h4','movehead','Changed tier'));
-      bd.appendChild(table(moved,'Division'));
+      bd.appendChild(table(moved,'Division',withCycle));
     }
     const near=pick(['nearDown','nearUp']);
     if(near.length){
       bd.appendChild(el('h4','movehead','Closest calls \u2014 nobody moved'));
-      bd.appendChild(table(near,'Division'));
+      bd.appendChild(table(near,'Division',withCycle));
     }
     const swaps=pick(['swap']);
     if(swaps.length){
       bd.appendChild(el('h4','movehead','Division rebalancing \u2014 same tier'));
-      bd.appendChild(table(swaps,'Moved between'));
+      bd.appendChild(table(swaps,'Moved between',withCycle));
     }
-    host.appendChild(box);
+  };
+
+  if($('#moveSort').value==='conf'){
+    // every cycle's moves pooled, then split by footprint
+    const all=[];
+    S.moves.forEach(m=>m.moves.forEach(x=>all.push(Object.assign({cycle:m.cycle,season:m.season},x))));
+    const span=S.moves.length===1 ? 'cycle '+S.moves[0].cycle
+      : 'cycles '+S.moves[S.moves.length-1].cycle+'\u2013'+S.moves[0].cycle;
+    CONFS.forEach((c,i)=>{
+      const rows=all.filter(x=>x.div.indexOf(c+' ')===0);
+      if(!rows.length) return;
+      const nMoved=rows.filter(x=>x.dir==='down'||x.dir==='up').length;
+      block(c, span+' \u00b7 '+nMoved+' moved, '+(rows.length-nMoved)+' other', i===0,
+        bd=>groups(bd,rows,true));
+    });
+    return;
+  }
+
+  S.moves.forEach((m,idx)=>{
+    const nMoved=m.moves.filter(x=>x.dir==='down'||x.dir==='up').length;
+    const nNear=m.moves.filter(x=>x.dir==='nearDown'||x.dir==='nearUp').length;
+    block('Cycle '+m.cycle, 'after '+m.season+' \u00b7 '+nMoved+' moved, '+nNear+' near misses',
+      idx===0, bd=>groups(bd,m.moves,false));   // newest cycle open, the rest folded
   });
 }
 
@@ -1854,6 +1891,14 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#infoWrap').hi
 
 /* ---------- wiring ---------- */
 buildTabs(); renderChips(); renderDivLegend();
+// Section headers stick below the season bar, whose height moves with wrapping.
+(()=>{
+  const bar=document.querySelector('.stickybar');
+  const set=()=>document.documentElement.style.setProperty('--barh',(bar.offsetHeight||0)+'px');
+  set();
+  if(window.ResizeObserver) new ResizeObserver(set).observe(bar);
+  else window.addEventListener('resize',set);
+})();
 (()=>{
   const host=$('#playoffOut'), tip=$('#tip');
   const showDotTip=e=>{
@@ -1881,6 +1926,7 @@ $('#lgTier').onchange=renderLeague;
 $('#lgView').onchange=renderLeague;
 $('#lgSort').onchange=renderLeague;
 $('#poTier').onchange=renderPlayoff;
+$('#moveSort').onchange=renderMove;
 $('#yearSel').onchange=e=>{S.view=+e.target.value;renderViews();renderDeck();};
 $('#rateSearch').oninput=renderRatings;
 $('#rateReset').onclick=()=>{

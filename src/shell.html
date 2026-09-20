@@ -104,6 +104,7 @@ nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:foc
 .btn.danger:hover{background:rgba(255,123,114,.22);border-color:var(--down)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.row .grow{flex:1 1 auto}
 select,input[type=search]{background:var(--field2);color:var(--chalk);border:1px solid var(--line);
   border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px}
 input[type=search]{width:100%;max-width:340px}
@@ -167,9 +168,12 @@ tr.schedrow td{padding:4px 8px 10px;background:rgba(0,0,0,.22)}
 .reltag{color:var(--down);font-weight:650}
 .protag{color:var(--up);font-weight:650}
 .neartag{color:var(--central)}
-.divblock{border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden;background:var(--field2)}
+.divblock{border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:clip;background:var(--field2)}
+/* Section headers ride under the season bar until their own block scrolls away:
+   sticky is boxed by its containing block, so one header hands over to the next. */
 .divhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
-  padding:10px 12px;border-left:4px solid var(--c)}
+  padding:10px 12px;border-left:4px solid var(--c);
+  position:sticky;top:var(--barh,0px);z-index:8;background:var(--field2)}
 .divhead h3{margin:0;font-size:16px;font-weight:700;letter-spacing:-.015em}
 .divhead span{color:var(--muted);font-size:12px}
 .divbody{padding:0 8px 6px}
@@ -317,7 +321,14 @@ details p{font-size:13px;color:var(--muted)}
 </section>
 
 <section class="panel" id="p-move">
-  <div class="row"><button class="btn ghost" id="play2Btn">Play through the reshuffle</button></div>
+  <div class="row">
+    <select id="moveSort">
+      <option value="cycle">Group by cycle</option>
+      <option value="conf">Group by conference</option>
+    </select>
+    <span class="grow"></span>
+    <button class="btn ghost" id="play2Btn">Play through the reshuffle</button>
+  </div>
   <div id="moveOut"></div>
 </section>
 
