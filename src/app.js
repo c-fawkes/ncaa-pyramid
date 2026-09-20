@@ -752,20 +752,20 @@ function schedHTML(id){
     rows.push(byWk[wk] ? line(byWk[wk],wk)
       : '<tr class="bye"><td class="n">'+wk+'</td><td colspan="3">bye</td></tr>');
   }
-  return '<div class="sched">'+verdict+'<p class="note" style="margin:2px 2px 6px">'+head+'</p><table>'+
+  const bar='<div class="schedhead"><b>'+esc(me.name)+'</b><span>'+w+'\u2013'+(reg.length-w)+
+    ' \u00b7 #'+R[id]+' \u00b7 '+esc(me.div)+'</span></div>';
+  return '<div class="sched">'+bar+verdict+'<p class="note" style="margin:2px 2px 6px">'+head+'</p><table>'+
     rows.join('')+
     (post.length?'<tr class="pshead"><td colspan="4">Playoff</td></tr>'+post.map(x=>line(x,stage(x))).join(''):'')+
     (extraB.length?'<tr class="pshead"><td colspan="4">Bowl</td></tr>'+extraB.map(x=>line(x,stage(x))).join(''):'')+
     '</table></div>';
 }
-const rowGroup=row=>{ const g=el('tbody'); g.appendChild(row); return g; };
 function expandable(row,id,cols){
   row.classList.add('clickrow'); row.tabIndex=0;
   const go=()=>{
     const nx=row.nextElementSibling;
     if(nx&&nx.dataset.sched===id){nx.remove();row.classList.remove('open');return;}
-    // every team is its own row group now, so close across the whole table
-    (row.closest('table')||row.parentNode).querySelectorAll('tr[data-sched]').forEach(r=>{
+    row.parentNode.querySelectorAll('tr[data-sched]').forEach(r=>{
       if(r.previousElementSibling) r.previousElementSibling.classList.remove('open');
       r.remove();});
     const r=el('tr','schedrow'); r.dataset.sched=id;
@@ -795,8 +795,9 @@ function buildTabs(){
 function renderDeck(){
   $('#s-d1').textContent=sizeOf('d1');
   $('#s-d2').textContent=sizeOf('d2');
-  $('#s-cycle').textContent = S.inCycle>=2 ? 'Reshuffle ready'
-    : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s')+' to reshuffle';
+  const togo = 2-S.inCycle;   // the count reads white, like the tier counts
+  $('#s-cycle').innerHTML = S.inCycle>=2 ? 'Reshuffle ready'
+    : '<b>'+togo+'</b>season'+(togo===1?'':'s')+' to reshuffle';
   const pending = S.phase==='done' && S.inCycle>=2;
   const archive = S.view !== S.snaps.length-1;
   // where the league actually stands, which is what leaving the archive returns to
@@ -1099,6 +1100,7 @@ function renderLeague(){
       tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="n">Rtg</th>'+
         (pre?'<th class="hidesm">Home</th>':'<th class="n">Div</th><th class="n">W-L</th><th class="n">SOS</th>')+
         '</tr></thead>';
+      const body=el('tbody');
       for(const id of order){
         const t=get(id), row=el('tr');
         if(!pre){
@@ -1120,9 +1122,9 @@ function renderLeague(){
              :'<td class="n">'+t.dw+'-'+t.dl+'</td><td class="n">'+t.w+'-'+t.l+'</td>'+
               '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>');
         expandable(row,id,pre?4:6);
-        tb.appendChild(rowGroup(row));
+        body.appendChild(row);
       }
-      box.querySelector('.divbody').appendChild(tb); host.appendChild(box);
+      tb.appendChild(body); box.querySelector('.divbody').appendChild(tb); host.appendChild(box);
     }
   }
 }
@@ -1161,6 +1163,7 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
     const tb=el('table');
     tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="hidesm">Division</th>'+
       '<th class="n">Rtg</th>'+(pre?'':'<th class="n">W-L</th><th class="n">SOS</th>')+'</tr></thead>';
+    const body=el('tbody');
     for(const id of order){
       const t=get(id), row=el('tr');
       if(!pre){
@@ -1182,8 +1185,9 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
         (pre?'':'<td class="n">'+t.w+'-'+t.l+'</td><td class="n">'+t.sos+
           '<span class="sosrk">'+t.sosRank+'</span></td>');
       expandable(row,id,pre?4:6);
-      tb.appendChild(rowGroup(row));
+      body.appendChild(row);
     }
+    tb.appendChild(body);
     const bd=box.querySelector('.divbody');
     bd.appendChild(idx); bd.appendChild(tb);
     host.appendChild(box);

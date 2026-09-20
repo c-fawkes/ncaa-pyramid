@@ -28,9 +28,9 @@ body{
   font-variant-numeric:tabular-nums;
 }
 .wrap{max-width:1120px;margin:0 auto;padding:0 14px 72px}
-header{padding:18px 0 10px}
+header{padding:18px 0 0}
 h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800;letter-spacing:-.035em}
-.titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.titlerow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:0}
 .infobtn{background:transparent;border:1px solid var(--line);color:var(--muted);
   border-radius:999px;padding:6px 13px 6px 8px;font:inherit;font-size:12.5px;cursor:pointer;
   display:inline-flex;align-items:center;gap:7px}
@@ -67,21 +67,21 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 #cell-season.archive span{color:var(--central)}
 .titlerow .grow{flex:1 1 auto}
 .iconbtn{background:rgba(255,123,114,.12);color:var(--down);border:1px solid rgba(255,123,114,.45);
-  border-radius:999px;width:34px;height:34px;padding:0;cursor:pointer;flex:0 0 auto;
+  border-radius:999px;width:38px;height:38px;padding:0;cursor:pointer;flex:0 0 auto;
   display:inline-flex;align-items:center;justify-content:center}
 .iconbtn:hover{background:rgba(255,123,114,.22);border-color:var(--down)}
 /* the counts ride under the season selector, so they pin with it */
-.statline{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:baseline;
-  padding:7px 0 0;color:var(--muted);font-size:12px}
+.statline{display:flex;gap:6px 12px;flex-wrap:wrap;align-items:baseline;justify-content:center;
+  padding:7px 0 0;color:var(--muted);font-size:12px;text-align:center}
 .statline b{color:var(--chalk);font-weight:700;font-size:12.5px;margin-right:4px}
-.statline .grow{flex:1 1 auto}
-.statline .note{margin:0;font-size:12px}
+.statline .sep{color:var(--line);font-style:normal}
+.statline .note{flex:1 1 100%;margin:0;font-size:12px}
 
 /* The season row and the tabs ride along at the top of the viewport. One sticky
    wrapper rather than two stacked ones, so the tabs need no magic offset. */
 .stickybar{position:sticky;top:0;z-index:30;background:var(--field);
-  margin:14px -14px 16px;padding:0 14px;border-bottom:1px solid var(--line)}
-.seasonrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0 0}
+  margin:0 -14px 16px;padding:0 14px;border-bottom:1px solid var(--line)}
+.seasonrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 0 0}
 .seasonrow #cell-season{border:1px solid var(--line);border-radius:10px;flex:0 1 auto;min-width:168px}
 .seasonrow .grow{flex:1 1 auto}
 @media (max-width:560px){
@@ -155,9 +155,14 @@ tr.rel td{background:rgba(255,123,114,.09)}
 tr.pro td{background:rgba(126,231,135,.11)}
 tr.clickrow{cursor:pointer}
 tr.clickrow:hover td{background:rgba(255,255,255,.045)}
-tr.clickrow.open td{background:var(--field3);
-  position:sticky;top:calc(var(--barh,0px) + var(--sech,0px) + var(--divh,0px));z-index:6}
+tr.clickrow.open td{background:var(--field3)}
 tr.schedrow td{padding:4px 8px 10px;background:rgba(0,0,0,.22)}
+.schedhead{position:sticky;top:calc(var(--barh,0px) + var(--sech,0px) + var(--divh,0px));z-index:6;
+  display:flex;gap:9px;align-items:baseline;flex-wrap:wrap;
+  margin:-4px -8px 7px;padding:7px 10px;background:var(--field3);
+  border-bottom:1px solid var(--line)}
+.schedhead b{font-size:14px;letter-spacing:-.015em}
+.schedhead span{color:var(--muted);font-size:11.5px}
 .sched table{font-size:12.5px}
 .sched td{border-bottom:1px solid rgba(35,84,58,.35);padding:3px 6px}
 .sched tr.pshead td{color:var(--muted);font-size:11px;padding-top:9px;border-bottom:1px solid var(--line)}
@@ -260,11 +265,11 @@ details p{font-size:13px;color:var(--muted)}
     <span class="grow"></span>
     <button class="iconbtn" id="resetBtn" aria-label="Reset league"
             title="Reset league — start over from the 2027 preseason">
-      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
         <g id="recyArm">
-          <path d="M12.62 5.88L16.49 12.58" fill="none" stroke="currentColor"
-                stroke-width="1.9" stroke-linecap="round"/>
-          <polygon points="14.84,13.53 18.13,11.63 17.79,14.83" fill="currentColor"/>
+          <path d="M13.52 5.84 L16.57 11.12" fill="none" stroke="currentColor"
+                stroke-width="2.3" stroke-linecap="round"/>
+          <polygon points="14.75,12.17 18.39,10.07 18.17,13.89" fill="currentColor"/>
         </g>
         <use href="#recyArm" transform="rotate(120 12 12)"/>
         <use href="#recyArm" transform="rotate(240 12 12)"/>
@@ -282,9 +287,10 @@ details p{font-size:13px;color:var(--muted)}
   </div>
   <div class="statline">
     <span><b id="s-d1">—</b>Tier I</span>
+    <i class="sep" aria-hidden="true">|</i>
     <span><b id="s-d2">—</b>Tier II</span>
+    <i class="sep" aria-hidden="true">|</i>
     <span id="s-cycle">—</span>
-    <span class="grow"></span>
     <span class="note" id="deckHint"></span>
   </div>
   <nav id="tabs" role="tablist"></nav>
