@@ -67,10 +67,15 @@ the low offsets, the next takes the rest. Together they cover every pairing, so 
 plays its entire division once per cycle. Everyone in a division plays the same number of
 division games.
 
-**Rivalries** are one per team, claimed by the biggest games first (232 of 266 teams get one).
-A rivalry runs three years in four with the off year staggered per pairing. If the pair already
-meet on the slate, that is the game; if not it is added on top and spends an outside slot, so
-nobody's division allotment moves.
+**Rivalries** are one per team, and every team has one. The real games are claimed by the
+biggest first, which covers 232 of the 266; the rest are paired off once the divisions are
+settled, each with the nearest team in its own division where there is one. A rivalry runs three
+years in four with the off year staggered per pairing. If the pair already meet on the slate,
+that is the game; if not it is added on top and spends an outside slot, so nobody's division
+allotment moves.
+
+A rivalry needs both teams in the same tier. When one is promoted or relegated the fixture
+lapses, and it is not played again until they are back together.
 
 ## Postseason
 
@@ -107,6 +112,7 @@ fewest swaps needed to bring a conference's halves back within 1.5 rating points
 ```
 data/teams.py      138 + 128 teams: city, coordinates, rating, rivalry list
 data/align.py      conference clustering, division balancing, rivalry matching -> align.json
+data/rivals.py     pairs off whoever the real rivalry list left out
 data/mkmap.py      US state outlines -> projected SVG paths -> map.json
 src/shell.html     markup and styles, with an __APP__ placeholder
 src/app.js         simulation and UI, with a __DATA__ placeholder
@@ -122,6 +128,7 @@ the result goes into `shell.html` at `__APP__`. That is the entire pipeline.
 ```sh
 pip install numpy scipy
 python3 data/align.py      # only when teams or the balancing rules change
+python3 data/rivals.py     # fills in missing rivals without re-clustering
 python3 data/mkmap.py      # only when the projection changes
 python3 build.py           # always — writes dist/college-football-pyramid.html
 ```

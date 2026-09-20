@@ -2,6 +2,7 @@ import json, math, random, os
 import numpy as np
 from scipy.optimize import linear_sum_assignment
 from teams import FBS, FCS, RIVALRIES
+import rivals
 
 random.seed(11); np.random.seed(11)
 RW_CONF = 150000.0
@@ -34,8 +35,8 @@ RIVAL = {}
 for a,b in RIVALRIES:
     if a in byname and b in byname and a not in RIVAL and b not in RIVAL:
         RIVAL[a]=b; RIVAL[b]=a
-PAIRS = {frozenset((a,b)) for a,b in RIVAL.items()}
-print(f"rival pairs kept: {len(PAIRS)}; teams with a rival: {len(RIVAL)}/{len(allt)}")
+REAL = {frozenset((a,b)) for a,b in RIVAL.items()}
+print(f"real rival pairs kept: {len(REAL)}; teams with a rival: {len(RIVAL)}/{len(allt)}")
 
 # ---------- capacitated geographic clustering ----------
 def capassign(pts, centers, caps):
@@ -208,6 +209,14 @@ for pool,label in ((fbs,"D1"),(fcs,"D2")):
         print(f"{label} {c} B: {prof(rb)}")
 
 DIVS=[c+" "+s for c in CONFS for s in ("A","B")]
+
+# Nobody goes without: whatever the real rivalry list left over is matched on
+# tier, division, conference and distance, now that those are settled.
+MADE = rivals.fill(allt, RIVAL)
+PAIRS = {frozenset((a,b)) for a,b in RIVAL.items()}
+print(f"rival pairs made up to cover the rest: {len(MADE)}; "
+      f"teams with a rival: {len(RIVAL)}/{len(allt)}")
+
 for t in allt:
     t["rival"]=RIVAL.get(t["name"])
     t["rivals"]=[t["rival"]] if t["rival"] else []
