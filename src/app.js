@@ -1267,8 +1267,7 @@ function renderPlayoff(){
 /* ---------- movement ---------- */
 function renderMove(){
   const host=$('#moveOut'); host.innerHTML='';
-  const intro=el('details');
-  intro.innerHTML='<summary>How the pyramid moves</summary><p>Every second season the table settles. '+
+  $('#moveIntro').innerHTML='<p>Every second season the table settles. '+
     'The first cycle is relegation only: each Tier I division sheds enough teams to reach 16, trimming '+
     'the tier from '+DATA.d1.length+' to 128. After that it is one down and one up per division, always inside '+
     'the same footprint, so a team never changes region just because it changed tiers. Cycle standing uses '+
@@ -1283,7 +1282,6 @@ function renderMove(){
     'The playoff share is measured against a perfect run \u2014 reaching the field and winning out \u2014 '+
     'not against whoever went furthest in that division, so a weak field scores low across the board. '+
     'Going unbeaten against nobody does not get you up.</p>';
-  host.appendChild(intro);
   if(S.inCycle>=2){
     const n=S.cycle===1?(sizeOf('d1')-128):8;
     const box=el('div','champ');
@@ -1397,8 +1395,10 @@ function renderRatings(){
   if(!list.length) host.appendChild(el('div','empty','No team by that name.'));
 }
 
-function renderAll(){renderDeck();renderLeague();renderMap();renderPlayoff();renderMove();renderRatings();}
-function renderViews(){renderLeague();mapFocus=null;$('#mapPick').innerHTML='';renderMap();renderPlayoff();}
+function renderAll(){renderDeck();renderLeague();renderMap();renderPlayoff();renderMove();renderRatings();
+  measureSticky();}
+function renderViews(){renderLeague();mapFocus=null;$('#mapPick').innerHTML='';renderMap();renderPlayoff();
+  measureSticky();}
 
 /* ---------- info sheet ---------- */
 let lastFocus=null;
@@ -1421,12 +1421,22 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#infoWrap').hi
 /* ---------- wiring ---------- */
 buildTabs(); renderChips(); renderDivLegend();
 // Section headers stick below the season bar, whose height moves with wrapping.
+function measureSticky(){
+  const R=document.documentElement.style;
+  const bar=document.querySelector('.stickybar');
+  if(bar) R.setProperty('--barh',(bar.offsetHeight||0)+'px');
+  const dh=document.querySelector('.divhead');
+  if(dh&&dh.offsetHeight) R.setProperty('--divh',dh.offsetHeight+'px');
+  // tier headings only exist in the both-tiers league view, so the offset they
+  // add is scoped to that list rather than every sticky header on the page
+  const lg=$('#league'), sec=lg&&lg.querySelector('h2.sec');
+  if(lg) lg.style.setProperty('--sech',(sec&&sec.offsetHeight?sec.offsetHeight:0)+'px');
+}
 (()=>{
   const bar=document.querySelector('.stickybar');
-  const set=()=>document.documentElement.style.setProperty('--barh',(bar.offsetHeight||0)+'px');
-  set();
-  if(window.ResizeObserver) new ResizeObserver(set).observe(bar);
-  else window.addEventListener('resize',set);
+  measureSticky();
+  if(window.ResizeObserver) new ResizeObserver(measureSticky).observe(bar);
+  else window.addEventListener('resize',measureSticky);
 })();
 (()=>{
   const host=$('#playoffOut'), tip=$('#tip');
@@ -1451,11 +1461,18 @@ $('#mapTier').onchange=()=>{mapFocus=null;renderMap();};
 $('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys());mapFocus=null;
   renderChips();renderMap();$('#mapPick').innerHTML='';};
 $('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;renderChips();renderMap();$('#mapPick').innerHTML='';};
-$('#lgTier').onchange=renderLeague;
-$('#lgView').onchange=renderLeague;
-$('#lgSort').onchange=renderLeague;
+// tier headings appear and vanish with these, and the sticky stack is offset by them
+const relist=()=>{renderLeague();measureSticky();};
+$('#lgTier').onchange=relist;
+$('#lgView').onchange=relist;
+$('#lgSort').onchange=relist;
 $('#poTier').onchange=renderPlayoff;
 $('#moveSort').onchange=renderMove;
+$('#moveInfoBtn').onclick=()=>{
+  const box=$('#moveIntro'), show=box.hidden;
+  box.hidden=!show;
+  $('#moveInfoBtn').setAttribute('aria-expanded',String(show));
+};
 $('#yearSel').onchange=e=>{S.view=+e.target.value;renderViews();renderDeck();};
 $('#rateSearch').oninput=renderRatings;
 $('#rateReset').onclick=()=>{

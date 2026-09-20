@@ -105,6 +105,13 @@ nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:foc
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
 .row .grow{flex:1 1 auto}
+.row.mid{justify-content:center}
+.btn.leap{background:rgba(76,201,240,.14);color:var(--western);
+  border:1px solid rgba(76,201,240,.5)}
+.btn.leap:hover{background:rgba(76,201,240,.24);border-color:var(--western)}
+#moveIntro{border:1px solid var(--line);border-radius:10px;padding:2px 12px;
+  margin:10px 0;background:var(--field2)}
+#moveIntro p{font-size:13px;color:var(--muted)}
 select,input[type=search]{background:var(--field2);color:var(--chalk);border:1px solid var(--line);
   border-radius:8px;padding:8px 10px;font:inherit;font-size:13.5px}
 input[type=search]{width:100%;max-width:340px}
@@ -127,7 +134,7 @@ svg.map{display:block;width:100%;height:auto;touch-action:pan-y}
   box-shadow:0 6px 22px rgba(0,0,0,.5);opacity:0}
 .tip b{display:block;font-size:14.5px}.tip small{color:var(--muted)}
 
-table{width:100%;border-collapse:collapse;font-size:13.5px}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
 th,td{padding:6px 7px;text-align:left;border-bottom:1px solid rgba(35,84,58,.55)}
 th{color:var(--muted);font-weight:500;font-size:11.5px}
 td.n,th.n{text-align:right}
@@ -144,7 +151,8 @@ tr.rel td{background:rgba(255,123,114,.09)}
 tr.pro td{background:rgba(126,231,135,.11)}
 tr.clickrow{cursor:pointer}
 tr.clickrow:hover td{background:rgba(255,255,255,.045)}
-tr.clickrow.open td{background:rgba(255,255,255,.07)}
+tr.clickrow.open td{background:var(--field3);
+  position:sticky;top:calc(var(--barh,0px) + var(--sech,0px) + var(--divh,0px));z-index:6}
 tr.schedrow td{padding:4px 8px 10px;background:rgba(0,0,0,.22)}
 .sched table{font-size:12.5px}
 .sched td{border-bottom:1px solid rgba(35,84,58,.35);padding:3px 6px}
@@ -173,11 +181,12 @@ tr.schedrow td{padding:4px 8px 10px;background:rgba(0,0,0,.22)}
    sticky is boxed by its containing block, so one header hands over to the next. */
 .divhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
   padding:10px 12px;border-left:4px solid var(--c);
-  position:sticky;top:var(--barh,0px);z-index:8;background:var(--field2)}
+  position:sticky;top:calc(var(--barh,0px) + var(--sech,0px));z-index:8;background:var(--field2)}
 .divhead h3{margin:0;font-size:16px;font-weight:700;letter-spacing:-.015em}
 .divhead span{color:var(--muted);font-size:12px}
 .divbody{padding:0 8px 6px}
-h2.sec{font-size:17px;margin:20px 0 2px;letter-spacing:-.02em}
+h2.sec{font-size:17px;margin:20px 0 2px;letter-spacing:-.02em;
+  position:sticky;top:var(--barh,0px);z-index:10;background:var(--field);padding:6px 0 4px}
 
 .bracket{overflow-x:auto;padding:4px 0 10px}
 .brwrap{position:relative;padding-top:26px}
@@ -321,14 +330,17 @@ details p{font-size:13px;color:var(--muted)}
 </section>
 
 <section class="panel" id="p-move">
+  <div class="row mid"><button class="btn leap" id="play2Btn">Advance to reshuffle</button></div>
   <div class="row">
     <select id="moveSort">
       <option value="cycle">Group by cycle</option>
       <option value="conf">Group by conference</option>
     </select>
     <span class="grow"></span>
-    <button class="btn ghost" id="play2Btn">Play through the reshuffle</button>
+    <button class="infobtn" id="moveInfoBtn" aria-expanded="false" aria-controls="moveIntro">
+      <span aria-hidden="true">i</span> How the pyramid moves</button>
   </div>
+  <div id="moveIntro" hidden></div>
   <div id="moveOut"></div>
 </section>
 
@@ -1738,8 +1750,7 @@ function renderPlayoff(){
 /* ---------- movement ---------- */
 function renderMove(){
   const host=$('#moveOut'); host.innerHTML='';
-  const intro=el('details');
-  intro.innerHTML='<summary>How the pyramid moves</summary><p>Every second season the table settles. '+
+  $('#moveIntro').innerHTML='<p>Every second season the table settles. '+
     'The first cycle is relegation only: each Tier I division sheds enough teams to reach 16, trimming '+
     'the tier from '+DATA.d1.length+' to 128. After that it is one down and one up per division, always inside '+
     'the same footprint, so a team never changes region just because it changed tiers. Cycle standing uses '+
@@ -1754,7 +1765,6 @@ function renderMove(){
     'The playoff share is measured against a perfect run \u2014 reaching the field and winning out \u2014 '+
     'not against whoever went furthest in that division, so a weak field scores low across the board. '+
     'Going unbeaten against nobody does not get you up.</p>';
-  host.appendChild(intro);
   if(S.inCycle>=2){
     const n=S.cycle===1?(sizeOf('d1')-128):8;
     const box=el('div','champ');
@@ -1868,8 +1878,10 @@ function renderRatings(){
   if(!list.length) host.appendChild(el('div','empty','No team by that name.'));
 }
 
-function renderAll(){renderDeck();renderLeague();renderMap();renderPlayoff();renderMove();renderRatings();}
-function renderViews(){renderLeague();mapFocus=null;$('#mapPick').innerHTML='';renderMap();renderPlayoff();}
+function renderAll(){renderDeck();renderLeague();renderMap();renderPlayoff();renderMove();renderRatings();
+  measureSticky();}
+function renderViews(){renderLeague();mapFocus=null;$('#mapPick').innerHTML='';renderMap();renderPlayoff();
+  measureSticky();}
 
 /* ---------- info sheet ---------- */
 let lastFocus=null;
@@ -1892,12 +1904,22 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#infoWrap').hi
 /* ---------- wiring ---------- */
 buildTabs(); renderChips(); renderDivLegend();
 // Section headers stick below the season bar, whose height moves with wrapping.
+function measureSticky(){
+  const R=document.documentElement.style;
+  const bar=document.querySelector('.stickybar');
+  if(bar) R.setProperty('--barh',(bar.offsetHeight||0)+'px');
+  const dh=document.querySelector('.divhead');
+  if(dh&&dh.offsetHeight) R.setProperty('--divh',dh.offsetHeight+'px');
+  // tier headings only exist in the both-tiers league view, so the offset they
+  // add is scoped to that list rather than every sticky header on the page
+  const lg=$('#league'), sec=lg&&lg.querySelector('h2.sec');
+  if(lg) lg.style.setProperty('--sech',(sec&&sec.offsetHeight?sec.offsetHeight:0)+'px');
+}
 (()=>{
   const bar=document.querySelector('.stickybar');
-  const set=()=>document.documentElement.style.setProperty('--barh',(bar.offsetHeight||0)+'px');
-  set();
-  if(window.ResizeObserver) new ResizeObserver(set).observe(bar);
-  else window.addEventListener('resize',set);
+  measureSticky();
+  if(window.ResizeObserver) new ResizeObserver(measureSticky).observe(bar);
+  else window.addEventListener('resize',measureSticky);
 })();
 (()=>{
   const host=$('#playoffOut'), tip=$('#tip');
@@ -1922,11 +1944,18 @@ $('#mapTier').onchange=()=>{mapFocus=null;renderMap();};
 $('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys());mapFocus=null;
   renderChips();renderMap();$('#mapPick').innerHTML='';};
 $('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;renderChips();renderMap();$('#mapPick').innerHTML='';};
-$('#lgTier').onchange=renderLeague;
-$('#lgView').onchange=renderLeague;
-$('#lgSort').onchange=renderLeague;
+// tier headings appear and vanish with these, and the sticky stack is offset by them
+const relist=()=>{renderLeague();measureSticky();};
+$('#lgTier').onchange=relist;
+$('#lgView').onchange=relist;
+$('#lgSort').onchange=relist;
 $('#poTier').onchange=renderPlayoff;
 $('#moveSort').onchange=renderMove;
+$('#moveInfoBtn').onclick=()=>{
+  const box=$('#moveIntro'), show=box.hidden;
+  box.hidden=!show;
+  $('#moveInfoBtn').setAttribute('aria-expanded',String(show));
+};
 $('#yearSel').onchange=e=>{S.view=+e.target.value;renderViews();renderDeck();};
 $('#rateSearch').oninput=renderRatings;
 $('#rateReset').onclick=()=>{
