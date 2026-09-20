@@ -1366,7 +1366,13 @@ function renderDeck(){
 // sliding it. Both render paths mount into #mapHost, so the view survives a
 // re-render and the same handlers serve the season map and the focus map.
 const MAXZ=8;
-let mapView=null, mapDragged=false;
+const MINDIST=9;
+let mapView=null, mapDragged=false, mapLaidOutAt=1;
+// Markers grow at half the rate of the zoom, so the gap they need shrinks the
+// same way. Zooming therefore thins the clumps out and shortens the stems
+// instead of magnifying a fan that was laid out for the whole-country view.
+const markerK = () => mapView ? Math.sqrt(mapView.w/M.W) : 1;
+const mapMinDist = () => MINDIST*markerK();
 const mapSvg = () => { const h=$('#mapHost'); return h && h.querySelector('svg.map'); };
 const mapZoomed = () => !!mapView && mapView.w < M.W-0.5;
 function mapApply(){
@@ -1378,7 +1384,7 @@ function mapApply(){
   // At 1:1 a finger swipe should still scroll the page, since there is nothing
   // to pan; once zoomed the map takes the gesture and drags instead.
   svg.style.touchAction = mapZoomed() ? 'none' : 'pan-y';
-  svg.style.setProperty('--mk',(mapView.w/M.W).toFixed(4));   // markers keep their screen size
+  svg.style.setProperty('--mk',markerK().toFixed(4));
   const r=$('#zReset'); if(r) r.disabled=!mapZoomed();
 }
 function mapZoomAt(cx,cy,f){
@@ -1396,7 +1402,16 @@ function mapZoomStep(f){
   const r=svg.getBoundingClientRect();
   mapZoomAt(r.left+r.width/2, r.top+r.height/2, f);
 }
-function mapResetZoom(){ mapView={x:0,y:0,w:M.W,h:M.H}; mapApply(); }
+function mapResetZoom(){ mapView={x:0,y:0,w:M.W,h:M.H}; mapApply(); mapRelayout(); }
+// Redraw the markers when the zoom has moved enough that the clumps would fan
+// differently. Only between gestures — rebuilding the svg mid-pinch would drop
+// the pointer capture the drag is riding on.
+function mapRelayout(){
+  const k=markerK();
+  if(Math.abs(k-mapLaidOutAt)/mapLaidOutAt < 0.12) return;
+  mapLaidOutAt=k;
+  renderMap();
+}
 function attachMapZoom(){
   const svg=mapSvg(); if(!svg) return;
   if(!mapView) mapView={x:0,y:0,w:M.W,h:M.H};
@@ -1443,14 +1458,18 @@ function attachMapZoom(){
     pts.delete(e.pointerId);
     const left=[...pts.values()];
     g = left.length===1 && mapZoomed() ? panFrom(left[0]) : null;
+    if(!pts.size) mapRelayout();
   };
   svg.addEventListener('pointerup',lift);
   svg.addEventListener('pointercancel',lift);
   // a trackpad pinch arrives as ctrl+wheel; a plain wheel still scrolls the page
+  let wheelIdle=0;
   svg.addEventListener('wheel',e=>{
     if(!e.ctrlKey&&!e.metaKey) return;
     e.preventDefault();
     mapZoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.01));
+    clearTimeout(wheelIdle);
+    wheelIdle=setTimeout(mapRelayout,160);   // once the gesture settles
   },{passive:false});
 }
 
@@ -1498,7 +1517,7 @@ function renderMapFocus(sn){
   const c0=screenXY(me);
   const raw=[{i:-1,x:c0[0],y:c0[1]}];
   games.forEach((g,i)=>{ const o=periodTeam(sn,g.o); if(o){ const p=screenXY(o); raw.push({i,x:p[0],y:p[1]}); } });
-  const byIdx=Object.fromEntries(declutter(raw,9).map(p=>[p.i,p]));
+  const byIdx=Object.fromEntries(declutter(raw,mapMinDist()).map(p=>[p.i,p]));
   const mp=byIdx[-1], mx=mp.x.toFixed(1), my=mp.y.toFixed(1);
   const stem=p=> (p.x!==p.ox||p.y!==p.oy) ? '<line x1="'+p.ox.toFixed(1)+'" y1="'+p.oy.toFixed(1)+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+
     '" stroke="var(--muted)" stroke-width="1" stroke-opacity=".6"/>' : '';
@@ -1557,43 +1576,96 @@ function renderMapFocus(sn){
 // marker into a new collision with an unrelated point nearby.
 function declutter(points,minDist){
   // ox/oy are each point's true, unmoved spot — fixed for good up front, never
-  // recomputed from an already-nudged position. Ordering and the centroid are
-  // always taken from these, so a cluster's fan keeps a single stable layout
-  // across relaxation passes instead of re-rotating (and crossing its own
-  // stems) as clusters are re-evaluated iteration to iteration.
+  // recomputed from an already-nudged position, so a cluster's fan keeps one
+  // stable layout across passes instead of re-rotating as it is re-evaluated.
   let pts=points.map(p=>Object.assign({},p,{ox:p.x,oy:p.y}));
   for(let iter=0;iter<12;iter++){
-    const used=new Array(pts.length).fill(false), next=new Array(pts.length);
+    const seen=new Array(pts.length).fill(false), next=new Array(pts.length);
     let moved=false;
     for(let i=0;i<pts.length;i++){
-      if(used[i]) continue;
-      const group=[i]; used[i]=true;
-      for(let j=i+1;j<pts.length;j++){
-        if(used[j]) continue;
-        if(Math.hypot(pts[j].x-pts[i].x,pts[j].y-pts[i].y)<minDist){ group.push(j); used[j]=true; }
+      if(seen[i]) continue;
+      // Whole connected clump, not just what sits near the first marker: two
+      // overlapping pairs side by side have to fan as one four, or each pair
+      // picks its own directions and their stems run parallel and cross.
+      const group=[i]; seen[i]=true;
+      for(let q=0;q<group.length;q++){
+        const a=group[q];
+        for(let j=0;j<pts.length;j++){
+          if(seen[j]) continue;
+          if(Math.hypot(pts[j].x-pts[a].x,pts[j].y-pts[a].y)<minDist){ group.push(j); seen[j]=true; }
+        }
       }
       if(group.length===1){ next[i]=pts[i]; continue; }
       moved=true;
-      // The centroid tracks each point's CURRENT (possibly already-nudged)
-      // position, same as before — that's what makes the relaxation converge.
-      // Only the slot ORDER is taken from each point's fixed true origin, so
-      // it stays stable pass to pass and the fan doesn't re-rotate and cross
-      // its own stems as clusters get re-evaluated.
       let cx=0,cy=0; for(const k of group){cx+=pts[k].x;cy+=pts[k].y;} cx/=group.length; cy/=group.length;
-      const n=group.length, R=12+n*3.6;
-      const order=[...group].sort((k1,k2)=>{
-        const d1x=pts[k1].ox-cx, d1y=pts[k1].oy-cy, d2x=pts[k2].ox-cx, d2y=pts[k2].oy-cy;
-        const a1=(Math.abs(d1x)<1e-6&&Math.abs(d1y)<1e-6)?Infinity:Math.atan2(d1y,d1x);
-        const a2=(Math.abs(d2x)<1e-6&&Math.abs(d2y)<1e-6)?Infinity:Math.atan2(d2y,d2x);
-        return a1-a2;
-      });
-      order.forEach((k,slot)=>{
-        const ang=-Math.PI/2+slot*(2*Math.PI/n);
-        next[k]=Object.assign({},pts[k],{x:cx+R*Math.cos(ang),y:cy+R*Math.sin(ang)});
+      const n=group.length;
+      const bearing=k=>{
+        const dx=pts[k].ox-cx, dy=pts[k].oy-cy;
+        return (Math.abs(dx)<1e-9&&Math.abs(dy)<1e-9) ? null : Math.atan2(dy,dx);
+      };
+      // Rings rather than one big circle: a crowded region would otherwise put
+      // twenty markers on one huge ring and fling them halfway across the map.
+      // Each ring is one marker-width further out and holds as many as fit, so
+      // nobody travels further than the clump actually needs.
+      const rings=[];
+      for(let left=n, r=1; left>0; r++){
+        const R=minDist*0.95*r;
+        const take=Math.min(left, Math.max(1, Math.floor(2*Math.PI*R/(minDist*1.02))));
+        rings.push({R, take}); left-=take;
+      }
+      // innermost ring goes to the markers already nearest the middle, so the
+      // ones on the edge of the clump are the ones that travel
+      const byDist=[...group].sort((a,b)=>
+        Math.hypot(pts[a].ox-cx,pts[a].oy-cy)-Math.hypot(pts[b].ox-cx,pts[b].oy-cy));
+      let at=0;
+      rings.forEach((ring,ri)=>{
+        const mine=byDist.slice(at,at+ring.take); at+=ring.take;
+        const step=2*Math.PI/mine.length;
+        // Each marker takes its own slice, so no two in a ring set off the same
+        // way, and each leaves radially from the shared centre, which is what
+        // keeps the stems from crossing. The ring is then turned to best fit
+        // where the markers truly lie — a circular mean of what each one's own
+        // bearing implies — so a marker heads out roughly the way it already
+        // sits and neighbouring clumps do not all fan alike. Rings are offset
+        // from each other so an inner and an outer marker never line up.
+        const order=[...mine].sort((a,b)=>{
+          const A=bearing(a), B=bearing(b);
+          if(A===null&&B===null) return a-b;
+          if(A===null) return 1;
+          if(B===null) return -1;
+          return A-B;
+        });
+        let sx=0, sy=0, have=0;
+        order.forEach((k,slot)=>{
+          const a=bearing(k);
+          if(a===null) return;
+          sx+=Math.cos(a-slot*step); sy+=Math.sin(a-slot*step); have++;
+        });
+        const base=(have?Math.atan2(sy,sx):(cx*0.7+cy*1.3))+ri*step/2;
+        order.forEach((k,slot)=>{
+          const ang=base+slot*step;
+          next[k]=Object.assign({},pts[k],{x:cx+ring.R*Math.cos(ang),y:cy+ring.R*Math.sin(ang)});
+        });
       });
     }
     pts=next;
     if(!moved) break;
+  }
+  // The ring passes place each clump on its own, so two clumps can still leave a
+  // pair touching across the gap between them. Push any such pair straight
+  // apart — a sub-pixel correction in practice, and it cannot undo a fan.
+  for(let pass=0;pass<24;pass++){
+    let clear=true;
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      let dx=pts[j].x-pts[i].x, dy=pts[j].y-pts[i].y, d=Math.hypot(dx,dy);
+      if(d>=minDist) continue;
+      clear=false;
+      if(d<1e-6){ dx=Math.cos(i*2.3999); dy=Math.sin(i*2.3999); d=1; }   // exactly stacked
+      const push=(minDist-d)/2+0.05;
+      pts[i]=Object.assign({},pts[i],{x:pts[i].x-dx/d*push, y:pts[i].y-dy/d*push});
+      pts[j]=Object.assign({},pts[j],{x:pts[j].x+dx/d*push, y:pts[j].y+dy/d*push});
+    }
+    if(clear) break;
   }
   return pts;
 }
@@ -1615,7 +1687,7 @@ function renderMap(){
   }
   const rank2=t=> champs.has(t.id)?3 : winners.has(t.id)?2 : (t.tier==='d2'?0:1);
   const ordered=[...show].sort((a,b)=>rank2(a)-rank2(b));
-  const placed=declutter(ordered.map(t=>{const xy=screenXY(t); return {t,x:xy[0],y:xy[1]};}),9);
+  const placed=declutter(ordered.map(t=>{const xy=screenXY(t); return {t,x:xy[0],y:xy[1]};}),mapMinDist());
   for(const pt of placed){
     const t=pt.t, c=dcol(t.div), X=+pt.x.toFixed(1), Y=+pt.y.toFixed(1);
     const fill = t.tier==='d1' ? c : '#0c2318';
@@ -2092,8 +2164,8 @@ $('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys(
   renderChips();renderMap();$('#mapPick').innerHTML='';};
 $('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;mapResetZoom();
   renderChips();renderMap();$('#mapPick').innerHTML='';};
-$('#zIn').onclick=()=>mapZoomStep(1.6);
-$('#zOut').onclick=()=>mapZoomStep(1/1.6);
+$('#zIn').onclick=()=>{mapZoomStep(1.6);mapRelayout();};
+$('#zOut').onclick=()=>{mapZoomStep(1/1.6);mapRelayout();};
 $('#zReset').onclick=mapResetZoom;
 // tier headings appear and vanish with these, and the sticky stack is offset by them
 const relist=()=>{renderLeague();measureSticky();};
