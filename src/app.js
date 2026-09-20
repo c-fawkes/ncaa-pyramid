@@ -798,11 +798,30 @@ function renderDeck(){
   $('#s-cycle').textContent = S.inCycle>=2 ? 'Reshuffle ready'
     : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s')+' to reshuffle';
   const pending = S.phase==='done' && S.inCycle>=2;
+  const archive = S.view !== S.snaps.length-1;
+  // where the league actually stands, which is what leaving the archive returns to
+  const nowAt = pending ? 'the '+S.season+' reshuffle'
+              : S.season+(S.phase==='pre' ? ' preseason' : ' postseason');
+  const sel=$('#yearSel'); sel.innerHTML='';
+  S.snaps.forEach((sn,i)=>{
+    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason'));
+    o.value=String(i); sel.appendChild(o);
+  });
+  sel.value=String(S.view);
+  $('#cell-season').classList.toggle('archive',archive);
+  $('#seasonLbl').textContent = archive ? 'Archive \u00b7 now at '+nowAt : 'Viewing';
   // One button walks the league forward: play the season, advance to the next
-  // preseason, and when two seasons are in the books, settle the table.
+  // preseason, and when two seasons are in the books, settle the table. Off in
+  // the archive there is nothing to walk forward, so it becomes the way back.
   const btn=$('#actBtn');
   btn.disabled=false;
-  if(pending){
+  btn.title='';
+  if(archive){
+    btn.textContent='Back to '+nowAt;
+    btn.className='btn arch';
+    btn.title='Leave the archive and return to where the league stands';
+    btn.onclick=()=>{S.view=S.snaps.length-1;renderViews();renderDeck();};
+  }else if(pending){
     btn.textContent='Send them up and down';
     btn.className='btn go';
     btn.onclick=settle;
@@ -815,21 +834,8 @@ function renderDeck(){
     btn.className='btn ghost';
     btn.onclick=()=>{advance();renderAll();};
   }
-  $('#deckHint').textContent = pending
+  $('#deckHint').textContent = pending && !archive
     ? 'Two seasons are in the books. Settle the table before moving on.' : '';
-  const sel=$('#yearSel'); sel.innerHTML='';
-  S.snaps.forEach((sn,i)=>{
-    const o=el('option',null,sn.season+(sn.kind==='pre'?' preseason':' postseason'));
-    o.value=String(i); sel.appendChild(o);
-  });
-  sel.value=String(S.view);
-  const archive = S.view !== S.snaps.length-1;
-  $('#cell-season').classList.toggle('archive',archive);
-  $('#seasonLbl').textContent = archive ? 'Archive \u00b7 now in '+S.season : 'Viewing';
-  const back=$('#backBtn');
-  back.hidden = !archive;
-  back.textContent = 'Back to '+S.season;
-  back.title = 'Leave the archive and return to the '+S.season+' season';
 }
 
 /* ---------- map ---------- */
@@ -1487,7 +1493,6 @@ $('#play2Btn').onclick=()=>{
   }
   settle();
 };
-$('#backBtn').onclick=()=>{S.view=S.snaps.length-1;renderViews();renderDeck();};
 $('#resetBtn').onclick=()=>{
   if(confirm('Start over from the 2027 preseason? This clears everything you’ve played so far.')) location.reload();
 };

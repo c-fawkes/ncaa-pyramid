@@ -107,6 +107,9 @@ nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:foc
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
 .row .grow{flex:1 1 auto}
 .row.mid{justify-content:center}
+.btn.arch{background:rgba(249,199,79,.16);color:var(--central);
+  border:1px solid rgba(249,199,79,.5)}
+.btn.arch:hover{background:rgba(249,199,79,.26);border-color:var(--central)}
 .btn.leap{background:rgba(76,201,240,.14);color:var(--western);
   border:1px solid rgba(76,201,240,.5)}
 .btn.leap:hover{background:rgba(76,201,240,.24);border-color:var(--western)}
@@ -275,7 +278,6 @@ details p{font-size:13px;color:var(--muted)}
     <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select>
       <span id="seasonLbl">Viewing</span></div>
     <span class="grow"></span>
-    <button class="btn ghost" id="backBtn" hidden>Back to now</button>
     <button class="btn" id="actBtn">Play season</button>
   </div>
   <div class="statline">
