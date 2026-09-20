@@ -113,18 +113,19 @@ check('steady state holds after a second cycle',
 }
 
 section('rendering');
-$('#tabs').children[0].click();
+const tab = name => [...$('#tabs').children].find(b => b.textContent === name).click();
+tab('League');
 check('league tables render', d.querySelectorAll('#league .divblock').length === 8);
 $('#lgView').value = 'list'; w.eval('renderLeague()');
 check('one-list view renders with a division index',
   d.querySelectorAll('#league tbody tr').length >= 128 && d.querySelectorAll('.divindex span').length === 8);
 $('#lgView').value = 'divisions'; w.eval('renderLeague()');
-$('#tabs').children[1].click();
+tab('Map');
 check('map draws a marker per team', d.querySelectorAll('#mapHost .dot').length === 128);
-$('#tabs').children[2].click();
+tab('Playoff');
 check('bracket draws 15 matches and 14 connectors',
   d.querySelectorAll('.brmatch').length === 15 && d.querySelectorAll('.brlines path').length === 14);
-$('#tabs').children[3].click();
+tab('Up & down');
 check('cycles are collapsible', d.querySelectorAll('#moveOut details.cyc').length >= 2);
 $('#infoBtn').click();
 check('info sheet opens', w.getComputedStyle($('#infoWrap')).display === 'flex');

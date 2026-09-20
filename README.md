@@ -31,7 +31,7 @@ Five tabs:
 
 | Tab | What's in it |
 |---|---|
-| **League** | Standings by division or as one list, either tier or both, ordered by standing, rating or name |
+| **League** | Standings by division or as one list, either tier or both, ordered by standing, rating or name. Tap a team for its full schedule — drawn up in the preseason, so you can read it before a ball is kicked |
 | **Map** | Every campus on a projected US map — filled markers Tier I, hollow Tier II, two shades per conference for its A and B halves. Tap a marker for a team and its schedule; stars mark division winners, the circled star the national champion |
 | **Playoff** | The twenty-four-team bracket for either tier, with the bowl hosting each round |
 | **Up & down** | Who is relegated, who is promoted, and the numbers behind each call, grouped by cycle or by conference |

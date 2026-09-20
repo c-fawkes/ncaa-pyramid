@@ -73,7 +73,8 @@ const byId = () => Object.fromEntries(S.teams.map(t=>[t.id,t]));
 const tierTeams = tr => S.teams.filter(t=>t.tier===tr);
 const sizeOf = tr => tierTeams(tr).length;
 const snap = () => S.snaps[S.view];
-S.snaps.push(makePre()); S.view=0;
+// The opening preseason is built down in the wiring, not here: drawing up a
+// schedule needs WEEKS and the schedule builder, which are defined further down.
 
 /* ---------- schedule building ---------- */
 // A rivalry is played three years in four. Which year it sits out depends on
@@ -467,7 +468,8 @@ function bowlPlan(tier,year){
 
 /* ---------- season ---------- */
 function makePre(){
-  const sn={kind:'pre', season:S.season, teams:{}, rank:{}, sched:{}, tiers:{}, quota:{}};
+  const sn={kind:'pre', season:S.season, weeks:WEEKS, teams:{}, rank:{}, sched:{},
+    tiers:{}, quota:{}, fixtures:{}};
   for(const t of S.teams) sn.teams[t.id]={name:t.name,city:t.city,st:t.st,conf:t.conf,
     div:t.div,tier:t.tier,rival:t.rival,rating:Math.round(t.rating)};
   for(const tr of ['d1','d2']){
@@ -479,6 +481,19 @@ function makePre(){
       if(ids.length) divs[d]=ids;
     }
     sn.tiers[tr]={divs:divs, at:[], seedOf:{}, po:null};
+  }
+  // The season is drawn up now rather than at kickoff, so the preseason can show
+  // what everyone actually plays. playSeason takes these same games, so the
+  // fixtures on screen are the ones that get played, not a preview of them.
+  const yr=S.season-2027;
+  const push=(id,o)=>{(sn.sched[id]=sn.sched[id]||[]).push(o);};
+  for(const tr of ['d1','d2']){
+    const games=buildSchedule(tr,yr,S.inCycle%2);
+    sn.fixtures[tr]=games;
+    for(const g of games){
+      push(g.h.id,{o:g.v.id,home:true,t:g.type,wk:g.week});
+      push(g.v.id,{o:g.h.id,home:false,t:g.type,wk:g.week});
+    }
   }
   return sn;
 }
@@ -497,8 +512,10 @@ function advance(){
 function playSeason(){
   for(const t of S.teams){t.w=t.l=t.dw=t.dl=t.pf=t.pa=0;t.opps=[];}
   const yr=S.season-2027, res={};
+  const pre=S.snaps[S.snaps.length-1];
+  const drawn = pre && pre.kind==='pre' && pre.season===S.season && pre.fixtures;
   for(const tr of ['d1','d2']){
-    const games=buildSchedule(tr,yr,S.inCycle%2);
+    const games = drawn ? pre.fixtures[tr] : buildSchedule(tr,yr,S.inCycle%2);
     games.forEach(simGame);
     const tbl=standings(tr,games);
     res[tr]={games,tbl,po:playoff(tr,tbl,yr)};
@@ -704,9 +721,8 @@ function ord(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[
 function schedHTML(id){
   const sn=snap();
   if(!sn.sched[id]) return '<p class="note" style="margin:6px 2px">'+
-    (sn.kind==='pre'?'No games yet \u2014 this is the '+sn.season+' preseason.'
-                    :'This team did not play in '+sn.season+'.')+'</p>';
-  const g=sn.sched[id], T=sn.teams, R=sn.rank;
+    'This team did not play in '+sn.season+'.</p>';
+  const g=sn.sched[id], T=sn.teams, R=sn.rank, pre=sn.kind==='pre';
   const reg=g.filter(x=>!x.ps), post=g.filter(x=>x.ps&&!x.x), extraB=g.filter(x=>x.x);
   // the yellow tag already says "rivalry", so this column names the bucket the
   // game actually falls in rather than repeating it
@@ -732,18 +748,40 @@ function schedHTML(id){
         esc(o.name)+tag+rv+'</td>'+
       '<td class="hidesm" style="color:var(--muted)">'+
         esc(x.ps?((x.b||x.t)+(x.c?' \u00b7 '+x.c:'')):kind(x))+'</td>'+
-      '<td class="n" style="color:'+(win?'var(--up)':'var(--down)')+'">'+(win?'W':'L')+' '+x.f+'\u2013'+x.a+'</td></tr>';
+      (pre ? '<td class="n" style="color:var(--muted)">\u2013</td></tr>'
+           : '<td class="n" style="color:'+(win?'var(--up)':'var(--down)')+'">'+
+             (win?'W':'L')+' '+x.f+'\u2013'+x.a+'</td></tr>');
   };
   const me=T[id], w=reg.filter(x=>x.f>x.a).length;
   const avgRk=Math.round(reg.reduce((s,x)=>s+R[x.o],0)/reg.length);
   const avgRt=Math.round(reg.reduce((s,x)=>s+T[x.o].rating,0)/reg.length);
-  let head=esc(me.name)+' finished '+w+'\u2013'+(reg.length-w)+', ranked #'+R[id]+' in '+
-    (me.tier==='d1'?'Tier I':'Tier II')+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
-    ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+
-    (reg.some(x=>T[x.o].conf!==me.conf||T[x.o].div!==me.div)
+  const tierOf=t=>t.tier==='d1'?'Tier I':'Tier II';
+  // Say where the rivalry stands: on the slate, sitting out its off year, or
+  // lapsed because one of the two has moved tier.
+  const rivalNote=(()=>{
+    if(!me.rival) return '';
+    const rid=Object.keys(T).find(k=>T[k].name===me.rival), r=rid?T[rid]:null;
+    if(!r) return ' Rival: '+esc(me.rival)+'.';
+    if(r.tier!==me.tier)
+      return ' Rival: '+esc(me.rival)+', in '+tierOf(r)+' this season \u2014 the game is off '+
+             'until the two are back in the same tier.';
+    return ' Rival: '+esc(me.rival)+(reg.some(x=>x.o===rid)
+      ? (pre?' \u2014 on the schedule this year.':' \u2014 played this year.')
+      : ' \u2014 not on the schedule this year; the fixture runs three years in four.');
+  })();
+  const dotNote = reg.some(x=>T[x.o].conf!==me.conf||T[x.o].div!==me.div)
       ?' A dot marks an opponent from outside the division \u2014 in the conference color for a '+
-       'non-conference game, in the other half\u2019s shade for a crossover.':'')+
-    (me.rival?' Rival: '+esc(me.rival)+'.':'');
+       'non-conference game, in the other half\u2019s shade for a crossover.':'';
+  const mix={division:0,crossover:0,'non-conference':0};
+  reg.forEach(x=>{mix[kind(x)]++;});
+  let head = pre
+    ? esc(me.name)+' opens '+sn.season+' in '+tierOf(me)+', ranked #'+R[id]+' by rating. '+
+      reg.length+' games across '+(sn.weeks||WEEKS)+' weeks: '+mix.division+' in division, '+
+      mix.crossover+' crossover, '+mix['non-conference']+' non-conference. Opponents average '+
+      'rank #'+avgRk+' and rating '+avgRt+'.'+dotNote+rivalNote
+    : esc(me.name)+' finished '+w+'\u2013'+(reg.length-w)+', ranked #'+R[id]+' in '+
+      tierOf(me)+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
+      ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+dotNote+rivalNote;
   if(post.length){
     const pw=post.filter(x=>x.f>x.a).length;
     head += pw===post.length ? ' Won the title, '+pw+'\u20130 in the playoff.'
@@ -773,7 +811,8 @@ function schedHTML(id){
     rows.push(byWk[wk] ? line(byWk[wk],wk)
       : '<tr class="bye"><td class="n">'+wk+'</td><td colspan="3">bye</td></tr>');
   }
-  const bar='<div class="schedhead"><b>'+esc(me.name)+'</b><span>'+w+'\u2013'+(reg.length-w)+
+  const bar='<div class="schedhead"><b>'+esc(me.name)+'</b><span>'+
+    (pre ? reg.length+' games' : w+'\u2013'+(reg.length-w))+
     ' \u00b7 #'+R[id]+' \u00b7 '+esc(me.div)+'</span></div>';
   return '<div class="sched">'+bar+verdict+'<p class="note" style="margin:2px 2px 6px">'+head+'</p><table>'+
     rows.join('')+
@@ -803,7 +842,7 @@ function expandable(row,id,cols){
 }
 
 /* ---------- chrome ---------- */
-const TABS=[['league','League'],['map','Map'],['playoff','Playoff'],['move','Up & down'],['ratings','Ratings']];
+const TABS=[['league','League'],['playoff','Playoff'],['map','Map'],['move','Up & down'],['ratings','Ratings']];
 // The selected tab is in front and the rest fall away from it on both sides, so
 // the two ends of the strip are the furthest back whichever tab is open.
 function stackTabs(){
@@ -1691,6 +1730,7 @@ $('#infoWrap').addEventListener('click',e=>{ if(e.target===$('#infoWrap')) close
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('#infoWrap').hidden) closeInfo(); });
 
 /* ---------- wiring ---------- */
+S.snaps.push(makePre()); S.view=0;
 buildTabs(); renderChips(); renderDivLegend();
 // Section headers stick below the season bar, whose height moves with wrapping.
 function measureSticky(){
