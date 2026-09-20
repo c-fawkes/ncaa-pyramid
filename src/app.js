@@ -758,12 +758,14 @@ function schedHTML(id){
     (extraB.length?'<tr class="pshead"><td colspan="4">Bowl</td></tr>'+extraB.map(x=>line(x,stage(x))).join(''):'')+
     '</table></div>';
 }
+const rowGroup=row=>{ const g=el('tbody'); g.appendChild(row); return g; };
 function expandable(row,id,cols){
   row.classList.add('clickrow'); row.tabIndex=0;
   const go=()=>{
     const nx=row.nextElementSibling;
     if(nx&&nx.dataset.sched===id){nx.remove();row.classList.remove('open');return;}
-    row.parentNode.querySelectorAll('tr[data-sched]').forEach(r=>{
+    // every team is its own row group now, so close across the whole table
+    (row.closest('table')||row.parentNode).querySelectorAll('tr[data-sched]').forEach(r=>{
       if(r.previousElementSibling) r.previousElementSibling.classList.remove('open');
       r.remove();});
     const r=el('tr','schedrow'); r.dataset.sched=id;
@@ -1091,7 +1093,6 @@ function renderLeague(){
       tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="n">Rtg</th>'+
         (pre?'<th class="hidesm">Home</th>':'<th class="n">Div</th><th class="n">W-L</th><th class="n">SOS</th>')+
         '</tr></thead>';
-      const body=el('tbody');
       for(const id of order){
         const t=get(id), row=el('tr');
         if(!pre){
@@ -1113,9 +1114,9 @@ function renderLeague(){
              :'<td class="n">'+t.dw+'-'+t.dl+'</td><td class="n">'+t.w+'-'+t.l+'</td>'+
               '<td class="n">'+t.sos+'<span class="sosrk">'+t.sosRank+'</span></td>');
         expandable(row,id,pre?4:6);
-        body.appendChild(row);
+        tb.appendChild(rowGroup(row));
       }
-      tb.appendChild(body); box.querySelector('.divbody').appendChild(tb); host.appendChild(box);
+      box.querySelector('.divbody').appendChild(tb); host.appendChild(box);
     }
   }
 }
@@ -1154,7 +1155,6 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
     const tb=el('table');
     tb.innerHTML='<thead><tr><th class="n">Rk</th><th>Team</th><th class="hidesm">Division</th>'+
       '<th class="n">Rtg</th>'+(pre?'':'<th class="n">W-L</th><th class="n">SOS</th>')+'</tr></thead>';
-    const body=el('tbody');
     for(const id of order){
       const t=get(id), row=el('tr');
       if(!pre){
@@ -1176,9 +1176,8 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
         (pre?'':'<td class="n">'+t.w+'-'+t.l+'</td><td class="n">'+t.sos+
           '<span class="sosrk">'+t.sosRank+'</span></td>');
       expandable(row,id,pre?4:6);
-      body.appendChild(row);
+      tb.appendChild(rowGroup(row));
     }
-    tb.appendChild(body);
     const bd=box.querySelector('.divbody');
     bd.appendChild(idx); bd.appendChild(tb);
     host.appendChild(box);
