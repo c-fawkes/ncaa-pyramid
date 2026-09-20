@@ -68,11 +68,6 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 #cell-season select{background:transparent;border:0;color:var(--chalk);font-size:17px;
   font-weight:750;letter-spacing:-.02em;padding:0;width:100%;font-family:inherit;
   text-align:center;text-align-last:center}
-/* Viewing stands in its own box, matching the height of the season beside it */
-.seasonlbl{flex:0 0 auto;align-self:stretch;display:inline-flex;align-items:center;
-  border:1px solid var(--line);border-radius:10px;background:var(--field2);
-  padding:0 14px;color:var(--muted);font-size:11px;font-weight:700;
-  letter-spacing:.09em;text-transform:uppercase}
 .seasonrow.archive #cell-season{background:rgba(249,199,79,.14);
   box-shadow:inset 3px 0 0 var(--central)}
 .seasonrow.archive #cell-season select{color:var(--central)}
@@ -338,7 +333,6 @@ details p{font-size:13px;color:var(--muted)}
 
 <div class="stickybar">
   <div class="seasonrow">
-    <span class="seasonlbl" id="seasonLbl">Viewing</span>
     <div class="cell" id="cell-season"><select id="yearSel" aria-label="Season to view"></select></div>
     <span class="grow"></span>
     <button class="btn" id="actBtn">Play season</button>
