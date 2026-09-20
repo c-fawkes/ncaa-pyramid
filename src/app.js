@@ -963,10 +963,13 @@ const groupCol = k => mapGroup==='conf' ? CC[k] : dcol(k);
 // without this a postseason map would show teams on the tier they're moving
 // to rather than the one they just finished playing in.
 const periodTeam = (sn,id) => { const p=sn.teams[id]; return p ? Object.assign({},byId()[id],p) : byId()[id]; };
+// Northeast -> NEC, Northeast A -> NECA; the full name stays on hover
+const groupLabel = k => mapGroup==='conf' ? confAbbr(k) : divAbbr(k);
 function renderChips(){
   const c=$('#mapChips'); c.innerHTML='';
   groupKeys().forEach(k=>{
-    const b=el('button','chip','<i></i>'+k);
+    const b=el('button','chip','<i></i>'+esc(groupLabel(k)));
+    b.title=k; b.setAttribute('aria-label',k);
     b.dataset.on=mapFilter.has(k)?'1':'0';
     if(mapFilter.has(k)) b.style.color=groupCol(k);
     b.onclick=()=>{mapFilter.has(k)?mapFilter.delete(k):mapFilter.add(k);renderChips();renderMap();};
