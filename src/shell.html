@@ -95,11 +95,19 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
   .seasonrow .btn{flex:1 1 auto}
 }
 
-nav{display:flex;gap:4px;overflow-x:auto;margin:0;padding:10px 0;scrollbar-width:none}
+/* Folder tabs standing on the bar's bottom edge. Each overlaps the one before
+   it, and the selected one is lifted and stacked above both its neighbours. */
+nav{display:flex;align-items:flex-end;overflow-x:auto;margin:0;padding:13px 2px 0;
+  scrollbar-width:none}
 nav::-webkit-scrollbar{display:none}
-nav button{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--muted);
-  padding:7px 13px;border-radius:999px;font:inherit;font-size:13.5px;cursor:pointer}
-nav button[aria-selected="true"]{background:var(--chalk);color:#0c2318;border-color:var(--chalk);font-weight:650}
+nav button{flex:0 0 auto;position:relative;z-index:1;margin-right:-11px;
+  background:var(--field2);border:1px solid var(--line);border-bottom:0;color:var(--muted);
+  padding:7px 20px;border-radius:11px 11px 0 0;font:inherit;font-size:13.5px;cursor:pointer}
+nav button:last-child{margin-right:0}
+nav button:hover{color:var(--chalk);background:var(--field3)}
+nav button[aria-selected="true"]{background:var(--chalk);color:#0c2318;font-weight:650;
+  border-color:var(--chalk);z-index:4;padding:9px 21px 8px;
+  box-shadow:0 -1px 7px rgba(0,0,0,.35)}
 nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:focus-visible{
   outline:2px solid var(--western);outline-offset:2px}
 .panel{display:none}.panel.on{display:block}
@@ -279,6 +287,12 @@ details p{font-size:13px;color:var(--muted)}
   .hidesm{display:none}
   th,td{padding:5px 3px}
   .sosrk{display:none}
+}
+/* A phone held sideways has very little height, so the counts stand down and
+   give the rows back to the table. Keyed on height as well as orientation, or
+   every desktop monitor would match. */
+@media (orientation:landscape) and (max-height:560px){
+  .statline{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
