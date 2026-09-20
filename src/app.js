@@ -809,6 +809,18 @@ function stackTabs(){
   const sel=bs.findIndex(b=>b.getAttribute('aria-selected')==='true');
   bs.forEach((b,i)=>{ b.style.zIndex=String(bs.length-Math.abs(i-sel)); });
 }
+// The strip scrolls sideways when the tabs outrun the screen, so a tab picked
+// at the edge gets pulled fully into view. The pad clears the overlap, or the
+// neighbour stacked over it would still cut the corner off.
+function revealTab(b){
+  const n=$('#tabs');
+  if(!n.scrollBy || !n.getBoundingClientRect) return;
+  const nr=n.getBoundingClientRect(), br=b.getBoundingClientRect(), pad=14;
+  const smooth=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const opt=d=>smooth?{left:d,behavior:'smooth'}:{left:d};
+  if(br.left-pad < nr.left) n.scrollBy(opt(br.left-pad-nr.left));
+  else if(br.right+pad > nr.right) n.scrollBy(opt(br.right+pad-nr.right));
+}
 function buildTabs(){
   const n=$('#tabs');
   TABS.forEach(function(pair,i){
@@ -817,7 +829,7 @@ function buildTabs(){
     b.onclick=()=>{
       n.querySelectorAll('button').forEach(x=>x.setAttribute('aria-selected','false'));
       b.setAttribute('aria-selected','true');
-      stackTabs();
+      stackTabs(); revealTab(b);
       document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
       $('#p-'+pair[0]).classList.add('on');
     };
