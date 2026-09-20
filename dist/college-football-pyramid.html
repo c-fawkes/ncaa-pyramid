@@ -1870,6 +1870,7 @@ function renderLeague(){
   if($('#lgView').value==='list') return renderFlat(sn,pre,tiers,get,sortBy,host);
   for(const tr of tiers){
     if(pick==='all') host.appendChild(el('h2','sec',tr==='d1'?'Tier I':'Tier II'));
+    const cb=champBox(sn,tr); if(cb) host.appendChild(cb);
     const tin=sn.tiers[tr];
     const atl=new Set(tin.at), seedOf=tin.seedOf;
     const champId=tin.po?tin.po.champion:null;
@@ -1938,6 +1939,7 @@ function renderFlat(sn,pre,tiers,get,sortBy,host){
     if(sortBy==='name') order.sort((a,b)=>get(a).name.localeCompare(get(b).name));
     else if(sortBy==='rating') order.sort((a,b)=>get(b).rating-get(a).rating);
     else order.sort((a,b)=>sn.rank[a]-sn.rank[b]);
+    const cbf=champBox(sn,tr); if(cbf) host.appendChild(cbf);
     const box=el('div','divblock');
     box.innerHTML='<div class="divhead" style="--c:var(--chalk)"><h3>'+
       (tr==='d1'?'Tier I':'Tier II')+'</h3><span>'+ids.length+' teams, one table</span></div>'+
@@ -1997,12 +1999,7 @@ function renderPlayoff(){
   const po=sn.tiers[tr].po, T=sn.teams, R=sn.rank, seedOf=sn.tiers[tr].seedOf;
   if(!po){host.innerHTML='<div class="empty">Not enough divisions to seed a bracket.</div>';return;}
   host.innerHTML='';
-  const ch=T[po.champion];
-  const chBox=el('div','champ','<b>'+esc(ch.name)+'</b><span class="note">'+
-    (tr==='d1'?'Tier I':'Tier II')+' champion, '+sn.season+' \u00b7 '+ch.w+'-'+ch.l+' \u00b7 '+esc(ch.div)+'</span>');
-  chBox.style.borderColor=CC[ch.conf];
-  chBox.style.background='color-mix(in srgb, '+CC[ch.conf]+' 10%, transparent)';
-  host.appendChild(chBox);
+  host.appendChild(champBox(sn,tr));
   const side=(id,cls,score)=>{
     const d=T[id].div, c=dcol(d);
     const sd='<span class="sd">'+(seedOf[id]?seedOf[id]:'#'+R[id])+'</span>';
@@ -2063,6 +2060,21 @@ function renderPlayoff(){
   const bd=el('div','divbody'); bd.appendChild(br); wrap.appendChild(bd); host.appendChild(wrap);
   if(po.bowls && po.bowls.length)
     host.appendChild(sec('Bowl season','the rest of the slate, for teams that missed the field',po.bowls,true));
+}
+
+// The champion banner, shared by the playoff tab and the head of each league
+// table. Null in a preseason, or before a bracket has been seeded.
+function champBox(sn,tr){
+  const tin=sn.tiers[tr], po=tin&&tin.po;
+  if(!po) return null;
+  const ch=sn.teams[po.champion];
+  if(!ch) return null;
+  const b=el('div','champ','<b>'+esc(ch.name)+'</b><span class="note">'+
+    (tr==='d1'?'Tier I':'Tier II')+' champion, '+sn.season+' \u00b7 '+ch.w+'-'+ch.l+
+    ' \u00b7 '+esc(ch.div)+'</span>');
+  b.style.borderColor=CC[ch.conf];
+  b.style.background='color-mix(in srgb, '+CC[ch.conf]+' 10%, transparent)';
+  return b;
 }
 
 /* ---------- movement ---------- */
