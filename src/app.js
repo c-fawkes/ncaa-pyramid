@@ -793,7 +793,8 @@ function buildTabs(){
 function renderDeck(){
   $('#s-d1').textContent=sizeOf('d1');
   $('#s-d2').textContent=sizeOf('d2');
-  $('#s-cycle').textContent = S.inCycle>=2 ? 'Ready now' : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s');
+  $('#s-cycle').textContent = S.inCycle>=2 ? 'Reshuffle ready'
+    : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s')+' to reshuffle';
   const pending = S.phase==='done' && S.inCycle>=2;
   // One button walks the league forward: play the season, advance to the next
   // preseason, and when two seasons are in the books, settle the table.

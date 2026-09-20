@@ -57,8 +57,6 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 .sheetbody ul,.sheetbody ol{margin:0 0 9px;padding-left:20px;font-size:13.5px;opacity:.9}
 .sheetbody li{margin-bottom:3px}
 .sheetbody b{opacity:1}
-.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:10px 10px 0 0;overflow:hidden}
 .cell{background:var(--field2);padding:9px 10px}
 .cell b{display:block;font-size:19px;font-weight:750;letter-spacing:-.02em}
 .cell span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
@@ -67,11 +65,17 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 #cell-season.archive{background:rgba(249,199,79,.14);box-shadow:inset 3px 0 0 var(--central)}
 #cell-season.archive select{color:var(--central)}
 #cell-season.archive span{color:var(--central)}
-.deck{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--field3);
-  padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.deck .grow{flex:1 1 auto}
-.deck .note{margin:0}
-.deck label{color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:5px}
+.titlerow .grow{flex:1 1 auto}
+.iconbtn{background:rgba(255,123,114,.12);color:var(--down);border:1px solid rgba(255,123,114,.45);
+  border-radius:999px;width:34px;height:34px;padding:0;cursor:pointer;flex:0 0 auto;
+  display:inline-flex;align-items:center;justify-content:center}
+.iconbtn:hover{background:rgba(255,123,114,.22);border-color:var(--down)}
+/* the counts ride under the season selector, so they pin with it */
+.statline{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:baseline;
+  padding:7px 0 0;color:var(--muted);font-size:12px}
+.statline b{color:var(--chalk);font-weight:700;font-size:12.5px;margin-right:4px}
+.statline .grow{flex:1 1 auto}
+.statline .note{margin:0;font-size:12px}
 
 /* The season row and the tabs ride along at the top of the viewport. One sticky
    wrapper rather than two stacked ones, so the tabs need no magic offset. */
@@ -99,9 +103,6 @@ nav button:focus-visible,.btn:focus-visible,select:focus-visible,tr.clickrow:foc
   font:inherit;font-weight:650;cursor:pointer}
 .btn.ghost{background:transparent;color:var(--chalk);border:1px solid var(--line)}
 .btn.go{background:var(--up);color:#0c2318}
-.btn.danger{background:rgba(255,123,114,.12);color:var(--down);
-  border:1px solid rgba(255,123,114,.45)}
-.btn.danger:hover{background:rgba(255,123,114,.22);border-color:var(--down)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
 .row .grow{flex:1 1 auto}
@@ -238,8 +239,6 @@ details.cyc>summary:focus-visible{outline:2px solid var(--western);outline-offse
 summary{cursor:pointer;font-weight:600}
 details p{font-size:13px;color:var(--muted)}
 @media (max-width:560px){
-  .strip{grid-template-columns:repeat(2,1fr)}
-  .strip .cell:last-child{grid-column:1/-1}
   th,td{padding:5px 4px;font-size:12.5px}
   .hidesm{display:none}
   th,td{padding:5px 3px}
@@ -255,16 +254,19 @@ details p{font-size:13px;color:var(--muted)}
     <h1>The Pyramid</h1>
     <button class="infobtn" id="infoBtn" aria-haspopup="dialog">
       <span aria-hidden="true">i</span> How this works</button>
-  </div>
-  <div class="strip">
-    <div class="cell"><b id="s-d1">—</b><span>Tier I teams</span></div>
-    <div class="cell"><b id="s-d2">—</b><span>Tier II teams</span></div>
-    <div class="cell"><b id="s-cycle">—</b><span>Next reshuffle</span></div>
-  </div>
-  <div class="deck">
-    <span class="note" id="deckHint"></span>
     <span class="grow"></span>
-    <button class="btn danger" id="resetBtn" title="Start over from the 2027 preseason">Reset league</button>
+    <button class="iconbtn" id="resetBtn" aria-label="Reset league"
+            title="Reset league — start over from the 2027 preseason">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <g id="recyArm">
+          <path d="M12.62 5.88L16.49 12.58" fill="none" stroke="currentColor"
+                stroke-width="1.9" stroke-linecap="round"/>
+          <polygon points="14.84,13.53 18.13,11.63 17.79,14.83" fill="currentColor"/>
+        </g>
+        <use href="#recyArm" transform="rotate(120 12 12)"/>
+        <use href="#recyArm" transform="rotate(240 12 12)"/>
+      </svg>
+    </button>
   </div>
 </header>
 
@@ -275,6 +277,13 @@ details p{font-size:13px;color:var(--muted)}
     <span class="grow"></span>
     <button class="btn ghost" id="backBtn" hidden>Back to now</button>
     <button class="btn" id="actBtn">Play season</button>
+  </div>
+  <div class="statline">
+    <span><b id="s-d1">—</b>Tier I</span>
+    <span><b id="s-d2">—</b>Tier II</span>
+    <span id="s-cycle">—</span>
+    <span class="grow"></span>
+    <span class="note" id="deckHint"></span>
   </div>
   <nav id="tabs" role="tablist"></nav>
 </div>
@@ -1276,7 +1285,8 @@ function buildTabs(){
 function renderDeck(){
   $('#s-d1').textContent=sizeOf('d1');
   $('#s-d2').textContent=sizeOf('d2');
-  $('#s-cycle').textContent = S.inCycle>=2 ? 'Ready now' : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s');
+  $('#s-cycle').textContent = S.inCycle>=2 ? 'Reshuffle ready'
+    : (2-S.inCycle)+' season'+(2-S.inCycle===1?'':'s')+' to reshuffle';
   const pending = S.phase==='done' && S.inCycle>=2;
   // One button walks the league forward: play the season, advance to the next
   // preseason, and when two seasons are in the books, settle the table.
