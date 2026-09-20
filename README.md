@@ -64,6 +64,10 @@ to the end.
 - **3 crossover games** against the other half of the conference, rotating yearly
 - **the rest non-conference**, matched on rating and nudged to level out schedule strength
 
+Nobody meets the same opponent twice in a regular season. When a team runs out of legal
+opponents, a game between two teams it has not played is split between it and the other team
+still short, rather than sending either out against someone they have already met.
+
 The division slate is a full round robin split in half by circulant offsets: one season takes
 the low offsets, the next takes the rest. Together they cover every pairing, so every team
 plays its entire division once per cycle. Everyone in a division plays the same number of
@@ -155,8 +159,9 @@ tier sizes hold at 128 and 138 across cycles.
 colors: with twelve games a team, a pairing met at most twice and fourteen weeks, Vizing's
 bound for multigraphs says a valid calendar always exists, so a fifteenth week is a scheduler
 bug rather than bad luck. It builds 256 calendars and checks every one closes in fourteen weeks
-with nobody booked twice and no team's two byes closer than five weeks. The seeds it ships
-with are ones that used to overflow.
+with nobody booked twice, no team's two byes closer than five weeks, every team on exactly
+twelve games and no pairing played twice. The seeds it ships with are ones that used to
+overflow.
 
 ## Notes
 

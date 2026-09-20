@@ -780,9 +780,13 @@ function buildSchedule(tier,year,half){
       if(!best||sc<best.sc) best={b,sc};
     }
     if(!best){
-      // nothing new left: replay someone from outside the division rather than leave a hole
+      // Nothing new left for this team. Rather than send it out against someone
+      // it has already played, take a game off two teams that are full and
+      // split it, which finds fresh opponents for both of the teams still short.
+      if(rescue(a,open.find(x=>x!==a))) continue;
+      // only if even that fails: a replay outside the division beats a hole
       const b=open.find(x=>x!==a && bucket(a,x)!=='div');
-      if(!b){ if(rescue(a,open.find(x=>x!==a))) continue; cnt[a.id]=12; continue; }
+      if(!b){ cnt[a.id]=12; continue; }
       seen.delete(key(a,b)); add(a,b,null,true); continue;
     }
     oppSum[a.id]+=best.b.rating; oppSum[best.b.id]+=a.rating;
@@ -1194,12 +1198,13 @@ function playSeason(){
 }
 const fg = g => ({h:g.h.id,v:g.v.id,hs:g.hs,vs:g.vs,label:g.label,bowl:g.bowl||null,city:g.city||null});
 function makeSnap(res){
-  const sn={kind:'season', season:S.season, weeks:WEEKS, tiers:{}, rank:{}, teams:{}, sched:{},
+  const sn={kind:'season', season:S.season, weeks:WEEKS, inCycle:S.inCycle, cycle:S.cycle,
+    tiers:{}, rank:{}, teams:{}, sched:{},
     quota:Object.fromEntries(DIVS.map(d=>[d,quotaFor(d)]))};
   for(const t of S.teams){
     sn.teams[t.id]={name:t.name,city:t.city,st:t.st,conf:t.conf,div:t.div,tier:t.tier,
       rival:t.rival,rating:Math.round(t.rating),w:t.w,l:t.l,dw:t.dw,dl:t.dl,pf:t.pf,pa:t.pa,
-      sos:Math.round(sos(t)),cs:Math.round(cscore(t))};
+      cw:t.cw,cl:t.cl,sos:Math.round(sos(t)),cs:Math.round(cscore(t))};
   }
   for(const tr of ['d1','d2']){
     const ranked=tierTeams(tr).slice().sort((a,b)=>cscore(b)-cscore(a));
@@ -1426,19 +1431,20 @@ function schedHTML(id){
       ? (pre?' \u2014 on the schedule this year.':' \u2014 played this year.')
       : ' \u2014 not on the schedule this year; the fixture runs three years in four.');
   })();
-  const dotNote = reg.some(x=>T[x.o].conf!==me.conf||T[x.o].div!==me.div)
-      ?' A dot marks an opponent from outside the division \u2014 in the conference color for a '+
-       'non-conference game, in the other half\u2019s shade for a crossover.':'';
+  // the dot key lives at the top of the league now, since it reads the same on
+  // every team's schedule
+  const twoYear = sn.inCycle>=2 && me.cw+me.cl
+    ? ' Two-year record '+me.cw+'\u2013'+me.cl+', with the cycle now complete.' : '';
   const mix={division:0,crossover:0,'non-conference':0};
   reg.forEach(x=>{mix[kind(x)]++;});
   let head = pre
     ? esc(me.name)+' opens '+sn.season+' in '+tierOf(me)+', ranked #'+R[id]+' by rating. '+
       reg.length+' games across '+(sn.weeks||WEEKS)+' weeks: '+mix.division+' in division, '+
       mix.crossover+' crossover, '+mix['non-conference']+' non-conference. Opponents average '+
-      'rank #'+avgRk+' and rating '+avgRt+'.'+dotNote+rivalNote
+      'rank #'+avgRk+' and rating '+avgRt+'.'+rivalNote
     : esc(me.name)+' finished '+w+'\u2013'+(reg.length-w)+', ranked #'+R[id]+' in '+
       tierOf(me)+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
-      ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+dotNote+rivalNote;
+      ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+twoYear+rivalNote;
   if(post.length){
     const pw=post.filter(x=>x.f>x.a).length;
     head += pw===post.length ? ' Won the title, '+pw+'\u20130 in the playoff.'
@@ -2000,10 +2006,13 @@ function renderLeague(){
   const host=$('#league'), pick=$('#lgTier').value, sortBy=$('#lgSort').value, sn=snap();
   const pre = sn.kind==='pre';
   host.innerHTML='';
-  $('#lgNote').textContent = pre
+  $('#lgNote').textContent = (pre
     ? sn.season+' preseason. Rank is by rating; no games played yet.'
-    : sn.season+' results. Rank is across the whole tier. Tap a team to open its schedule.'+
-      (sn.moves ? ' This season closed a cycle \u2014 promotions and relegations are marked.' : '');
+    : sn.season+' results. Rank is across the whole tier.'+
+      (sn.moves ? ' This season closed a cycle \u2014 promotions and relegations are marked.' : ''))+
+    ' Tap a team for its schedule, where a dot marks an opponent from outside its division '+
+    '\u2014 in the conference color for a non-conference game, in the other half\u2019s shade '+
+    'for a crossover.';
   const M=sn.moves||{};
   const upS=new Set(M.up||[]), dnS=new Set(M.down||[]);
   const nuS=new Set(M.nearUp||[]), ndS=new Set(M.nearDown||[]);

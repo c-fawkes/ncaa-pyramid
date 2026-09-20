@@ -40,6 +40,13 @@ function run(seed) {
            (weeks[id] = weeks[id] || []).push(x.week);
          }
        }
+       // Nobody meets the same opponent twice in one regular season.
+       const met = {};
+       for(const x of g){
+         const k = [x.h.id, x.v.id].sort().join('|');
+         if(met[k]) window.__bad.push(x.h.name + ' meets ' + x.v.name + ' twice');
+         met[k] = 1;
+       }
        // Nobody is left a game short: a team that runs out of legal opponents
        // has to be rescued, not quietly written off with eleven.
        for(const t of tt){
