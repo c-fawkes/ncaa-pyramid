@@ -662,8 +662,11 @@ function schedHTML(id){
   const line=(x,lab)=>{
     const win=x.f>x.a, o=T[x.o];
     const rv = x.t==='rivalry' ? '<span class="rivtag">rivalry</span>' : '';
-    const out = o.conf!==T[id].conf
-      ? '<span class="cdot" style="background:'+CC[o.conf]+'" title="'+esc(o.conf)+'"></span>' : '';
+    const me2=T[id];
+    const out = o.conf!==me2.conf
+      ? '<span class="cdot" style="background:'+CC[o.conf]+'" title="'+esc(o.conf)+'"></span>'
+      : (o.div!==me2.div
+        ? '<span class="cdot" style="background:'+dcol(o.div)+'" title="'+esc(o.div)+' \u00b7 crossover"></span>' : '');
     return '<tr'+(x.ps?' class="ps"':'')+'><td class="n" style="color:var(--muted)">'+
       (x.ps?'<span class="stage">'+lab+'</span>':lab)+'</td>'+
       '<td>'+out+'<span class="rk">#'+R[x.o]+'</span>'+(x.home===false?'at ':(x.ps?'vs ':''))+esc(o.name)+rv+'</td>'+
@@ -677,7 +680,9 @@ function schedHTML(id){
   let head=esc(me.name)+' finished '+w+'\u2013'+(reg.length-w)+', ranked #'+R[id]+' in '+
     (me.tier==='d1'?'Tier I':'Tier II')+'. Opponents averaged rank #'+avgRk+' and rating '+avgRt+
     ', the '+ord(me.sosRank)+' hardest schedule in the tier.'+
-    (reg.some(x=>T[x.o].conf!==me.conf)?' A dot marks an opponent from another conference.':'')+
+    (reg.some(x=>T[x.o].conf!==me.conf||T[x.o].div!==me.div)
+      ?' A dot marks an opponent from outside the division \u2014 in the conference colour for a '+
+       'non-conference game, in the other half\u2019s shade for a crossover.':'')+
     (me.rival?' Rival: '+esc(me.rival)+'.':'');
   if(post.length){
     const pw=post.filter(x=>x.f>x.a).length;
@@ -758,7 +763,7 @@ function renderDeck(){
     btn.disabled=false; btn.className='btn';
     btn.onclick=()=>{playSeason();renderAll();};
   }else{
-    btn.textContent='Advance to '+(S.season+1);
+    btn.textContent='Advance to '+(S.season+1)+' preseason';
     btn.className='btn ghost';
     btn.disabled=pending;
     btn.onclick=()=>{advance();renderAll();};
@@ -774,6 +779,10 @@ function renderDeck(){
   const archive = S.view !== S.snaps.length-1;
   $('#cell-season').classList.toggle('archive',archive);
   $('#seasonLbl').textContent = archive ? 'Archive \u00b7 now in '+S.season : 'Viewing';
+  const back=$('#backBtn');
+  back.hidden = !archive;
+  back.textContent = 'Back to '+S.season;
+  back.title = 'Leave the archive and return to the '+S.season+' season';
 }
 
 /* ---------- map ---------- */
@@ -1136,6 +1145,12 @@ function renderDivLegend(){
   $('#divLegend').innerHTML = DIVS.map(d=>
     '<span><i style="background:'+dcol(d)+'"></i>'+esc(d)+'</span>').join('');
 }
+// Southeast A -> SECA: the conference initials, C for conference, then the division half.
+const CONFAB = {Northeast:'NEC', Southeast:'SEC', Central:'CC', Western:'WC'};
+const confAbbr = c => CONFAB[c] || c.slice(0,1).toUpperCase()+'C';
+const divAbbr = d => { const i=d.lastIndexOf(' ');
+  return confAbbr(d.slice(0,i))+d.slice(i+1); };
+
 function renderPlayoff(){
   const host=$('#playoffOut'), tr=$('#poTier').value, sn=snap();
   if(sn.kind==='pre'){host.innerHTML='<div class="empty">No bracket for the '+sn.season+
@@ -1153,7 +1168,9 @@ function renderPlayoff(){
     const d=T[id].div, c=dcol(d);
     const sd='<span class="sd">'+(seedOf[id]?seedOf[id]:'#'+R[id])+'</span>';
     return '<div class="'+cls+'" style="border-left:3px solid '+c+'">'+
-      '<span><span class="cdot" style="background:'+c+'" data-div="'+esc(d)+'"></span>'+sd+esc(T[id].name)+'</span>'+
+      '<span><span class="cdot" style="background:'+c+'" data-div="'+esc(d)+'"></span>'+sd+
+      '<span class="tname">'+esc(T[id].name)+'</span>'+
+      '<span class="conftag" title="'+esc(d)+'">'+esc(divAbbr(d))+'</span></span>'+
       '<span>'+score+'</span></div>';
   };
   const line=g=>{
@@ -1174,7 +1191,7 @@ function renderPlayoff(){
   const ccgBox=sec('Conference championships','host campus rotates yearly; winners take seeds 1\u20134',po.ccg,true);
   host.appendChild(ccgBox);
   host.appendChild(sec('At-large play-in','eight winners take seeds 9\u201316',po.pin,true));
-  const COLW=190, GAP=46, MH=72, SLOT=92;
+  const COLW=216, GAP=46, MH=72, SLOT=92;
   const pos=[];
   po.rounds.forEach((rd,r)=>{
     pos[r]=rd.games.map((g,i)=> r===0 ? i*SLOT : (pos[r-1][2*i]+pos[r-1][2*i+1])/2);
@@ -1199,7 +1216,7 @@ function renderPlayoff(){
         cap(g)+line(g)+'</div>';
     });
   });
-  const br=el('div','bracket','<div class="brwrap" style="width:'+W+'px;height:'+(H+22)+'px">'+
+  const br=el('div','bracket','<div class="brwrap" style="width:'+W+'px;height:'+(H+26)+'px">'+
     heads+'<div class="brinner" style="height:'+H+'px">'+svg+boxes+'</div></div>');
   const wrap=el('div','divblock');
   wrap.innerHTML='<div class="divhead" style="--c:var(--chalk)"><h3>Main bracket</h3>'+
@@ -1383,6 +1400,7 @@ $('#play2Btn').onclick=()=>{
   settle(); $('#tabs').children[3].click();
 };
 $('#settleBtn').onclick=settle;
+$('#backBtn').onclick=()=>{S.view=S.snaps.length-1;renderViews();renderDeck();};
 $('#resetBtn').onclick=()=>{
   if(confirm('Start over from the 2027 preseason? This clears everything you’ve played so far.')) location.reload();
 };
