@@ -30,14 +30,23 @@ function run(seed) {
      const _aw = assignWeeks;
      assignWeeks = function(g, t){
        const r = _aw(g, t);
-       const seen = {};
+       const seen = {}, weeks = {};
        for(const x of g){
          if(!x.week){ window.__bad.push('unplaced game'); continue; }
          for(const id of [x.h.id, x.v.id]){
            const k = id + '@' + x.week;
            if(seen[k]) window.__bad.push(id + ' booked twice in week ' + x.week);
            seen[k] = 1;
+           (weeks[id] = weeks[id] || []).push(x.week);
          }
+       }
+       // A team's two byes have to sit BYE_GAP weeks apart or more, so nobody
+       // gets a fortnight off and then plays every week to the end.
+       for(const id in weeks){
+         const on = new Set(weeks[id]), bye = [];
+         for(let w = 1; w <= WEEKS; w++) if(!on.has(w)) bye.push(w);
+         if(bye.length === 2 && bye[1] - bye[0] < BYE_GAP)
+           window.__bad.push(id + ' byes in weeks ' + bye.join(' and '));
        }
        window.__weeks.push(r); return r;
      };`);

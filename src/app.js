@@ -206,6 +206,8 @@ function buildSchedule(tier,year,half){
 // left going first. Division games stop clumping at the front and everybody ends
 // up with at least one open Saturday.
 const WEEKS=14;
+const BYE_GAP=5;                        // a team's two byes sit at least this
+                                        // far apart, so never within four weeks
 function assignWeeks(games, teams){
   const busy={}, left={};
   teams.forEach(t=>{ busy[t.id]=new Map(); left[t.id]=0; });
@@ -249,10 +251,11 @@ function assignWeeks(games, teams){
     for(const [u,v] of [[g.h.id,g.v.id],[g.v.id,g.h.id]]){
       for(const a of freeList(u)) for(const b of freeList(v)){
         if(a===b){ place(g,a); return true; }
-        const chain=[]; let node=v, want=a, guard=0;
-        while(guard++<=WEEKS+1){
+        const chain=[], seen=new Set(); let node=v, want=a;
+        for(;;){
           const e=busy[node].get(want);
-          if(!e) break;
+          if(!e || seen.has(e)) break;      // ends, or closes a cycle
+          seen.add(e);
           chain.push({e, to: want===a?b:a});
           node = e.h.id===node ? e.v.id : e.h.id;
           want = want===a ? b : a;
@@ -284,6 +287,69 @@ function assignWeeks(games, teams){
     }
     if(!done && kempe(g)) done=true;
     if(!done) stuck.push(g);
+  }
+  // Twelve games in fourteen weeks leaves everyone two Saturdays off, and two
+  // of them close together means one long grind either side of a fortnight's
+  // rest. To move a bye off week b to week a, walk the chain of games out of the
+  // team alternating between those two weeks and swap them along it: the team
+  // ends up playing in b and idle in a. Everyone in the middle of the chain
+  // holds a game in both weeks, so their byes do not move at all — only the far
+  // end of the chain trades one for the other, and if that crowds it the swap
+  // goes back.
+  const byesOf=id=>{ const b=[]; for(let wk=1;wk<=WEEKS;wk++) if(!busy[id].has(wk)) b.push(wk); return b; };
+  const tight=id=>{ const b=byesOf(id); return b.length===2 && b[1]-b[0]<BYE_GAP; };
+  const walk=(from,a,b2)=>{
+    const chain=[], seen=new Set(); let node=from, want=b2;
+    for(;;){
+      const e=busy[node].get(want);
+      if(!e || seen.has(e)) break;          // ends, or closes a cycle
+      seen.add(e);
+      chain.push({e, from:want, to: want===a?b2:a});
+      node = e.h.id===node ? e.v.id : e.h.id;
+      want = want===a ? b2 : a;
+    }
+    return {chain, end:node};
+  };
+  const shift=(chain,back)=>{
+    for(const c of chain) lift(c.e);
+    for(const c of chain) place(c.e, back?c.from:c.to);
+  };
+  // Two rounds. The first only takes swaps that leave nobody worse off. If any
+  // team is still boxed in after that, the second lets the problem be handed to
+  // the far end of the chain instead, which is usually easier to place from
+  // there; a team can only be handed it twice, so this cannot ring around
+  // forever.
+  const spoiled={};
+  for(let round=0;round<2;round++){
+    const trade=round===1;
+    for(let pass=0;pass<60;pass++){
+      const bad=teams.filter(t=>tight(t.id));
+      if(!bad.length) break;
+      let moved=false;
+      for(const t of bad){
+        if(!tight(t.id)) continue;
+        const b=byesOf(t.id);
+        let done=false;
+        for(const target of b){
+          const keep = target===b[0] ? b[1] : b[0];
+          for(let w=1;w<=WEEKS && !done;w++){
+            if(!busy[t.id].has(w)) continue;            // already a bye
+            if(Math.abs(w-keep)<BYE_GAP) continue;      // would not settle it
+            const {chain,end}=walk(t.id,target,w);
+            if(!chain.length || end===t.id) continue;
+            const endWas=tight(end);
+            shift(chain,false);
+            const spoils=tight(end)&&!endWas;
+            const ok = !tight(t.id) && (!spoils || (trade && (spoiled[end]||0)<2));
+            if(!ok){ shift(chain,true); continue; }
+            if(spoils) spoiled[end]=(spoiled[end]||0)+1;
+            done=true; moved=true;
+          }
+          if(done) break;
+        }
+      }
+      if(!moved) break;
+    }
   }
   let over=WEEKS;
   for(const g of stuck){ over++; place(g,over); }

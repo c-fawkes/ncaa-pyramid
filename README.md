@@ -56,7 +56,9 @@ Tier II uses the same four footprints, so a team that changes tier never changes
 
 ## Schedules
 
-Twelve games across a fourteen-week calendar, with at least one bye for every team.
+Twelve games across a fourteen-week calendar. Everyone sits out twice, and a team's two byes
+are always at least five weeks apart, so nobody gets a fortnight off and then plays every week
+to the end.
 
 - **7 or 8 division games**, alternating across the two seasons of a cycle
 - **3 crossover games** against the other half of the conference, rotating yearly
@@ -153,7 +155,8 @@ tier sizes hold at 128 and 138 across cycles.
 colors: with twelve games a team, a pairing met at most twice and fourteen weeks, Vizing's
 bound for multigraphs says a valid calendar always exists, so a fifteenth week is a scheduler
 bug rather than bad luck. It builds 256 calendars and checks every one closes in fourteen weeks
-with nobody booked twice. The seeds it ships with are ones that used to overflow.
+with nobody booked twice and no team's two byes closer than five weeks. The seeds it ships
+with are ones that used to overflow.
 
 ## Notes
 
