@@ -32,9 +32,9 @@ Five tabs:
 | Tab | What's in it |
 |---|---|
 | **League** | Standings by division or as one list, either tier or both, ordered by standing, rating or name. Tap a team for its full schedule — drawn up in the preseason, so you can read it before a ball is kicked |
-| **Map** | Every campus on a projected US map — filled markers Tier I, hollow Tier II, two shades per conference for its A and B halves. Tap a marker for a team and its schedule; stars mark division winners, the circled star the national champion |
 | **Playoff** | The twenty-four-team bracket for either tier, with the bowl hosting each round |
-| **Up & down** | Who is relegated, who is promoted, and the numbers behind each call, grouped by cycle or by conference |
+| **Map** | Every campus on a projected US map — filled markers Tier I, hollow Tier II, two shades per conference for its A and B halves. Pinch or use the corner buttons to zoom and drag to move around; zooming pulls crowded clusters apart. Tap a marker for a team and its schedule; stars mark division winners, the circled star the national champion |
+| **Up & down** | Who is relegated, who is promoted, and the numbers behind each call, grouped by cycle or by conference. Also where the tier counts and the countdown to the next reshuffle live |
 | **Ratings** | Search and hand-edit any team's rating; turn season-to-season drift off |
 
 `Reset league` puts you back at the 2027 preseason.
@@ -50,7 +50,8 @@ Nebraska into Western — the Southeast has about 41 teams competing for 35 seat
 half built to match on center *and* spread. A snake draft over adjacent rating pairs gives each
 half one team from every rung of the ladder; a local search then polishes against a cost that
 weights standard deviation, decile counts, quartile extremes and the mean. At the opening
-alignment the halves differ by at most 0.02 in standard deviation.
+alignment an evenly split conference matches on average rating exactly, and no conference's
+halves differ by more than 0.04 in spread.
 
 Tier II uses the same four footprints, so a team that changes tier never changes region.
 
