@@ -28,8 +28,8 @@ function run(seed) {
   // it hands back: one game a team a week, and every game actually placed.
   E(`window.__weeks = []; window.__bad = [];
      const _aw = assignWeeks;
-     assignWeeks = function(g, t){
-       const r = _aw(g, t);
+     assignWeeks = function(g, tt){
+       const r = _aw(g, tt);
        const seen = {}, weeks = {};
        for(const x of g){
          if(!x.week){ window.__bad.push('unplaced game'); continue; }
@@ -39,6 +39,12 @@ function run(seed) {
            seen[k] = 1;
            (weeks[id] = weeks[id] || []).push(x.week);
          }
+       }
+       // Nobody is left a game short: a team that runs out of legal opponents
+       // has to be rescued, not quietly written off with eleven.
+       for(const t of tt){
+         const n = (weeks[t.id] || []).length;
+         if(n !== 12) window.__bad.push(t.name + ' plays ' + n + ' games');
        }
        // A team's two byes have to sit BYE_GAP weeks apart or more, so nobody
        // gets a fortnight off and then plays every week to the end.

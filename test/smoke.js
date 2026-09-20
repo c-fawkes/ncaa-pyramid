@@ -49,8 +49,9 @@ step();
   const sn = snap(latest());
   const games = id => sn.sched[id].filter(x => !x.ps);
   const ids = Object.keys(sn.sched);
-  check('every team plays twelve or thirteen games',
-    ids.every(id => { const n = games(id).length; return n === 12 || n === 13; }));
+  const short = ids.filter(id => games(id).length !== 12);
+  check('every team plays exactly twelve games', short.length === 0,
+    short.map(id => sn.teams[id].name + ' ' + games(id).length).join(', '));
   const perDiv = {};
   for (const id of ids) {
     const me = sn.teams[id];

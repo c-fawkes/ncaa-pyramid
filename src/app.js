@@ -170,6 +170,34 @@ function buildSchedule(tier,year,half){
     for(let k=0;k<3;k++){const off=year*3+k;
       for(let i=0;i<B.length;i++) add(B[i],A[(i+off)%A.length],'cross');}
   }
+  // Two division mates can end up needing one more game each with nobody legal
+  // left: everyone outside their division is full, and the one pairing they
+  // have left is with each other, which their division allotment forbids. So
+  // take a game between two teams neither of them has met and split it — c
+  // plays a, d plays b. c and d stay on twelve and both of these reach it.
+  function rescue(a,b){
+    if(!a||!b||a===b) return false;
+    const pairOK=(x,y)=> x!==y && bucket(x,y)!=='div' && !seen.has(key(x,y)) && cnt[y.id]>=12;
+    for(const g of games){
+      const c=g.h, d=g.v;
+      if(c===a||c===b||d===a||d===b) continue;
+      // never rob the division slate or a rivalry: one is the round robin the
+      // cycle has to cover, the other is the game people came for
+      if(bucket(c,d)==='div' || g.type==='rivalry') continue;
+      let x=null,y=null;
+      if(pairOK(a,c)&&pairOK(b,d)) { x=c; y=d; }
+      else if(pairOK(a,d)&&pairOK(b,c)) { x=d; y=c; }
+      else continue;
+      // unpick the donor game, giving its two teams a slot back each
+      games.splice(games.indexOf(g),1);
+      seen.delete(key(c,d));
+      cnt[c.id]--; cnt[d.id]--; home[g.h.id]--;
+      if(bucket(c,d)==='cross'){ xc[c.id]--; xc[d.id]--; }
+      add(a,x,null,true); add(b,y,null,true);
+      return true;
+    }
+    return false;
+  }
   const mean=teams.reduce((s,t)=>s+t.rating,0)/teams.length;
   const oppSum={}; teams.forEach(t=>oppSum[t.id]=0);
   for(const g of games){oppSum[g.h.id]+=g.v.rating; oppSum[g.v.id]+=g.h.rating;}
@@ -191,7 +219,7 @@ function buildSchedule(tier,year,half){
     if(!best){
       // nothing new left: replay someone from outside the division rather than leave a hole
       const b=open.find(x=>x!==a && bucket(a,x)!=='div');
-      if(!b){cnt[a.id]=12;continue;}
+      if(!b){ if(rescue(a,open.find(x=>x!==a))) continue; cnt[a.id]=12; continue; }
       seen.delete(key(a,b)); add(a,b,null,true); continue;
     }
     oppSum[a.id]+=best.b.rating; oppSum[best.b.id]+=a.rating;
