@@ -126,8 +126,22 @@ input[type=search]{width:100%;max-width:340px}
 .chip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;
   background:currentColor;vertical-align:1px}
 
-.mapbox{border:1px solid var(--line);border-radius:12px;background:var(--field2);overflow:hidden}
+.mapbox{border:1px solid var(--line);border-radius:12px;background:var(--field2);
+  overflow:hidden;position:relative}
+/* pinch reaches the map either way; once zoomed it takes the drag too */
 svg.map{display:block;width:100%;height:auto;touch-action:pan-y}
+svg.map.zoomed{cursor:grab}
+/* Markers hold their size on screen as the map grows under them, so zooming
+   pulls a crowded cluster apart instead of just magnifying it. One variable on
+   the svg moves every dot at once. */
+svg.map .dot{transform-box:fill-box;transform-origin:center;transform:scale(var(--mk,1))}
+svg.map line,svg.map .st,svg.map .inset{vector-effect:non-scaling-stroke}
+.zoomctl{position:absolute;right:9px;top:9px;display:flex;flex-direction:column;gap:5px;z-index:2}
+.zoomctl button{width:30px;height:30px;padding:0;font:inherit;font-size:15px;line-height:1;
+  cursor:pointer;border-radius:8px;border:1px solid var(--line);
+  background:rgba(12,35,24,.86);color:var(--chalk)}
+.zoomctl button:hover{border-color:var(--chalk)}
+.zoomctl button:disabled{opacity:.35;cursor:not-allowed}
 .st{fill:#0f2b1d;stroke:#1d4631;stroke-width:.8}
 .dot{cursor:pointer}
 .dot:hover circle{stroke:var(--chalk);stroke-width:1.6}
@@ -236,7 +250,7 @@ h2.sec{font-size:17px;margin:20px 0 2px;letter-spacing:-.02em;
 .note{color:var(--muted);font-size:12.5px;margin:8px 0}
 .empty{color:var(--muted);border:1px dashed var(--line);border-radius:12px;padding:22px;text-align:center}
 details{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:10px 0;background:var(--field2)}
-details.cyc{padding:0;margin:12px 0;border-radius:12px;overflow:hidden}
+details.cyc{padding:0;margin:12px 0;border-radius:12px;overflow:clip}
 details.cyc>summary{cursor:pointer;list-style:none;user-select:none}
 details.cyc>summary::-webkit-details-marker{display:none}
 details.cyc>summary::after{content:"\25be";margin-left:auto;padding-left:10px;color:var(--muted);
@@ -332,8 +346,16 @@ details p{font-size:13px;color:var(--muted)}
   </div>
   <p class="note" id="mapNote"></p>
   <div class="chips" id="mapChips"></div>
-  <div class="mapbox"><div id="mapHost"></div></div>
-  <p class="note">Filled markers are Tier I, hollow ones Tier II. Tap any marker for the team
+  <div class="mapbox">
+    <div id="mapHost"></div>
+    <div class="zoomctl">
+      <button type="button" id="zIn" title="Zoom in" aria-label="Zoom in">+</button>
+      <button type="button" id="zOut" title="Zoom out" aria-label="Zoom out">−</button>
+      <button type="button" id="zReset" title="Reset zoom" aria-label="Reset zoom">↺</button>
+    </div>
+  </div>
+  <p class="note">Pinch or use the buttons to zoom, then drag to move around.
+     Filled markers are Tier I, hollow ones Tier II. Tap any marker for the team
      and its schedule, then switch the map to that team’s season. Each conference has two shades —
      its A and B halves are strength-balanced, so they interleave right across the footprint.
      Stars are division winners; the circled star is the national champion.</p>

@@ -839,6 +839,99 @@ function renderDeck(){
     ? 'Two seasons are in the books. Settle the table before moving on.' : '';
 }
 
+/* ---------- map pan and zoom ---------- */
+// The map is one SVG, so zooming is just a narrower viewBox and panning is
+// sliding it. Both render paths mount into #mapHost, so the view survives a
+// re-render and the same handlers serve the season map and the focus map.
+const MAXZ=8;
+let mapView=null, mapDragged=false;
+const mapSvg = () => { const h=$('#mapHost'); return h && h.querySelector('svg.map'); };
+const mapZoomed = () => !!mapView && mapView.w < M.W-0.5;
+function mapApply(){
+  const svg=mapSvg(); if(!svg||!mapView) return;
+  mapView.x=Math.min(M.W-mapView.w, Math.max(0, mapView.x));
+  mapView.y=Math.min(M.H-mapView.h, Math.max(0, mapView.y));
+  svg.setAttribute('viewBox',mapView.x+' '+mapView.y+' '+mapView.w+' '+mapView.h);
+  svg.classList.toggle('zoomed',mapZoomed());
+  // At 1:1 a finger swipe should still scroll the page, since there is nothing
+  // to pan; once zoomed the map takes the gesture and drags instead.
+  svg.style.touchAction = mapZoomed() ? 'none' : 'pan-y';
+  svg.style.setProperty('--mk',(mapView.w/M.W).toFixed(4));   // markers keep their screen size
+  const r=$('#zReset'); if(r) r.disabled=!mapZoomed();
+}
+function mapZoomAt(cx,cy,f){
+  const svg=mapSvg(); if(!svg) return;
+  const r=svg.getBoundingClientRect();
+  const fx=(cx-r.left)/r.width, fy=(cy-r.top)/r.height;
+  const px=mapView.x+fx*mapView.w, py=mapView.y+fy*mapView.h;
+  mapView.w=Math.min(M.W, Math.max(M.W/MAXZ, mapView.w/f));
+  mapView.h=mapView.w*M.H/M.W;
+  mapView.x=px-fx*mapView.w; mapView.y=py-fy*mapView.h;
+  mapApply();
+}
+function mapZoomStep(f){
+  const svg=mapSvg(); if(!svg) return;
+  const r=svg.getBoundingClientRect();
+  mapZoomAt(r.left+r.width/2, r.top+r.height/2, f);
+}
+function mapResetZoom(){ mapView={x:0,y:0,w:M.W,h:M.H}; mapApply(); }
+function attachMapZoom(){
+  const svg=mapSvg(); if(!svg) return;
+  if(!mapView) mapView={x:0,y:0,w:M.W,h:M.H};
+  mapApply();
+  // Listeners live on the SVG, which every render replaces, so nothing leaks.
+  // Pointer capture keeps a drag alive past the edge of the map.
+  const pts=new Map();
+  let g=null;
+  const panFrom=p=>({mode:'pan',cx:p.x,cy:p.y,x:mapView.x,y:mapView.y});
+  svg.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0) return;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+    mapDragged=false;
+    if(pts.size===2){
+      const [a,b]=[...pts.values()];
+      g={mode:'pinch', d:Math.hypot(a.x-b.x,a.y-b.y), w:mapView.w,
+         cx:(a.x+b.x)/2, cy:(a.y+b.y)/2};
+    }else if(pts.size===1 && mapZoomed()){
+      g=panFrom({x:e.clientX,y:e.clientY});
+    }
+  });
+  svg.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId)||!g) return;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    const r=svg.getBoundingClientRect();
+    if(g.mode==='pan'){
+      if(Math.abs(e.clientX-g.cx)+Math.abs(e.clientY-g.cy)>4) mapDragged=true;
+      mapView.x=g.x-(e.clientX-g.cx)/r.width*mapView.w;
+      mapView.y=g.y-(e.clientY-g.cy)/r.height*mapView.h;
+      mapApply(); e.preventDefault();
+    }else if(g.mode==='pinch'&&pts.size>=2&&g.d>0){
+      const [a,b]=[...pts.values()];
+      mapDragged=true;
+      const w=Math.min(M.W, Math.max(M.W/MAXZ, g.w*g.d/Math.hypot(a.x-b.x,a.y-b.y)));
+      const fx=(g.cx-r.left)/r.width, fy=(g.cy-r.top)/r.height;
+      const px=mapView.x+fx*mapView.w, py=mapView.y+fy*mapView.h;
+      mapView.w=w; mapView.h=w*M.H/M.W;
+      mapView.x=px-fx*mapView.w; mapView.y=py-fy*mapView.h;
+      mapApply(); e.preventDefault();
+    }
+  });
+  const lift=e=>{
+    pts.delete(e.pointerId);
+    const left=[...pts.values()];
+    g = left.length===1 && mapZoomed() ? panFrom(left[0]) : null;
+  };
+  svg.addEventListener('pointerup',lift);
+  svg.addEventListener('pointercancel',lift);
+  // a trackpad pinch arrives as ctrl+wheel; a plain wheel still scrolls the page
+  svg.addEventListener('wheel',e=>{
+    if(!e.ctrlKey&&!e.metaKey) return;
+    e.preventDefault();
+    mapZoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*0.01));
+  },{passive:false});
+}
+
 /* ---------- map ---------- */
 let mapGroup='conf';
 let mapFilter=new Set(CONFS);
@@ -904,6 +997,7 @@ function renderMapFocus(sn){
   s+='<g class="dot" data-id="'+me.id+'" data-g="-1"><circle cx="'+mx+'" cy="'+my+'" r="9.5" fill="none" stroke="#eef4ec" stroke-width="1.6" stroke-opacity=".8"/>'+
      '<circle cx="'+mx+'" cy="'+my+'" r="5.5" fill="'+dcol(me.div)+'" stroke="#eef4ec" stroke-width="1.8"/></g>';
   $('#mapHost').innerHTML=s+'</svg>';
+  attachMapZoom();
   const tip=$('#tip');
   $('#mapHost').querySelectorAll('.dot').forEach(el2=>{
     const gi=+el2.dataset.g, t=periodTeam(sn,el2.dataset.id);
@@ -926,6 +1020,7 @@ function renderMapFocus(sn){
     el2.addEventListener('mousemove',showTip);
     el2.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
     el2.addEventListener('click',e=>{
+      if(mapDragged) return;          // that was a pan, not a pick
       showTip(e);
       if(gi>=0){mapFocus=t.id;renderMap();}
       pickTeam(t);
@@ -1018,6 +1113,7 @@ function renderMap(){
     s+='</g>';
   }
   $('#mapHost').innerHTML=s+'</svg>';
+  attachMapZoom();
   const tip=$('#tip'), ix=Object.fromEntries(ordered.map(t=>[t.id,t]));
   $('#mapHost').querySelectorAll('.dot').forEach(g=>{
     const t=ix[g.dataset.id];
@@ -1034,7 +1130,9 @@ function renderMap(){
     };
     g.addEventListener('mousemove',showTip);
     g.addEventListener('mouseleave',()=>{tip.style.opacity=0;});
-    g.addEventListener('click',e=>{showTip(e);pickTeam(t);setTimeout(()=>{tip.style.opacity=0;},1800);});
+    g.addEventListener('click',e=>{
+      if(mapDragged) return;          // that was a pan, not a pick
+      showTip(e);pickTeam(t);setTimeout(()=>{tip.style.opacity=0;},1800);});
   });
 }
 function pickTeam(t){
@@ -1470,7 +1568,11 @@ function measureSticky(){
 $('#mapTier').onchange=()=>{mapFocus=null;renderMap();};
 $('#mapGroup').onchange=e=>{mapGroup=e.target.value;mapFilter=new Set(groupKeys());mapFocus=null;
   renderChips();renderMap();$('#mapPick').innerHTML='';};
-$('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;renderChips();renderMap();$('#mapPick').innerHTML='';};
+$('#mapReset').onclick=()=>{mapFilter=new Set(groupKeys());mapFocus=null;mapResetZoom();
+  renderChips();renderMap();$('#mapPick').innerHTML='';};
+$('#zIn').onclick=()=>mapZoomStep(1.6);
+$('#zOut').onclick=()=>mapZoomStep(1/1.6);
+$('#zReset').onclick=mapResetZoom;
 // tier headings appear and vanish with these, and the sticky stack is offset by them
 const relist=()=>{renderLeague();measureSticky();};
 $('#lgTier').onchange=relist;
