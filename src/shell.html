@@ -77,7 +77,7 @@ h1{font-size:clamp(26px,7vw,44px);line-height:.98;margin:0 0 2px;font-weight:800
 .iconbtn:hover{background:rgba(255,123,114,.22);border-color:var(--down)}
 /* the counts ride under the season selector, so they pin with it */
 .statline{display:flex;gap:6px 12px;flex-wrap:wrap;align-items:baseline;justify-content:center;
-  padding:7px 0 0;color:var(--muted);font-size:12px;text-align:center}
+  padding:14px 0 2px;color:var(--muted);font-size:12px;text-align:center}
 .statline b{color:var(--chalk);font-weight:700;font-size:12.5px;margin-right:4px}
 .statline .sep{color:var(--line);font-style:normal}
 .statline .note{flex:1 1 100%;margin:0;font-size:12px}
@@ -190,6 +190,9 @@ th.whyhead{display:none}
 h4.movehead{margin:14px 2px 2px;font-size:11.5px;font-weight:600;color:var(--muted);
   letter-spacing:.05em;text-transform:uppercase}
 h4.movehead:first-child{margin-top:6px}
+h4.cyclehead{margin:18px 2px 2px;font-size:12.5px;font-weight:700;color:var(--chalk);
+  letter-spacing:-.01em;padding-top:11px;border-top:1px solid rgba(35,84,58,.75)}
+h4.cyclehead:first-child{border-top:0;padding-top:2px;margin-top:8px}
 tr.rel td{background:rgba(255,123,114,.09)}
 tr.pro td{background:rgba(126,231,135,.11)}
 tr.clickrow{cursor:pointer}
@@ -295,7 +298,6 @@ details p{font-size:13px;color:var(--muted)}
    give the rows back to the table. Keyed on height as well as orientation, or
    every desktop monitor would match. */
 @media (orientation:landscape) and (max-height:560px){
-  .statline{display:none}
   /* the season and the forward button share the line and fill it */
   .seasonrow .grow{display:none}
   .seasonrow #cell-season,.seasonrow #actBtn{flex:1 1 0;min-width:0}
@@ -333,14 +335,6 @@ details p{font-size:13px;color:var(--muted)}
       <span id="seasonLbl">Viewing</span></div>
     <span class="grow"></span>
     <button class="btn" id="actBtn">Play season</button>
-  </div>
-  <div class="statline">
-    <span><b id="s-d1">—</b>Tier I</span>
-    <i class="sep" aria-hidden="true">|</i>
-    <span><b id="s-d2">—</b>Tier II</span>
-    <i class="sep" aria-hidden="true">|</i>
-    <span id="s-cycle">—</span>
-    <span class="note" id="deckHint"></span>
   </div>
   <nav id="tabs" role="tablist"></nav>
 </div>
@@ -403,6 +397,14 @@ details p{font-size:13px;color:var(--muted)}
 </section>
 
 <section class="panel" id="p-move">
+  <div class="statline">
+    <span><b id="s-d1">—</b>Tier I</span>
+    <i class="sep" aria-hidden="true">|</i>
+    <span><b id="s-d2">—</b>Tier II</span>
+    <i class="sep" aria-hidden="true">|</i>
+    <span id="s-cycle">—</span>
+    <span class="note" id="deckHint"></span>
+  </div>
   <div class="row mid"><button class="btn leap" id="play2Btn">Advance to reshuffle</button></div>
   <div class="row">
     <select id="moveSort">

@@ -649,7 +649,9 @@ function settle(){
       }
     }
   }
-  S.moves.unshift({cycle:S.cycle,season:S.season-1,moves});
+  // settle runs while the second season of the cycle is still the current one,
+  // so that season is the one the cycle closed after — no need to step back
+  S.moves.unshift({cycle:S.cycle,season:S.season,moves});
   rebalance(moves);
   // stamp the season that closed the cycle so its standings can show the fallout
   const last=S.snaps[S.snaps.length-1];
@@ -1559,23 +1561,21 @@ function renderMove(){
     nearUp:  ['just missed','var(--central)','near'],
     swap: ['rebalanced','var(--muted)','']
   };
-  const table=(rows,cols,withCycle)=>{
+  const table=(rows,cols)=>{
     const tb=el('table');
-    tb.innerHTML='<thead><tr><th>Team</th><th>'+cols+'</th>'+
-      (withCycle?'<th class="n">Cycle</th>':'')+'<th class="n">Two-year</th>'+
+    tb.innerHTML='<thead><tr><th>Team</th><th>'+cols+'</th><th class="n">Two-year</th>'+
       '<th class="n">Outcome</th></tr></thead>';
     const body=el('tbody');
     rows.forEach(mv=>{
       const L=LABEL[mv.dir];
       const row=el('tr',L[2]);
       row.innerHTML='<td>'+esc(mv.name)+'</td><td>'+esc(mv.div)+'</td>'+
-        (withCycle?'<td class="n">'+mv.cycle+'</td>':'')+
         '<td class="n">'+esc(mv.rec)+'</td>'+
         '<td class="n" style="color:'+L[1]+'">'+L[0]+'</td>';
       body.appendChild(row);
       if(mv.why){
         const wr=el('tr','whyrow');
-        wr.innerHTML='<td colspan="'+(withCycle?5:4)+'">'+esc(mv.why)+'</td>';
+        wr.innerHTML='<td colspan="4">'+esc(mv.why)+'</td>';
         body.appendChild(wr);
       }
     });
@@ -1592,37 +1592,43 @@ function renderMove(){
     fill(box.querySelector('.divbody'));
     host.appendChild(box);
   };
-  const groups=(bd,rows,withCycle)=>{
+  const groups=(bd,rows)=>{
     const pick=k=>rows.filter(x=>k.indexOf(x.dir)>=0).sort(bySort);
     const moved=pick(['down','up']);
     if(moved.length){
       bd.appendChild(el('h4','movehead','Changed tier'));
-      bd.appendChild(table(moved,'Division',withCycle));
+      bd.appendChild(table(moved,'Division'));
     }
     const near=pick(['nearDown','nearUp']);
     if(near.length){
       bd.appendChild(el('h4','movehead','Closest calls \u2014 nobody moved'));
-      bd.appendChild(table(near,'Division',withCycle));
+      bd.appendChild(table(near,'Division'));
     }
     const swaps=pick(['swap']);
     if(swaps.length){
       bd.appendChild(el('h4','movehead','Division rebalancing \u2014 same tier'));
-      bd.appendChild(table(swaps,'Moved between',withCycle));
+      bd.appendChild(table(swaps,'Moved between'));
     }
   };
 
   if($('#moveSort').value==='conf'){
-    // every cycle's moves pooled, then split by footprint
-    const all=[];
-    S.moves.forEach(m=>m.moves.forEach(x=>all.push(Object.assign({cycle:m.cycle,season:m.season},x))));
-    const span=S.moves.length===1 ? 'cycle '+S.moves[0].cycle
-      : 'cycles '+S.moves[S.moves.length-1].cycle+'\u2013'+S.moves[0].cycle;
+    // split by footprint, then kept in cycles inside it, newest first, so a
+    // conference reads as its own history rather than one undated pile
     CONFS.forEach((c,i)=>{
-      const rows=all.filter(x=>x.div.indexOf(c+' ')===0);
-      if(!rows.length) return;
-      const nMoved=rows.filter(x=>x.dir==='down'||x.dir==='up').length;
-      block(c, span+' \u00b7 '+nMoved+' moved, '+(rows.length-nMoved)+' other', i===0,
-        bd=>groups(bd,rows,true));
+      const per=S.moves
+        .map(m=>({cycle:m.cycle, season:m.season,
+                  rows:m.moves.filter(x=>x.div.indexOf(c+' ')===0)}))
+        .filter(g=>g.rows.length);
+      if(!per.length) return;
+      const moved=per.reduce((n,g)=>n+g.rows.filter(x=>x.dir==='down'||x.dir==='up').length,0);
+      const total=per.reduce((n,g)=>n+g.rows.length,0);
+      block(c, per.length+' cycle'+(per.length===1?'':'s')+' \u00b7 '+moved+' moved, '+
+        (total-moved)+' other', i===0, bd=>{
+          per.forEach(g=>{
+            bd.appendChild(el('h4','cyclehead','Cycle '+g.cycle+' \u00b7 after '+g.season));
+            groups(bd,g.rows);
+          });
+        });
     });
     return;
   }
@@ -1631,7 +1637,7 @@ function renderMove(){
     const nMoved=m.moves.filter(x=>x.dir==='down'||x.dir==='up').length;
     const nNear=m.moves.filter(x=>x.dir==='nearDown'||x.dir==='nearUp').length;
     block('Cycle '+m.cycle, 'after '+m.season+' \u00b7 '+nMoved+' moved, '+nNear+' near misses',
-      idx===0, bd=>groups(bd,m.moves,false));   // newest cycle open, the rest folded
+      idx===0, bd=>groups(bd,m.moves));   // newest cycle open, the rest folded
   });
 }
 
